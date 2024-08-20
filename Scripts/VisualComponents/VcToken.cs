@@ -2,12 +2,11 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class VcBoard : VisualComponentBase
+public partial class VcToken : VisualComponentBase
 {
 	private MeshInstance3D _backSurface;
 	private MeshInstance3D _frontSurface;
-	private float _boardThickness = 0.2f; //2mm
-
+	
 	public override void _Ready()
 	{
 		base._Ready();
@@ -95,6 +94,11 @@ public partial class VcBoard : VisualComponentBase
 			{
 				Width = w / 10f;
 			}
+			
+			if (parameters[nameof(Thickness)] is float t)
+			{
+				Thickness = t / 10f;
+			}
 		}
 
 		FrontImage = parameters["FrontImage"].ToString();
@@ -121,9 +125,9 @@ public partial class VcBoard : VisualComponentBase
 		
 		_backSurface.MaterialOverride = mat2;
 
-		YHeight = _boardThickness;
+		YHeight = Thickness;
 		
-		Scale = new Vector3(Width, _boardThickness, Height);
+		Scale = new Vector3(Width, Thickness, Height);
 		
 		return true;
 	}
@@ -180,6 +184,7 @@ public partial class VcBoard : VisualComponentBase
 
 	private float Height;
 	private float Width;
+	private float Thickness;
 	private string FrontImage;
 	private string BackImage;
 }

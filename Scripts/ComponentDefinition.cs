@@ -43,7 +43,7 @@ public partial class ComponentDefinition : HBoxContainer
 			if (firstButton)
 			{
 				b.ButtonPressed = true;
-				UpdatePanelVisibility(c.ComponentName);
+				CurName = ci.Name;
 				firstButton = false;
 			}
 		}

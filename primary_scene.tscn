@@ -159,6 +159,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="Token" parent="UI/ComponentTabs" instance=ExtResource("18_c5hxe")]
+visible = false
 layout_mode = 2
 
 [node name="Mesh Panel" parent="UI/ComponentTabs" instance=ExtResource("19_xcrb0")]

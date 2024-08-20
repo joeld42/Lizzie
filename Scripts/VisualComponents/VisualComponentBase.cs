@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 
 public abstract partial class VisualComponentBase : Area3D
@@ -108,6 +109,7 @@ public abstract partial class VisualComponentBase : Area3D
 		private void _on_mouse_entered()
 		{
 			IsMouseSelected = true;
+			GD.Print($"ZOrder: {ZOrder}");
 		}
 	
 		private void _on_mouse_exited()

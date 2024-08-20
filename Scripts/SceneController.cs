@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks.Dataflow;
 
 public partial class SceneController : Node3D
 {
@@ -26,8 +27,14 @@ public partial class SceneController : Node3D
 	{
 		if (_stackingUpdateRequired > 0)
 		{
-			UpdateStackingHeights();
 			_stackingUpdateRequired--;
+
+			if (_stackingUpdateRequired <= 0)
+			{
+				UpdateStackingHeights();
+				_stackingUpdateRequired = 0;
+			}
+			
 		}
 	}
 
@@ -39,13 +46,14 @@ public partial class SceneController : Node3D
 			if (Input.IsMouseButtonPressed(MouseButton.Left))
 			{
 				SpawnComponent();
-				_stackingUpdateRequired = 2;
+				QueueStackingUpdate();
 			}
 			else
 			{
 				if (@event.IsActionPressed("exit_mode"))
 				{
 					ExitSpawnMode();
+					QueueStackingUpdate();
 				}
 			}
 		}
@@ -75,11 +83,55 @@ public partial class SceneController : Node3D
 		
 		if (@event.IsActionPressed("reset_view")) _currentCamera.ResetView();
 		
+		if (@event.IsActionPressed("move_to_top")) MoveToTop();
+		if (@event.IsActionPressed("move_to_bottom")) MoveToBottom();
 		
-
 		base._Input(@event);
 	}
+
+	private void MoveToTop()
+	{
+		var go = GetSelectedObject();
+		if (go == null) return;
+
+		var curZ = go.ZOrder;
+		var maxZ = GetMaxComponentZ();
+		
+		//move everything below the selected object one higher
+		foreach (var g in _gameObjects.GetChildren())
+		{
+			if (g is VisualComponentBase vcb && vcb.ZOrder > curZ)
+			{
+				vcb.ZOrder--;
+			}
+			
+		}
+
+		go.ZOrder = maxZ;
+		QueueStackingUpdate();
+	}
+
+	private void MoveToBottom()
+	{
+		var go = GetSelectedObject();
+		if (go == null) return;
+
+		var curZ = go.ZOrder;
+		
+		//move everything below the selected object one higher
+		foreach (var g in _gameObjects.GetChildren())
+		{
+			if (g is VisualComponentBase vcb && vcb.ZOrder < curZ)
+			{
+					vcb.ZOrder++;
+			}
+		}
+
+		go.ZOrder = 1;
+		QueueStackingUpdate();
+	}
 	
+
 
 	private void HandleDrag(InputEvent @event)
 	{
@@ -106,7 +158,7 @@ public partial class SceneController : Node3D
 			if (_isDragging)
 			{
 				_isDragging = false;
-				_stackingUpdateRequired = 2;
+				QueueStackingUpdate();
 				_currentCamera.StopDrag();
 			}
 		}
@@ -138,9 +190,16 @@ public partial class SceneController : Node3D
 		var spawnPos = _currentCamera.GetSpawnPos();
 		newComp.Position = new Vector3(spawnPos.X, newComp.YHeight/2f, spawnPos.Z);
 		
-		_gameObjects.AddChild(newComp);	
+		_gameObjects.AddChild(newComp);
+		QueueStackingUpdate();
 	}
 
+	[Export] private int _stackingUpdateFrames = 3;	//Test hack to avoid issue with stacking not seeing colliders
+	private void QueueStackingUpdate()
+	{
+		_stackingUpdateRequired = _stackingUpdateFrames;
+	}
+	
 	private int GetMaxComponentZ()
 	{
 		var max = 0;
@@ -215,7 +274,6 @@ public partial class SceneController : Node3D
 	{
 		var children = _gameObjects.GetChildren();
 
-		
 		//this dictionary keeps track of objects that are below a certain object. The key is the object id 
 		//(in the children array), and the list elements are the object ids of the things that are under it.
 		Dictionary<int, List<int>> underneath = new();
@@ -223,27 +281,35 @@ public partial class SceneController : Node3D
 		{
 			var ci = children[i] as VisualComponentBase;
 
-			if (ci.StackingCollider == null) continue;
+			if (ci.StackingCollider == null)
+			{
+				GD.PrintErr($"Null StackingCollider on {i}");
+				continue;
+			}
 
 			for (int j = 0; j < children.Count; j++)
 			{
 				var cj = children[j] as VisualComponentBase;
 
-				if (cj.StackingCollider == null) continue;
-
-				if (cj.ZOrder < ci.ZOrder && ci.OverlapsArea(cj))	//lower zOrders are below other items
+				if (cj.StackingCollider != null)
 				{
-					GD.Print($"Area {i} overlaps Area {j}");
-					//add to dictionary
-					if (underneath.ContainsKey(i))
+
+					if (cj.ZOrder < ci.ZOrder && ci.OverlapsArea(cj)) //lower zOrders are below other items
 					{
-						underneath[i].Add(j);
-					}
-					else
-					{
-						underneath.Add(i, new List<int>{j});
+						GD.Print($"Area {i} overlaps Area {j}");
+						//add to dictionary
+						if (underneath.ContainsKey(i))
+						{
+							underneath[i].Add(j);
+						}
+						else
+						{
+							underneath.Add(i, new List<int> { j });
+						}
 					}
 				}
+				else
+				{GD.PrintErr($"Null stacking collider on {j}");}
 			}
 		}
 		
@@ -280,11 +346,11 @@ public partial class SceneController : Node3D
 			{
 				foreach (var o in elements)
 				{
-					var co = children[o] as VisualComponentBase;
-					if (co != null) floor += co.YHeight;
+					if (children[o] is VisualComponentBase co) floor += co.YHeight;
+					GD.PrintErr($"comp: {o}  floor: {floor}");
 				}
 			}
-
+			GD.Print($"New pos for {i}: {floor + (ci.YHeight/2f)}");
 			ci.Position = new Vector3(ci.Position.X, floor + (ci.YHeight / 2f), ci.Position.Z);
 		}
 		

@@ -50,7 +50,7 @@ public partial class VcCube : VisualComponentBase
 		}
 		else
 		{
-			Scale = new Vector3(Height, Width, Length);
+			Scale = new Vector3(Width, Height, Length);
 		}
 
 		YHeight = Height;
