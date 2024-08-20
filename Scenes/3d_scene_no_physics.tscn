@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3 uid="uid://c10pvpfntkay3"]
+
+[ext_resource type="Script" path="res://Scripts/SceneController.cs" id="1_4ynb0"]
+[ext_resource type="PackedScene" uid="uid://8ts0q3rup6h6" path="res://Scenes/table.tscn" id="1_7yafe"]
+[ext_resource type="Script" path="res://Scripts/CameraController.cs" id="2_0y0is"]
+[ext_resource type="Script" path="res://Scripts/Pseudo2DCamera.cs" id="10_mgbfc"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_b00ve"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_at6bq"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_d3epo"]
+
+[node name="3DSceneNoPhysics" type="Node3D"]
+script = ExtResource("1_4ynb0")
+
+[node name="Table" parent="." instance=ExtResource("1_7yafe")]
+collision_layer = 1
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.819202, 2.19727e-07, 0.573505, -0.353913, 0.786881, 0.505534, -0.45128, -0.617105, 0.644614, 0, 0, 1.7548)
+
+[node name="CameraBase" type="Node3D" parent="."]
+script = ExtResource("2_0y0is")
+PitchSpeed = 2.0
+YawSpeed = 2.0
+ZoomSpeed = 100.0
+PanSpeed = 0.1
+
+[node name="Camera3D" type="Camera3D" parent="CameraBase"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+fov = 73.6372
+
+[node name="GameObjects" type="Node" parent="."]
+
+[node name="DragNode" type="Node3D" parent="."]
+
+[node name="DragPlane" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+collision_layer = 4
+collision_mask = 4
+input_ray_pickable = false
+physics_material_override = SubResource("PhysicsMaterial_b00ve")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DragPlane"]
+shape = SubResource("WorldBoundaryShape3D_at6bq")
+
+[node name="Pseudo2DCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 100, 0)
+rotation_order = 0
+attributes = SubResource("CameraAttributesPractical_d3epo")
+projection = 1
+current = true
+size = 110.0
+script = ExtResource("10_mgbfc")
+ZoomSpeed = 100.0
+PanSpeed = 0.25

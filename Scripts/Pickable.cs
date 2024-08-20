@@ -43,6 +43,7 @@ public partial class Pickable : RigidBody3D
 	[Export]
 	public string Name;
 
+	/*
 	public override void _IntegrateForces(PhysicsDirectBodyState3D state)
 	{
 		return;
@@ -54,7 +55,8 @@ public partial class Pickable : RigidBody3D
 		}
 		base._IntegrateForces(state);
 	}
-
+	*/
+	
 	public override void _Input(InputEvent @event)
 	{
 		/*
@@ -92,6 +94,7 @@ public partial class Pickable : RigidBody3D
 		{
 			_isSelected = value;
 			highlightMesh.Visible = value;
+			mainMesh.Visible = !value;
 		}
 	}
 
@@ -125,3 +128,7 @@ public partial class Pickable : RigidBody3D
 		}
 	}
 }
+
+
+
+

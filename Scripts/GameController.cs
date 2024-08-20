@@ -1,0 +1,81 @@
+using Godot;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Loader;
+
+public partial class GameController : Node3D
+{
+	private SceneController _mainScene;
+
+	private UI _uiController;
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		_mainScene = GetNode<SceneController>("3DSceneNoPhysics");
+		_mainScene.SetMode(SceneController.SceneMode.TwoD);
+
+		_uiController = GetNode<UI>("UI");
+		_uiController.MasterModeChange += OnMasterModeChange;
+		_uiController.CreateObject += OnCreateObject;
+	}
+
+	private void OnCreateObject(object sender, CreateObjectEventArgs args)
+	{
+		VisualComponentBase component = SpawnComponent(args.PrototypeName);
+		
+		if (component == null)
+		{
+			GD.PrintErr("Null Spawn Component");
+			return;
+		}
+
+		if (component.Build(args.Params))
+		{
+			_mainScene.EnterSpawnMode(component);
+		}
+		else
+		{
+			GD.PrintErr("Error building component");
+		}
+	}
+	
+	private void OnMasterModeChange(object sender, MasterModeChangeArgs e)
+	{
+		switch (e.NewMode)
+		{
+			case UI.MasterMode.TwoD:
+				_mainScene.SetMode(SceneController.SceneMode.TwoD);
+				break;
+			case UI.MasterMode.ThreeD:
+				_mainScene.SetMode(SceneController.SceneMode.ThreeDFixed);
+				break;
+			case UI.MasterMode.Designer:
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+	}
+
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public override void _Process(double delta)
+	{
+	}
+
+	public VisualComponentBase SpawnComponent(string prototype)
+	{
+		GD.Print($"Prototype: {prototype}");
+		var scene = ResourceLoader.Load<PackedScene>(prototype).Instantiate();
+
+		if (scene is VisualComponentBase vcb)
+		{ 
+			return vcb;
+		}
+		return null;
+	}
+	
+	//test function
+	public void TestFunction()
+	{
+		_mainScene.TestFunction();
+	}
+}
