@@ -45,7 +45,6 @@ public partial class CameraController : Node3D, ICameraBase
 		 _dragPlane = GetParent().GetNode<StaticBody3D>("DragPlane");
 		 _totPitch = Rotation.X;
 		 _totYaw = Rotation.Y;
-		 GD.Print($"3D Camera Ready. Pitch:{_totPitch}, Yaw:{_totYaw}");
 	}
 
 	public override void _Process(double delta)
@@ -125,7 +124,6 @@ public partial class CameraController : Node3D, ICameraBase
 
 	public void StartDrag()
 	{
-		GD.Print("StartDrag");
 		_selectedObject = GetSelectedObject();
 		if (_selectedObject == null)
 		{
@@ -190,8 +188,7 @@ public partial class CameraController : Node3D, ICameraBase
 	public void ProcessDrag(Vector2 axis)
 	{
 		if (_selectedObject == null) return;
-
-		GD.Print("ProcessDrag");
+		
 		var rotAxis = axis.Rotated(-Rotation.Y);
 		
 		var dragSpeed = 0.05f;
@@ -210,7 +207,6 @@ public partial class CameraController : Node3D, ICameraBase
 
 	public void ProcessViewEvent(InputEvent @event)
 	{
-		GD.Print("Processing 3D Camera View Event");
 		int pitch = 0;
 		int yaw = 0;
 		int zoom = 0;
@@ -303,7 +299,6 @@ public partial class CameraController : Node3D, ICameraBase
 
 	public void ExitSpawnMode()
 	{
-		GD.Print("Exit Spawn Mode");
 		_spawnMode = false;
 		_spawnComponent = null;
 	}
@@ -330,15 +325,12 @@ public partial class CameraController : Node3D, ICameraBase
 		
 		int i = 0;
 		
-		GD.Print(_gameObjects.GetChildren().Count);
-		
 		
 		foreach (var n in _gameObjects.GetChildren())
 		{
 			i++;
 			if (n is VisualComponentBase p)
 			{
-				GD.Print($"Checking {p.Name}");
 				if (p == pickable) continue;
 				if (p.Aabb.Intersects(targetAabb))
 				{

@@ -114,8 +114,6 @@ public partial class ComponentDefinition : HBoxContainer
 	{
 		var scene = ResourceLoader.Load<PackedScene>(_buttonTemplate).Instantiate();
 		
-		GD.Print(scene.Name);
-		
 		if (scene is Button b)
 		{
 			b.Text = name;

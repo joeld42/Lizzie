@@ -75,9 +75,9 @@ public abstract partial class VisualComponentBase : Area3D
 	/// <returns>true if action consumed by object. Else false</returns>
 
 
-	public virtual bool ProcessCommand(SceneController.VisualCommand command)
+	public virtual CommandResponse ProcessCommand(SceneController.VisualCommand command)
 	{
-		return false;
+		return new CommandResponse(false, null);
 	}
 
 	public virtual string InstanceName { get; set; }
@@ -195,7 +195,6 @@ public abstract partial class VisualComponentBase : Area3D
 
 	protected ImageTexture LoadTexture(string filename)
 	{
-		GD.Print(filename);
 		var image = new Image();
 		var err = image.Load(filename);
 		GD.Print(err);
@@ -216,8 +215,6 @@ public abstract partial class VisualComponentBase : Area3D
 	/// <param name="enableDim"></param>
 	public virtual void DimMode(bool enableDim)
 	{
-		//MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
-		GD.Print("Dimming");
 		
 		if (enableDim)
 		{
@@ -228,28 +225,8 @@ public abstract partial class VisualComponentBase : Area3D
 			DragMesh.Transparency = 0;
 		}
 
-		return;
-		
-		if (DragMesh is MeshInstance3D mi)
-		{
-			GD.Print("MeshInstance3D");
-			if (mi.MaterialOverride is StandardMaterial3D sm)
-			{
-				GD.Print("StandardMaterial3D");
-				if (enableDim)
-				{
-					sm.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
-					var color = sm.AlbedoColor;
-					sm.AlbedoColor = new Color(color.R, color.G, color.B, 0.5f);
-				}
-				else
-				{
-					sm.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
-					var color = sm.AlbedoColor;
-					sm.AlbedoColor = new Color(color.R, color.G, color.B, 1f);
-				}
-			}
-		}
+	
+	
 	}
 }
 

@@ -18,6 +18,8 @@ public partial class SceneController : Node3D
 
 	private DragSelectRectangle _dragSelectRectangle;
 
+	private UndoService _undoService = new UndoService();
+
 	[Export] private int _popupOffset = 32;
 
 	private enum CursorMode
@@ -143,7 +145,15 @@ public partial class SceneController : Node3D
 		if (@event.IsActionPressed("move_to_bottom")) MoveToBottom();
 
 		if (@event.IsActionPressed("exit_mode")) ResetModes();
+
+		if (@event.IsActionPressed("ui_undo")) ProcessUndo();
+		
 		base._Input(@event);
+	}
+
+	private void ProcessUndo()
+	{
+		_undoService.Undo();
 	}
 
 	private void ResetModes()
@@ -187,11 +197,31 @@ public partial class SceneController : Node3D
 				else
 				{
 					_uiMode = CursorMode.Drag;
+					StartDragUndo(go);
 					_currentCamera.StartDrag();
 				}
 			}
 		}
 	}
+
+	private Change _dragChange;
+	
+	private void StartDragUndo(VisualComponentBase go)
+	{
+		//TODO Handle multiple items being dragged
+		_dragChange = new()
+		{
+			Component = go,
+			Begin = go.Transform
+		};
+	}
+
+	private void EndDragUndo()
+	{
+		_dragChange.End = _dragChange.Component.Transform;
+		_undoService.Add(_dragChange);
+	}
+	
 
 	#endregion
 
@@ -272,6 +302,7 @@ public partial class SceneController : Node3D
 		{
 			_uiMode = CursorMode.Normal;
 			QueueStackingUpdate();
+			EndDragUndo();
 			_currentCamera.StopDrag();
 		}
 	}
@@ -365,7 +396,10 @@ public partial class SceneController : Node3D
 		MoveDown,
 		MoveToBottom,
 		MoveUp,
-		MoveToTop
+		MoveToTop,
+		Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9, Num10,
+		Num11, Num12, Num13, Num14, Num15, Num16, Num17, Num18, Num19, Num20,
+		Roll
 	}
 
 	private void CheckForCommands()
@@ -374,18 +408,51 @@ public partial class SceneController : Node3D
 		{
 			SendCommandToSelected(VisualCommand.Flip);
 		}
+
+		if (Input.IsActionPressed("num_1")) SendCommandToSelected(VisualCommand.Num1);
+		if (Input.IsActionPressed("num_2")) SendCommandToSelected(VisualCommand.Num2);
+		if (Input.IsActionPressed("num_3")) SendCommandToSelected(VisualCommand.Num3);
+		if (Input.IsActionPressed("num_4")) SendCommandToSelected(VisualCommand.Num4);
+		if (Input.IsActionPressed("num_5")) SendCommandToSelected(VisualCommand.Num5);
+		if (Input.IsActionPressed("num_6")) SendCommandToSelected(VisualCommand.Num6);
+		if (Input.IsActionPressed("num_7")) SendCommandToSelected(VisualCommand.Num7);
+		if (Input.IsActionPressed("num_8")) SendCommandToSelected(VisualCommand.Num8);
+		if (Input.IsActionPressed("num_9")) SendCommandToSelected(VisualCommand.Num9);
+		if (Input.IsActionPressed("num_10")) SendCommandToSelected(VisualCommand.Num10);
+		if (Input.IsActionPressed("num_11")) SendCommandToSelected(VisualCommand.Num11);
+		if (Input.IsActionPressed("num_12")) SendCommandToSelected(VisualCommand.Num12);
+		if (Input.IsActionPressed("num_13")) SendCommandToSelected(VisualCommand.Num13);
+		if (Input.IsActionPressed("num_14")) SendCommandToSelected(VisualCommand.Num14);
+		if (Input.IsActionPressed("num_15")) SendCommandToSelected(VisualCommand.Num15);
+		if (Input.IsActionPressed("num_16")) SendCommandToSelected(VisualCommand.Num16);
+		if (Input.IsActionPressed("num_17")) SendCommandToSelected(VisualCommand.Num17);
+		if (Input.IsActionPressed("num_18")) SendCommandToSelected(VisualCommand.Num18);
+		if (Input.IsActionPressed("num_19")) SendCommandToSelected(VisualCommand.Num19);
+		if (Input.IsActionPressed("num_20")) SendCommandToSelected(VisualCommand.Num20);
+
+		if (Input.IsActionPressed("roll")) SendCommandToSelected(VisualCommand.Roll);
 	}
 
 	public bool SendCommandToSelected(VisualCommand command)
 	{
 		bool result = false;
 
+		Update _update = new();
+		
 		foreach (var c in SelectedObjects())
 		{
-			if (c.ProcessCommand(command))
-			{
-				result = true;
-			}
+			var change = c.ProcessCommand(command);
+			if (!change.Consumed) continue;
+			
+			//accumulate changes for undo across multiple objects
+			if (change.UndoAction != null) _update.Add(change.UndoAction);
+			result = true;
+		}
+		
+		//if any actions were performed, add the to the Undo stack
+		if (_update.Count != 0)
+		{
+			_undoService.Add(_update);
 		}
 
 		return result;

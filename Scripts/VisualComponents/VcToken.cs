@@ -35,12 +35,11 @@ public partial class VcToken : VisualComponentBase
 
 	public override GeometryInstance3D DragMesh => _frontSprite;
 
-	public override bool ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
 	{
 		if (command == SceneController.VisualCommand.Flip)
 		{
-			StartFlip();
-			return true;
+			return StartFlip();
 		}
 		
 		return base.ProcessCommand(command);
@@ -52,12 +51,27 @@ public partial class VcToken : VisualComponentBase
 	private int _rotMult = 1;
 	private float _targetZ;
 	private bool flipInProcess;
-	private void StartFlip()
+	private CommandResponse StartFlip()
 	{
 		flipInProcess = true;
 		_showFace = !_showFace;
 		_rotMult = _showFace ? -1 : 1;
 		_targetZ = _showFace ? 0 : 180;
+
+		var c = new Change
+		{
+			Action = Change.ChangeType.Transform,
+			Begin = Transform,
+			Component = this
+		};
+
+		float rot = (float)Math.PI;
+
+		if (_targetZ == 0) rot *= -1;
+		
+		c.End = Transform.RotatedLocal(new Vector3(0, 0, 1), rot);
+
+		return new CommandResponse(true, c);
 	}
 
 	private void ProcessFlip(double delta)
@@ -116,56 +130,109 @@ public partial class VcToken : VisualComponentBase
 
 	private void BuildQuick()
 	{
-		GD.Print("Build Front");
 		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
-		_frontView.Ready += CreateFrontTexture;
+		_frontView.Ready += CreateQuickFrontTexture;
 
 		if (DifferentBack)
 		{
 			GD.Print("Build Back");
 			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
-			_backView.Ready += CreateBackTexture;
+			_backView.Ready += CreateQuickBackTexture;
 		}
 	}
 
 	private void BuildCustom()
 	{
-		ImageTexture tf;
-
-		if (File.Exists(FrontImage))
+		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
+		_frontView.Ready += CreateCustomFrontTexture;
+		
+		if (DifferentBack)
 		{
-			_frontSprite.Texture = LoadTexture(FrontImage);
+			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
+			_backView.Ready += CreateCustomBackTexture;
 		}
 		
-		if (File.Exists(BackImage))
-		{
-			_backSprite.Texture = LoadTexture(BackImage);
-		}
 	}
 	
 	private void BuildImport(){}
 
-	private void CreateFrontTexture()
+	private void CreateCustomFrontTexture()
+	{
+		if (!File.Exists(FrontImage)) return;
+		
+		_frontView.SetViewPortMode(TokenTextureSubViewport.ShapeViewportMode.Texture);
+		_frontView.SetShape((TokenTextureSubViewport.TokenShape) Shape);
+		_frontView.SetTexture(LoadTexture(FrontImage));
+
+		var t = _frontView.GetTexture();
+
+		float pixelSize = 0.95f / t.GetWidth();
+		_frontSprite.PixelSize = pixelSize;
+		_frontSprite.Texture = t;
+		
+		
+		if (!DifferentBack)
+		{
+			_backSprite.PixelSize = pixelSize;
+			_backSprite.Texture = t;
+		}
+		
+	}
+	
+	//In all the texture creation routines, we scale the pixel size to 0.95.
+	//This is the base size of the front and bottom sprites in the token,
+	//and matches the side mesh (the gray punchboard texture
+	//The width is 0.95 so the highlight mesh, which is size 1.0, so it still shows.
+	
+	private void CreateCustomBackTexture()
+	{
+		if (!File.Exists(BackImage)) return;
+		
+		_backView.SetViewPortMode(TokenTextureSubViewport.ShapeViewportMode.Texture);
+		_backView.SetShape((TokenTextureSubViewport.TokenShape) Shape);
+		var t = _backView.GetTexture();
+
+		float pixelSize = 0.95f / t.GetWidth();
+		_backSprite.PixelSize = pixelSize;
+		_backView.SetTexture(LoadTexture(BackImage));
+
+		_backSprite.Texture = _backView.GetTexture();
+		
+	}
+	
+	
+	private void CreateQuickFrontTexture()
 	{
 		_frontView.SetBackgroundColor(FrontBgColor);
 		_frontView.SetText(FrontCaption);
 		_frontView.SetTextColor(FrontCaptionColor);
 		_frontView.SetShape((TokenTextureSubViewport.TokenShape) Shape);
-		_frontSprite.Texture = _frontView.GetTexture();
+		
+		var t = _frontView.GetTexture();
+
+		float pixelSize = 0.95f / t.GetWidth();
+		_frontSprite.PixelSize = pixelSize;
+		_frontSprite.Texture = t;
 
 		if (!DifferentBack)
 		{
-			_backSprite.Texture = _frontView.GetTexture();
+			_backSprite.PixelSize = pixelSize;
+			_backSprite.Texture = t;
 		}
 	}
 	
-	private void CreateBackTexture()
+	private void CreateQuickBackTexture()
 	{
 		_backView.SetBackgroundColor(BackBgColor);
 		_backView.SetText(BackCaption);
 		_backView.SetTextColor(BackCaptionColor);
 		_backView.SetShape((TokenTextureSubViewport.TokenShape)Shape);
-		_backSprite.Texture = _backView.GetTexture();
+		
+		var t = _backView.GetTexture();
+
+		float pixelSize = 0.95f / t.GetWidth();
+		_backSprite.PixelSize = pixelSize;
+		_backSprite.Texture = t;
 	}
 
 	private bool InitializeParameters(Dictionary<string, object> parameters)

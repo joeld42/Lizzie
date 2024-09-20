@@ -28,12 +28,11 @@ public partial class VcCard : VisualComponentBase
 		base._Process(delta);
 	}
 	
-	public override bool ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
 	{
 		if (command == SceneController.VisualCommand.Flip)
 		{
-			StartFlip();
-			return true;
+			return StartFlip();
 		}
 		
 		return base.ProcessCommand(command);
@@ -44,12 +43,27 @@ public partial class VcCard : VisualComponentBase
 	private int _rotMult = 1;
 	private float _targetZ;
 	private bool flipInProcess;
-	private void StartFlip()
+	private CommandResponse StartFlip()
 	{
 		flipInProcess = true;
 		_showFace = !_showFace;
 		_rotMult = _showFace ? -1 : 1;
 		_targetZ = _showFace ? 0 : 180;
+		
+		var c = new Change
+		{
+			Action = Change.ChangeType.Transform,
+			Begin = Transform,
+			Component = this
+		};
+
+		float rot = (float)Math.PI;
+
+		if (_targetZ == 0) rot *= -1;
+		
+		c.End = Transform.RotatedLocal(new Vector3(0, 0, 1), rot);
+
+		return new CommandResponse(true, c);
 	}
 
 	private void ProcessFlip(double delta)

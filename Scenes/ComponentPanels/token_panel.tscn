@@ -229,48 +229,64 @@ edit_alpha = false
 visible = false
 layout_mode = 2
 
-[node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom"]
+[node name="MarginContainer2" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom"]
 layout_mode = 2
-columns = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/HBoxContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "Front  "
 horizontal_alignment = 2
 
-[node name="HBoxContainer5" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer"]
-layout_mode = 2
-
-[node name="FrontFile" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer/HBoxContainer5"]
+[node name="FrontFile" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 placeholder_text = "(file)"
 alignment = 2
 
-[node name="FrontFileButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer/HBoxContainer5"]
+[node name="FrontFileButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("1_qeff1")
 
-[node name="Label3" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+
+[node name="CustomDifferentBack" type="CheckBox" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Different Back"
+
+[node name="CustomBackFileRow" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/CustomBackFileRow"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "Back  "
 horizontal_alignment = 2
 
-[node name="HBoxContainer6" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer"]
-layout_mode = 2
-
-[node name="BackFile" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer/HBoxContainer6"]
+[node name="BackFile" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/CustomBackFileRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 placeholder_text = "(file)"
 alignment = 2
 
-[node name="BackFileButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/GridContainer/HBoxContainer6"]
+[node name="BackFileButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Custom/MarginContainer2/VBoxContainer/CustomBackFileRow"]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("1_qeff1")

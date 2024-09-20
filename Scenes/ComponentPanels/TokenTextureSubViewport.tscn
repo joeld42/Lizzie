@@ -1,9 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://b576dfm4886tw"]
+[gd_scene load_steps=4 format=3 uid="uid://b576dfm4886tw"]
 
 [ext_resource type="Script" path="res://Scripts/VisualComponents/TokenTextureSubViewport.cs" id="1_7wv8o"]
-[ext_resource type="Texture2D" uid="uid://cpfjiiqt42v1k" path="res://Textures/Shapes/hex.png" id="2_a1koa"]
 [ext_resource type="Texture2D" uid="uid://734w72cqft65" path="res://Textures/Shapes/circle.png" id="3_h2ynt"]
-[ext_resource type="Texture2D" uid="uid://dslq0sueb2pgt" path="res://Textures/Shapes/hexflat.png" id="4_r4b27"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qljo4"]
 font_size = 24
@@ -14,40 +12,26 @@ disable_3d = true
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(128, 128)
+size_2d_override = Vector2i(128, 128)
 render_target_update_mode = 4
 script = ExtResource("1_7wv8o")
+_shapes = PackedStringArray("res://Textures/Shapes/square.png", "res://Textures/Shapes/circle.png", "res://Textures/Shapes/hex.png", "res://Textures/Shapes/hexflat.png")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-visible = false
+[node name="ClipRect" type="TextureRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="HexPoint" type="TextureRect" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -64.0
-offset_top = -64.0
-offset_right = 64.0
-offset_bottom = 64.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("2_a1koa")
-
-[node name="Circle" type="TextureRect" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
 texture = ExtResource("3_h2ynt")
 
-[node name="HexFlat" type="TextureRect" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
-texture = ExtResource("4_r4b27")
+[node name="TextureRect" type="TextureRect" parent="ClipRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Label" type="Label" parent="."]
 anchors_preset = 15
