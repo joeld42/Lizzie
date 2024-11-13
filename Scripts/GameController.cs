@@ -8,15 +8,23 @@ public partial class GameController : Node3D
 	private SceneController _mainScene;
 
 	private UI _uiController;
+	
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		_mainScene = GetNode<SceneController>("3DSceneNoPhysics");
 		_mainScene.SetMode(SceneMode.TwoD);
+		_mainScene.ShowComponentPopup2 += MainSceneOnShowComponentPopup2;
 
 		_uiController = GetNode<UI>("UI");
 		_uiController.MasterModeChange += OnMasterModeChange;
 		_uiController.CreateObject += OnCreateObject;
+	}
+
+	private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)
+	{
+		ShowComponentPopup(e.Position, e.Components);
 	}
 
 	private void OnCreateObject(object sender, CreateObjectEventArgs args)
@@ -72,7 +80,7 @@ public partial class GameController : Node3D
 		return null;
 	}
 
-	public void ShowComponentPopup(Vector2I position, Godot.Collections.Array<VisualComponentBase> selected)
+	public void ShowComponentPopup(Vector2I position, IEnumerable<VisualComponentBase> selected)
 	{
 		_uiController.BuildPopupMenu(selected.ToList());
 		_uiController.ShowComponentPopup(position);

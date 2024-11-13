@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Container = System.ComponentModel.Container;
 
 
 public abstract partial class VisualComponentBase : Area3D
@@ -232,7 +233,19 @@ public abstract partial class VisualComponentBase : Area3D
 		}
 	}
 
-	public event EventHandler<ShowTooltipEventArgs> ShowToolTip;
+	//these two events are used when the component itself is creating / removing 
+	//other components. Example: Card being drawn from a deck, token from a tray
+	public event EventHandler<VisualComponentEventArgs> AddComponentToObjects;
+
+	protected void OnComponentAdded(VisualComponentBase component)
+	{
+		AddComponentToObjects?.Invoke(this, new VisualComponentEventArgs(component));
+	}
+	public event EventHandler<VisualComponentEventArgs> RemoveComponentFromObjects;
+	
+	
+	
+	public event EventHandler<VisualComponentEventArgs> ShowToolTip;
 
 	public event EventHandler HideToolTip;
 
@@ -311,7 +324,12 @@ public abstract partial class VisualComponentBase : Area3D
 	}
 }
 
-public class ShowTooltipEventArgs : EventArgs
+public class VisualComponentEventArgs : EventArgs
 {
+	public VisualComponentEventArgs(VisualComponentBase component)
+	{
+		Component = component;
+	}
 	public VisualComponentBase Component { get; set; }
 }
+

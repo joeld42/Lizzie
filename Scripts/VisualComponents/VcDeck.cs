@@ -257,8 +257,9 @@ public partial class VcDeck : VisualGroupComponent
 			
 			
 			cards[i].ZOrder = ZOrder + i + 1;
-			SceneController.AddComponentToScene(cards[i]);
-			//cards[i].Visible = true;
+
+			OnComponentAdded(cards[i]);
+			
 		}
 		
 		var c = new Change
@@ -618,7 +619,7 @@ public partial class VcDeck : VisualGroupComponent
 		p.Add("BackCaptionColor", Colors.Black);
 		p.Add("FrontFontSize", 72);
 		p.Add("BackFontSize", 24);
-		card.Build(p, SceneController);
+		card.Build(p);
 
 		card.Parent = Reference;
 		

@@ -79,5 +79,3 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("5_56t6u")
-
-[connection signal="ShowComponentPopup" from="GameObjects" to="." method="OnShowComponentPopup"]

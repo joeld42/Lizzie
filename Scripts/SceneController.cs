@@ -4,124 +4,134 @@ using System.Collections.Generic;
 
 public partial class SceneController : Node3D
 {
-    [Signal]
-    public delegate void ShowComponentPopupEventHandler(Vector2I position, Godot.Collections.Array<VisualComponentBase> components);
+	[Signal]
+	public delegate void ShowComponentPopupEventHandler(Vector2I position, Godot.Collections.Array<VisualComponentBase> components);
 
-    private CameraManager _cameraManager;
-    private GameObjects _gameObjects;
+	private CameraManager _cameraManager;
+	private GameObjects _gameObjects;
 
-    public override void _Ready()
-    {
-    	_cameraManager = GetNode<CameraManager>("Cameras");
-    	_gameObjects = GetNode<GameObjects>("GameObjects");
-    }
+	public override void _Ready()
+	{
+		_cameraManager = GetNode<CameraManager>("Cameras");
+		_gameObjects = GetNode<GameObjects>("GameObjects");
+		_gameObjects.ShowComponentPopup += GameObjectsOnShowComponentPopup;
+	}
 
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-        if (_gameObjects.CursorMode != CursorMode.DragSelect && _gameObjects.CursorMode != CursorMode.PopupMenu)
-        {
-            CheckForCommands();
-            if (Input.IsActionJustPressed("ui_undo")) UndoService.Instance.Undo();
-        }
-    }
 
-    #region Message to/from Game
-    public virtual void SetMode(SceneMode mode)
-    {
-        switch (mode)
-        {
-            case SceneMode.TwoD:
-                _cameraManager.SetTopView();
-                break;
-            case SceneMode.ThreeDFixed:
-                _cameraManager.SetPerspectiveView();
-                break;
-            case SceneMode.ThreeDPhysics:
-                break;
-            case SceneMode.Creator:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-        }
-    }
 
-    public void TestFunction()
-    {
-        //put test function here
-    }
+	public override void _Process(double delta)
+	{
+		base._Process(delta);
+		if (_gameObjects.CursorMode != CursorMode.DragSelect && _gameObjects.CursorMode != CursorMode.PopupMenu)
+		{
+			CheckForCommands();
+			if (Input.IsActionJustPressed("ui_undo")) UndoService.Instance.Undo();
+		}
+	}
 
-    public void EnterSpawnMode(VisualComponentBase component)
-    {
-        _gameObjects.EnterSpawnMode(component);
-    }
+	#region Message to/from Game
+	public virtual void SetMode(SceneMode mode)
+	{
+		switch (mode)
+		{
+			case SceneMode.TwoD:
+				_cameraManager.SetTopView();
+				break;
+			case SceneMode.ThreeDFixed:
+				_cameraManager.SetPerspectiveView();
+				break;
+			case SceneMode.ThreeDPhysics:
+				break;
+			case SceneMode.Creator:
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+		}
+	}
 
-    public void PopupClosed()
-    {
-        _gameObjects.PopupClosed();
-    }
+	public void TestFunction()
+	{
+		//put test function here
+	}
 
-    private void OnShowComponentPopup(Vector2I position, Godot.Collections.Array<VisualComponentBase> components)
-    {
-        EmitSignal(SignalName.ShowComponentPopup, position, components);
-    }
-    #endregion
+	public void EnterSpawnMode(VisualComponentBase component)
+	{
+		_gameObjects.EnterSpawnMode(component);
+	}
 
-    #region Commands
-    public bool SendCommandToSelected(VisualCommand command)
-    {
-        return SendCommandToComponents(command, _gameObjects.GetSelectedObjects());
-    }
+	public void PopupClosed()
+	{
+		_gameObjects.PopupClosed();
+	}
 
-    public bool SendCommandToComponents(VisualCommand command, IEnumerable<VisualComponentBase> components)
-    {
-        bool result = false;
+	private void OnShowComponentPopup(Vector2I position, Godot.Collections.Array<VisualComponentBase> components)
+	{
+		//EmitSignal(SignalName.ShowComponentPopup, position, components);
+	}
+	
+	private void GameObjectsOnShowComponentPopup(object sender, ShowComponentPopupEventArgs e)
+	{
+		ShowComponentPopup2?.Invoke(this, e);
+	}
 
-        Update update = new();
+	public event EventHandler<ShowComponentPopupEventArgs> ShowComponentPopup2; 
+	#endregion
 
-        foreach (var c in components)
-        {
-            var change = c.ProcessCommand(command);
-            if (!change.Consumed) continue;
-            if (change.UndoAction != null) update.Add(change.UndoAction);
-            result = true;
-        }
+	#region Commands
+	public bool SendCommandToSelected(VisualCommand command)
+	{
+		return SendCommandToComponents(command, _gameObjects.GetSelectedObjects());
+	}
 
-        if (update.Count > 0)
-        {
-            UndoService.Instance.Add(update);
-        }
+	public bool SendCommandToComponents(VisualCommand command, IEnumerable<VisualComponentBase> components)
+	{
+		bool result = false;
 
-        return result;
-    }
+		Update update = new();
 
-    private void CheckForCommands()
-    {
-        if (Input.IsActionJustPressed("flip")) SendCommandToSelected(VisualCommand.Flip);
-        if (Input.IsActionJustPressed("lock")) SendCommandToSelected(VisualCommand.ToggleLock);
+		foreach (var c in components)
+		{
+			var change = c.ProcessCommand(command);
+			if (!change.Consumed) continue;
+			if (change.UndoAction != null) update.Add(change.UndoAction);
+			result = true;
+		}
 
-        if (Input.IsActionJustPressed("num_1")) SendCommandToSelected(VisualCommand.Num1);
-        if (Input.IsActionJustPressed("num_2")) SendCommandToSelected(VisualCommand.Num2);
-        if (Input.IsActionJustPressed("num_3")) SendCommandToSelected(VisualCommand.Num3);
-        if (Input.IsActionJustPressed("num_4")) SendCommandToSelected(VisualCommand.Num4);
-        if (Input.IsActionJustPressed("num_5")) SendCommandToSelected(VisualCommand.Num5);
-        if (Input.IsActionJustPressed("num_6")) SendCommandToSelected(VisualCommand.Num6);
-        if (Input.IsActionJustPressed("num_7")) SendCommandToSelected(VisualCommand.Num7);
-        if (Input.IsActionJustPressed("num_8")) SendCommandToSelected(VisualCommand.Num8);
-        if (Input.IsActionJustPressed("num_9")) SendCommandToSelected(VisualCommand.Num9);
-        if (Input.IsActionJustPressed("num_10")) SendCommandToSelected(VisualCommand.Num10);
-        if (Input.IsActionJustPressed("num_11")) SendCommandToSelected(VisualCommand.Num11);
-        if (Input.IsActionJustPressed("num_12")) SendCommandToSelected(VisualCommand.Num12);
-        if (Input.IsActionJustPressed("num_13")) SendCommandToSelected(VisualCommand.Num13);
-        if (Input.IsActionJustPressed("num_14")) SendCommandToSelected(VisualCommand.Num14);
-        if (Input.IsActionJustPressed("num_15")) SendCommandToSelected(VisualCommand.Num15);
-        if (Input.IsActionJustPressed("num_16")) SendCommandToSelected(VisualCommand.Num16);
-        if (Input.IsActionJustPressed("num_17")) SendCommandToSelected(VisualCommand.Num17);
-        if (Input.IsActionJustPressed("num_18")) SendCommandToSelected(VisualCommand.Num18);
-        if (Input.IsActionJustPressed("num_19")) SendCommandToSelected(VisualCommand.Num19);
-        if (Input.IsActionJustPressed("num_20")) SendCommandToSelected(VisualCommand.Num20);
+		if (update.Count > 0)
+		{
+			UndoService.Instance.Add(update);
+		}
 
-        if (Input.IsActionJustPressed("roll")) SendCommandToSelected(VisualCommand.Roll);
-    }
-    #endregion
+		return result;
+	}
+
+	private void CheckForCommands()
+	{
+		if (Input.IsActionJustPressed("flip")) SendCommandToSelected(VisualCommand.Flip);
+		if (Input.IsActionJustPressed("lock")) SendCommandToSelected(VisualCommand.ToggleLock);
+
+		if (Input.IsActionJustPressed("num_1")) SendCommandToSelected(VisualCommand.Num1);
+		if (Input.IsActionJustPressed("num_2")) SendCommandToSelected(VisualCommand.Num2);
+		if (Input.IsActionJustPressed("num_3")) SendCommandToSelected(VisualCommand.Num3);
+		if (Input.IsActionJustPressed("num_4")) SendCommandToSelected(VisualCommand.Num4);
+		if (Input.IsActionJustPressed("num_5")) SendCommandToSelected(VisualCommand.Num5);
+		if (Input.IsActionJustPressed("num_6")) SendCommandToSelected(VisualCommand.Num6);
+		if (Input.IsActionJustPressed("num_7")) SendCommandToSelected(VisualCommand.Num7);
+		if (Input.IsActionJustPressed("num_8")) SendCommandToSelected(VisualCommand.Num8);
+		if (Input.IsActionJustPressed("num_9")) SendCommandToSelected(VisualCommand.Num9);
+		if (Input.IsActionJustPressed("num_10")) SendCommandToSelected(VisualCommand.Num10);
+		if (Input.IsActionJustPressed("num_11")) SendCommandToSelected(VisualCommand.Num11);
+		if (Input.IsActionJustPressed("num_12")) SendCommandToSelected(VisualCommand.Num12);
+		if (Input.IsActionJustPressed("num_13")) SendCommandToSelected(VisualCommand.Num13);
+		if (Input.IsActionJustPressed("num_14")) SendCommandToSelected(VisualCommand.Num14);
+		if (Input.IsActionJustPressed("num_15")) SendCommandToSelected(VisualCommand.Num15);
+		if (Input.IsActionJustPressed("num_16")) SendCommandToSelected(VisualCommand.Num16);
+		if (Input.IsActionJustPressed("num_17")) SendCommandToSelected(VisualCommand.Num17);
+		if (Input.IsActionJustPressed("num_18")) SendCommandToSelected(VisualCommand.Num18);
+		if (Input.IsActionJustPressed("num_19")) SendCommandToSelected(VisualCommand.Num19);
+		if (Input.IsActionJustPressed("num_20")) SendCommandToSelected(VisualCommand.Num20);
+
+		if (Input.IsActionJustPressed("roll")) SendCommandToSelected(VisualCommand.Roll);
+	}
+	#endregion
 }

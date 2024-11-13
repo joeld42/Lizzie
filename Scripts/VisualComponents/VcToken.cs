@@ -112,8 +112,6 @@ public partial class VcToken : VisualComponentFlat
 	
 	public override bool Build(Dictionary<string, object> parameters)
 	{
-		SceneController = sceneController;
-		
 		FaceSprite = GetNode<Sprite3D>("FrontSprite");
 		BackSprite = GetNode<Sprite3D>("BackSprite");
 		_sideMesh = GetNode<MeshInstance3D>("SideMesh");

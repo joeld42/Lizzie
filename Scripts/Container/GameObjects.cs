@@ -13,10 +13,7 @@ public partial class GameObjects : Node
 
     [Export]
     private int _stackingUpdateFrames = 3; //Test hack to avoid issue with stacking not seeing colliders
-
-    [Signal]
-    public delegate void ShowComponentPopupEventHandler(Vector2I position, Godot.Collections.Array<VisualComponentBase> components);
-
+    
     [Signal]
     public delegate void CameraActivationEventHandler(bool cameraActivated);
 
@@ -89,9 +86,24 @@ public partial class GameObjects : Node
     }
 
     #region Components
+    /*
     public void AddComponent(VisualComponentBase component)
     {
         AddChild(component);
+    }
+    */
+    
+    public void AddComponentToScene(VisualComponentBase component)
+    {
+        component.ZOrder = GetMaxComponentZ() + 1;
+        AddChild(component);
+        component.AddComponentToObjects += ComponentOnAddComponentToObjects;
+        QueueStackingUpdate();
+    }
+
+    private void ComponentOnAddComponentToObjects(object sender, VisualComponentEventArgs e)
+    {
+        AddComponentToScene(e.Component);
     }
 
     private void DeleteComponents()
@@ -313,6 +325,8 @@ public partial class GameObjects : Node
 
     private int GetMaxComponentZ()
     {
+        if (GetChildren().Count == 0) return 0;
+        
         return GetChildren()
             .Where(c => c is VisualComponentBase)
             .Cast<VisualComponentBase>()
@@ -353,8 +367,13 @@ public partial class GameObjects : Node
             vch = Enumerable.Repeat(GetHoveredObject(), 1);
         }
 
-        EmitSignal(SignalName.ShowComponentPopup, v, new Godot.Collections.Array<VisualComponentBase>(vch));
+        
+        //EmitSignal(SignalName.ShowComponentPopup, v, new Godot.Collections.Array<VisualComponentBase>(vch));
+        ShowComponentPopup?.Invoke(this, 
+            new ShowComponentPopupEventArgs(v, vch));
     }
+
+    public event EventHandler<ShowComponentPopupEventArgs> ShowComponentPopup;
 
     private void HandlePopupMenu() {}
     
@@ -373,8 +392,10 @@ public partial class GameObjects : Node
         _spawnComponent = component;
         _spawnComponent.DimMode(true);
         _spawnComponent.NeverHighlight = true;
-        AddComponent(_spawnComponent);
+        AddComponentToScene(_spawnComponent);
     }
+    
+    
 
     private void HandleSpawnMode()
     {
@@ -402,9 +423,7 @@ public partial class GameObjects : Node
         var spawnPosition = _dragPlane.GetCursorProjection();
         newComp.Position = new Vector3(spawnPosition.X, newComp.YHeight / 2f, spawnPosition.Z);
 
-        newComp.ZOrder = GetMaxComponentZ() + 1;
-        AddComponent(newComp);
-        QueueStackingUpdate();
+        AddComponentToScene(newComp);
     }
 
     private void ExitSpawnMode()
@@ -525,4 +544,15 @@ public partial class GameObjects : Node
                 .Any(s2 => s1.Collide(t1, s2, t2)));
 
     }
+}
+
+public class ShowComponentPopupEventArgs : EventArgs
+{
+    public ShowComponentPopupEventArgs(Vector2I position, IEnumerable<VisualComponentBase> components)
+    {
+        Position = position;
+        Components = components;
+    }
+    public Vector2I Position { get; set; }
+    public IEnumerable<VisualComponentBase> Components { get; set; }
 }
