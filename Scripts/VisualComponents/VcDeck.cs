@@ -237,19 +237,29 @@ public partial class VcDeck : VisualGroupComponent
 		//draw cards
 		var cards = DrawFromTop(count);
 		
+		
+		//tween to handle movement
+		var cardTween = GetTree().CreateTween();
+		
+		
 		//splay
 		var basePos = Position;
 
 		for (int i = 0; i < cards.Length; i++)
 		{
-			float deltaX = Width * (1.25f + i);
-			cards[i].Position = basePos + new Vector3(deltaX, 0, 0);
+			cards[i].Position = basePos;
+			cards[i].Visible = false;
+			
+			float deltaX = Width * (1.5f + i);
+			
+			cardTween.TweenProperty(cards[i], "visible", true, 0.01);
+			cardTween.TweenProperty(cards[i], "position", new Vector3(deltaX, 0, 0), 0.2f).AsRelative();
+			
+			
 			cards[i].ZOrder = ZOrder + i + 1;
 			SceneController.AddComponentToScene(cards[i]);
-			cards[i].Visible = true;
+			//cards[i].Visible = true;
 		}
-
-		UpdateDeckSprites();
 		
 		var c = new Change
 		{
@@ -258,7 +268,7 @@ public partial class VcDeck : VisualGroupComponent
 			End = Transform,
 			Component = this
 		};
-		
+
 				
 
 
