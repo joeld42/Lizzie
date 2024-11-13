@@ -35,9 +35,9 @@ public partial class VcToken : VisualComponentFlat
 
 	public override GeometryInstance3D DragMesh => FaceSprite;
 	public override float MaxAxisSize => Math.Max(_height, _width);
-	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(VisualCommand command)
 	{
-		if (command == SceneController.VisualCommand.Flip)
+		if (command == VisualCommand.Flip)
 		{
 			return StartFlip();
 		}
@@ -54,7 +54,7 @@ public partial class VcToken : VisualComponentFlat
 			l.Add(i);
 		}
 
-		l.Add(new MenuCommand(SceneController.VisualCommand.Flip));
+		l.Add(new MenuCommand(VisualCommand.Flip));
 		
 		return l;
 	}
@@ -110,7 +110,7 @@ public partial class VcToken : VisualComponentFlat
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 	
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(Dictionary<string, object> parameters)
 	{
 		SceneController = sceneController;
 		
@@ -359,7 +359,7 @@ public partial class VcToken : VisualComponentFlat
 
 	private bool InitializeParameters(Dictionary<string, object> parameters)
 	{
-		base.Build(parameters, SceneController);
+		base.Build(parameters);
 
 		if (parameters.ContainsKey("Height"))
 		{
