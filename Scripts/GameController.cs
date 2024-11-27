@@ -37,6 +37,17 @@ public partial class GameController : Node3D
 			return;
 		}
 
+		//if the name is blank in the parameters, set it
+		if (args.Params.ContainsKey("ComponentName") && args.Params.ContainsKey("BaseName"))
+		{
+			if (string.IsNullOrWhiteSpace(args.Params["ComponentName"].ToString()))
+			{
+				args.Params["ComponentName"] =
+					_mainScene.GameObjects.CreateUniqueName(args.Params["BaseName"].ToString());
+			}
+		}
+		
+		
 		if (component.Build(args.Params))
 		{
 			_mainScene.EnterSpawnMode(component);

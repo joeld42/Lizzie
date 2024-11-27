@@ -62,9 +62,9 @@ public abstract partial class VisualComponentBase : Area3D
 	public virtual bool Build(Dictionary<string, object> parameters)
 	{
 		Parameters = parameters;
-		if (parameters.ContainsKey(nameof(InstanceName)))
+		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
-			InstanceName = parameters[nameof(InstanceName)].ToString();
+			ComponentName = parameters[nameof(ComponentName)].ToString();
 		}
 
 		return true;
@@ -116,7 +116,7 @@ public abstract partial class VisualComponentBase : Area3D
 		return l;
 	}
 
-	public virtual string InstanceName { get; set; }
+	public virtual string ComponentName { get; set; }
 
 	public virtual Guid Reference { get; set; } = new Guid();
 	

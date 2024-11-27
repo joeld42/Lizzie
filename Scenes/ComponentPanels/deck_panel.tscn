@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bifubswbhqkkp"]
+[gd_scene load_steps=5 format=3 uid="uid://bifubswbhqkkp"]
 
 [ext_resource type="Texture2D" uid="uid://dn6uytmhm5r7q" path="res://Textures/UI/folder_open_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="1_8qg10"]
 [ext_resource type="Script" path="res://Scripts/ComponentPanelResults/DeckPanelDialogResult.cs" id="1_a0rs8"]
 [ext_resource type="PackedScene" uid="uid://b0sibtjhvuhoh" path="res://Scenes/ComponentPanels/CardPreviewPanel.tscn" id="2_a5ead"]
+[ext_resource type="PackedScene" uid="uid://ojs61k8nlddj" path="res://Scenes/ComponentPanels/ComponentPreview.tscn" id="3_ud6kl"]
 
 [node name="DeckPanel" type="MarginContainer"]
 offset_right = 40.0
@@ -325,12 +326,14 @@ text = "Front  "
 horizontal_alignment = 2
 
 [node name="GridFront" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer5"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "(file)"
 alignment = 2
 
 [node name="GridFrontButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer5"]
+unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("1_8qg10")
 
@@ -344,16 +347,19 @@ text = "Back  "
 horizontal_alignment = 2
 
 [node name="GridBack" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer6"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "(file)"
 alignment = 2
 
 [node name="GridBackButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer6"]
+unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("1_8qg10")
 
 [node name="GridSingleBack" type="CheckButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Single Back"
@@ -415,7 +421,13 @@ alignment = 2
 visible = false
 layout_mode = 2
 
+[node name="ComponentPreview" parent="HBoxContainer" instance=ExtResource("3_ud6kl")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
 [node name="PanelContainer" type="PanelContainer" parent="HBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(300, 350)
 layout_mode = 2
 size_flags_horizontal = 8

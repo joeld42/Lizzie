@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 public partial class DeckPanelDialogResult : ComponentPanelDialogResult
@@ -32,19 +33,13 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 	private CheckBox _quickBackCheckbox;
 	private CheckBox _customBackCheckbox;
 
-	private OptionButton _shapePicker;
+	//private OptionButton _shapePicker;
 
 	private TabContainer _tabs;
 
 	private TextureRect _clipRect;
 	private TextureRect _textureRect;
 	private Label _label;
-
-	private Button _nextCardPreview;
-	private Button _prevCardPreview;
-	private Button _firstCardPreview;
-	private Button _lastCardPreview;
-	private Label _curCardPreview;
 
 	private const int MaxQuickSuitCount = 8;
 	private ColorPickerButton[] _quickSuitColors = new ColorPickerButton[MaxQuickSuitCount];
@@ -58,8 +53,8 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
 	private OptionButton _cardSizes;
 	
-	private CardPreviewPanel _preview;
-	private OptionButton _previewFrontBack;
+
+	private ComponentPreview _componentPreview;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -74,6 +69,52 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		ChangePreviewCard(0);
 	}
 
+	public override void Activate()
+	{
+		var comp = GetPreviewComponent();
+		_componentPreview.SetComponent(comp, new Vector3(Mathf.DegToRad(90),0,0));
+		UpdatePreview();
+	}
+
+	private VcToken GetPreviewComponent()
+	{
+		string shape = "VcToken.tscn";
+
+		/*
+		 * Square = 0,
+		Circle = 1,
+		HexPoint = 2,
+		HexFlat = 3,
+		RoundedRect = 4
+		 
+		switch (_shapePicker.Selected)
+		{
+			case 1:
+				shape = "VcTokenCircle.tscn";
+				break;
+			
+			case 2:
+				shape = "VcTokenHexPoint.tscn";
+				break;
+			
+			case 3:
+				shape = "VcTokenHexFlat.tscn";
+				break;
+		}
+		*/
+		
+		var scene = GD.Load<PackedScene>($"res://Scenes/VisualComponents/{shape}");
+		var vc = scene.Instantiate<VcToken>();
+
+		vc.Ready += UpdatePreview;
+		return vc;
+	}
+
+	public override void Deactivate()
+	{
+		_componentPreview.ClearComponent();
+	}
+	
 	private Dictionary<string, (float, float)> _standardSizes;
 
 	private void InitializeStandardSizes()
@@ -127,24 +168,16 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		_widthInput = GetNode<LineEdit>("%Width");
 		_widthInput.TextChanged += HeightWidthChange;
 
-		_preview = GetNode<CardPreviewPanel>("%Preview");
-
-		_prevCardPreview = GetNode<Button>("%PrevCard");
-		_prevCardPreview.ButtonDown += () => ChangePreviewCard(-1);
-
-		_nextCardPreview = GetNode<Button>("%NextCard");
-		_nextCardPreview.ButtonDown += () => ChangePreviewCard(1);
+		_frontImage = GetNode<LineEdit>("%GridFront");
+		_frontImage.TextChanged += text => UpdatePreview();
 		
-		_firstCardPreview = GetNode<Button>("%FirstCard");
-		_firstCardPreview.ButtonDown += () => ShowPreviewCard(0);
-
-		_lastCardPreview = GetNode<Button>("%LastCard");
-		_lastCardPreview.ButtonDown += () => ShowPreviewCard(_quickCards.Count-1);
-
-		_curCardPreview = GetNode<Label>("%CurCardLabel");
-		_previewFrontBack = GetNode<OptionButton>("%PreviewFrontBack");
-		_previewFrontBack.ItemSelected += l => ShowPreviewCard(_curCard);
-
+		_backImage = GetNode<LineEdit>("%GridBack");
+		_backImage.TextChanged += text => UpdatePreview();
+	
+		_componentPreview = GetNode<ComponentPreview>("%ComponentPreview");
+		_componentPreview.MultiItemMode = true;
+		_componentPreview.ItemSelected += ComponentPreviewOnItemSelected;
+		
 		_tabs = GetNode<TabContainer>("%TabContainer");
 		_cardSizes = GetNode<OptionButton>("%StandardSize");
 		_cardSizes.ItemSelected += StandardSizeChanged;
@@ -171,7 +204,11 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
 	}
 
-
+	private void ComponentPreviewOnItemSelected(object sender, ItemSelectedEventArgs e)
+	{
+		_curCard = e.Index;
+		UpdatePreview();
+	}
 
 
 	private int _curCard = 0;
@@ -187,9 +224,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		_curCard += direction;
 		_curCard = Mathf.Clamp(_curCard, 0, _quickCards.Count - 1);
 		
-		_preview.DisplayQuickCard(_quickCards[_curCard], _previewFrontBack.Text == "Front");
-
-		_curCardPreview.Text = $"Card {_curCard + 1} of {_quickCards.Count}";
+		UpdatePreview();
 	}
 	
 	private void ShowPreviewCard(int cardId)
@@ -199,18 +234,13 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		_curCard = cardId;
 		_curCard = Mathf.Clamp(_curCard, 0, _quickCards.Count - 1);
 		
-		_preview.DisplayQuickCard(_quickCards[_curCard], _previewFrontBack.Text == "Front");
-
-		_curCardPreview.Text = $"Card {_curCard + 1} of {_quickCards.Count}";
+		UpdatePreview();
 	}
 	
 	
 	private void HeightWidthChange(string newtext)
 	{
-		if (float.TryParse(_heightInput.Text, out var h) && float.TryParse(_widthInput.Text, out var w))
-		{
-			_preview.SetSize(w, h);
-		}
+		UpdatePreview();
 	}
 
 	
@@ -243,6 +273,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		}
 
 		ChangePreviewCard(0);
+		_componentPreview.ItemCount = _quickCards.Count;
 	}
 
 	public override List<string> Validity()
@@ -300,7 +331,74 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		}
 
 	}
+	
+	private void UpdatePreview()
+	{
+		//normalize the size
+		var h = ParamToFloat(_heightInput.Text);
+		var w = ParamToFloat(_widthInput.Text);
+		if (h == 0 || w == 0)
+		{
+			_componentPreview.SetComponentVisibility(false);
+			return;
+		}
+
+		_componentPreview.SetComponentVisibility(true);
+		
+		//normalize dimensions to 10x10x10 outer extants
+		var scale = 10f / Math.Max(h, w);
+		
+		
+		var d = new Dictionary<string, object>();
+
+		d.Add("ComponentName", _nameInput.Text);
+		d.Add("Height", h * scale);
+		d.Add("Width", w * scale);
+		d.Add("Thickness", 0.3f);
+		d.Add("FrontImage", _frontImage.Text);
+		d.Add("BackImage", _backImage.Text);
+		d.Add("Type", VcToken.TokenType.Card);
+		
+		var card = _componentPreview.CurrentItem;
+		if (card < 0 || card >= _quickCards.Count)
+		{
+			GD.PrintErr("Invalid card # in deck UpdatePreview");
+			return;
+		}
+
+		var qc = _quickCards[card];
+
+		foreach (var param in QuickCardParams(qc))
+		{
+			d.Add(param.Key, param.Value);
+		}
+		
+		_componentPreview.Build(d);
+		
+	}
+
+	private Dictionary<string, object> QuickCardParams(QuickCardData cardData)
+	{
+		var p = new Dictionary<string, object>();
+
+
+		p.Add("Shape",0);
+		p.Add("Mode", 0);
+		p.Add("FrontBgColor", cardData.BackgroundColor); 
+		p.Add("FrontCaption", cardData.Caption);
+		p.Add("FrontCaptionColor", Colors.Black);
+		p.Add("DifferentBack", true);
+		p.Add("BackBgColor", cardData.CardBackColor);
+		p.Add("BackCaption", cardData.CardBackValue);
+		p.Add("BackCaptionColor", Colors.Black);
+		p.Add("FrontFontSize", 72);
+		p.Add("BackFontSize", 24);
+
+		return p;
+	}
 }
+
+
 
 public class QuickCardData
 {

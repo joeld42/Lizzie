@@ -1,12 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://ojs61k8nlddj"]
+[gd_scene load_steps=3 format=3 uid="uid://ojs61k8nlddj"]
 
 [ext_resource type="Script" path="res://Scripts/ComponentPreview.cs" id="1_5fnph"]
+[ext_resource type="Texture2D" uid="uid://dtc70uy7e7n8" path="res://Textures/UI/rotate-right.png" id="2_3qart"]
 
 [node name="ComponentPreview" type="Panel"]
 custom_minimum_size = Vector2(200, 0)
 script = ExtResource("1_5fnph")
 
-[node name="Label" type="Label" parent="."]
+[node name="PreviewLabel" type="Label" parent="."]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 offset_left = 4.0
@@ -15,6 +16,63 @@ offset_bottom = 23.0
 size_flags_vertical = 1
 text = "Preview"
 horizontal_alignment = 1
+
+[node name="Multipreview" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 246.0
+offset_bottom = 31.0
+
+[node name="MarginContainer3" type="MarginContainer" parent="Multipreview"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 0
+
+[node name="FirstItem" type="Button" parent="Multipreview/MarginContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "First card"
+text = "<<"
+
+[node name="MarginContainer" type="MarginContainer" parent="Multipreview"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_right = 12
+
+[node name="PrevItem" type="Button" parent="Multipreview/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Previous card"
+text = "<"
+
+[node name="CurItemLabel" type="Label" parent="Multipreview"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Card 1 of 32"
+horizontal_alignment = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="Multipreview"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 0
+
+[node name="NextItem" type="Button" parent="Multipreview/MarginContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Next card"
+text = ">"
+
+[node name="MarginContainer4" type="MarginContainer" parent="Multipreview"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_right = 12
+
+[node name="LastItem" type="Button" parent="Multipreview/MarginContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Last card"
+text = ">>"
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 layout_mode = 0
@@ -35,3 +93,35 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3000, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
 projection = 1
 size = 2.0
+
+[node name="SpinButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 5.0
+offset_top = 40.0
+offset_right = 29.0
+offset_bottom = 71.0
+tooltip_text = "Start / Stop Rotation"
+toggle_mode = true
+button_pressed = true
+icon = ExtResource("2_3qart")
+
+[node name="FrontView" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 5.0
+offset_top = 75.0
+offset_right = 29.0
+offset_bottom = 106.0
+tooltip_text = "View front"
+text = "F"
+
+[node name="BackView" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 5.0
+offset_top = 110.0
+offset_right = 29.0
+offset_bottom = 141.0
+tooltip_text = "View back"
+text = "B"

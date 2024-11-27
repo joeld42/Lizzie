@@ -139,6 +139,8 @@ public partial class UI : CanvasLayer
 			.Select(y => y.Key);
 
 		_componentPopup.Clear();
+		
+		
 
 		if (commands.Any(x => x == VisualCommand.ToggleLock))
 		{

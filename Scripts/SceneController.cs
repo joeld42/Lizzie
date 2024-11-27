@@ -18,6 +18,7 @@ public partial class SceneController : Node3D
 	}
 
 
+	public GameObjects GameObjects => _gameObjects;
 
 	public override void _Process(double delta)
 	{

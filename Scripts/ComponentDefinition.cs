@@ -80,6 +80,11 @@ public partial class ComponentDefinition : HBoxContainer
 				Params = r.GetParams(),
 			};
 
+			if (!e.Params.ContainsKey("BaseName"))
+			{
+				e.Params.Add("BaseName", CurName);
+			}
+
 			var cd = _components.First(x => x.ComponentName == CurName);
 
 			if (cd.PrototypeNames != null && cd.PrototypeNames.Length > 0 && r.PrototypeIndex < cd.PrototypeNames.Length)

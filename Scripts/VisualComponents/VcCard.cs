@@ -157,9 +157,9 @@ public partial class VcCard : VisualComponentBase
 		var ret = new List<string>();
 
 		//must have a name and height. Width/length optional
-		if (parameters.ContainsKey(nameof(InstanceName)))
+		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
-			if (string.IsNullOrEmpty(parameters[nameof(InstanceName)].ToString()))
+			if (string.IsNullOrEmpty(parameters[nameof(ComponentName)].ToString()))
 				ret.Add("Instance Name may not be blank");
 		}
 		else
