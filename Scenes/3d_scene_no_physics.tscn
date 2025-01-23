@@ -24,6 +24,7 @@ collision_layer = 1
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.819202, 2.19727e-07, 0.573505, -0.353913, 0.786881, 0.505534, -0.45128, -0.617105, 0.644614, 0, 0, 1.7548)
+shadow_enabled = true
 
 [node name="Cameras" type="Node3D" parent="."]
 script = ExtResource("3_v37dv")

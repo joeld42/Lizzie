@@ -249,28 +249,8 @@ public partial class VcToken : VisualComponentFlat
 	
 	private void BuildQuick()
 	{
-		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
-		if (_firstBuild)
-		{
-			_frontView.Ready += CreateQuickFrontTexture;
-		}
-		else
-		{
-			CreateQuickFrontTexture();
-		}
-		
-		if (_differentBack)
-		{
-			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
-			if (_firstBuild)
-			{
-				_backView.Ready += CreateQuickBackTexture;
-			}
-			else
-			{
-				CreateQuickBackTexture();
-			}
-		}
+		CreateQuickFrontTexture();
+		if (_differentBack) CreateQuickBackTexture();
 	}
 
 	private void BuildCustom()
@@ -388,49 +368,41 @@ public partial class VcToken : VisualComponentFlat
 	
 	private void CreateQuickFrontTexture()
 	{
-		var textureParameters = new TokenTextureParameters
+		var textureParameters = new TextureBuilderOptions()
 		{
 			BackgroundColor = _frontBgColor,
 			Caption = _frontCaption,
-			CaptionColor = _frontCaptionColor,
-			Shape = (TokenTextureSubViewport.TokenShape)_shape,
-			Height = _height,
-			Width = _width,
-			FontSize = _frontFontSize
+			TextColor = _frontCaptionColor,
+			FontStyle = TextureBuilderOptions.FontStyleEnum.Black
 		};
-		
-		var t = _frontView.CreateQuickTexture(textureParameters);
+
+		var t = TextureBuilder.Build(_height, _width, textureParameters);
 		
 		float pixelSize = PixelSize(t.GetSize());
 		FaceSprite.PixelSize = pixelSize;
-		FaceSprite.Texture = t;
-
-
+		FaceTexture = t;
 		
 		if (!_differentBack)
 		{
 			BackSprite.PixelSize = pixelSize;
-			BackSprite.Texture = t;
+			BackTexture = t;
 		}
 	}
 	
 	private void CreateQuickBackTexture()
 	{
-		var textureParameters = new TokenTextureParameters
+		var textureParameters = new TextureBuilderOptions()
 		{
 			BackgroundColor = _backBgColor,
 			Caption = _backCaption,
-			CaptionColor = _backCaptionColor,
-			Shape = (TokenTextureSubViewport.TokenShape)_shape,
-			Height = _height,
-			Width = _width,
-			FontSize = _backFontSize
+			TextColor = _backCaptionColor,
 		};
 
-		var t = _backView.CreateQuickTexture(textureParameters);
+		var t = TextureBuilder.Build(_height, _width, textureParameters);
+		
 		var pixelSize = PixelSize(t.GetSize());
 		BackSprite.PixelSize = pixelSize;
-		BackSprite.Texture = t;
+		BackTexture = t;
 	}
 
 	private bool InitializeParameters(Dictionary<string, object> parameters)

@@ -17,13 +17,13 @@ public partial class VcDeck : VisualGroupComponent
 
 	private VcToken _templateCard;
 	private string _templateCardPath = "res://Scenes/VisualComponents/VcToken.tscn";
-	
+
 	public override void _Ready()
 	{
 		base._Ready();
 		Visible = true;
 		ComponentType = VisualComponentType.Token;
-		
+
 		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
@@ -43,17 +43,17 @@ public partial class VcDeck : VisualGroupComponent
 		}
 
 
-	base._Process(delta);
+		base._Process(delta);
 	}
 
 	public override GeometryInstance3D DragMesh => _frontSprite;
 
 	public override float MaxAxisSize => Math.Max(_height, _width);
-	
+
 	public override CommandResponse ProcessCommand(VisualCommand command)
 	{
 		var cr = new CommandResponse(false, null);
-		
+
 		switch (command)
 		{
 			case VisualCommand.ToggleLock:
@@ -83,7 +83,7 @@ public partial class VcDeck : VisualGroupComponent
 				break;
 			case VisualCommand.MoveToTop:
 				break;
-			
+
 			case VisualCommand.Num1:
 				cr = DrawCards(1);
 				break;
@@ -144,7 +144,7 @@ public partial class VcDeck : VisualGroupComponent
 			case VisualCommand.Num20:
 				cr = DrawCards(20);
 				break;
-			
+
 			case VisualCommand.Shuffle:
 				cr = PerformShuffle();
 				break;
@@ -152,7 +152,7 @@ public partial class VcDeck : VisualGroupComponent
 			default:
 				throw new ArgumentOutOfRangeException(nameof(command), command, null);
 		}
-		
+
 		return cr.Consumed == false ? base.ProcessCommand(command) : cr;
 	}
 
@@ -177,11 +177,12 @@ public partial class VcDeck : VisualGroupComponent
 		return l;
 	}
 
-	private float _flipRate = 720;	//degrees per second
+	private float _flipRate = 720; //degrees per second
 	private bool _showFace = true;
 	private int _rotMult = 1;
 	private float _targetZ;
 	private bool _flipInProcess;
+
 	private CommandResponse StartFlip()
 	{
 		_flipInProcess = true;
@@ -199,7 +200,7 @@ public partial class VcDeck : VisualGroupComponent
 		float rot = (float)Math.PI;
 
 		if (_targetZ == 0) rot *= -1;
-		
+
 		c.End = Transform.RotatedLocal(new Vector3(0, 0, 1), rot);
 
 		return new CommandResponse(true, c);
@@ -228,39 +229,59 @@ public partial class VcDeck : VisualGroupComponent
 
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
-	
+
 	private CommandResponse DrawCards(int count)
 	{
 		count = Math.Min(count, Children.Count);
 
+		VisualComponentBase[] cards;
 		//draw cards
-		var cards = DrawFromTop(count);
-		
-		
+		if (_showFace)
+		{
+			cards = DrawFromTop(count);
+		}
+		else
+		{
+			cards = DrawFromBottom(count);
+			cards = cards.Reverse().ToArray();
+		}
+
+
 		//tween to handle movement
 		var cardTween = GetTree().CreateTween();
-		
-		
+
+
 		//splay
 		var basePos = Position;
 
 		for (int i = 0; i < cards.Length; i++)
 		{
+			if (cards[i] is VisualComponentFlat vcf)
+			{
+				if (_showFace)
+				{
+					vcf.ForceBack();
+				}
+				else
+				{
+					vcf.ForceFace();
+				}
+			}
+
 			cards[i].Position = basePos;
 			cards[i].Visible = false;
-			
+
 			float deltaX = _width * (1.5f + i);
-			
+
 			cardTween.TweenProperty(cards[i], "visible", true, 0.01);
 			cardTween.TweenProperty(cards[i], "position", new Vector3(deltaX, 0, 0), 0.2f).AsRelative();
-			
-			
+
+
 			cards[i].ZOrder = ZOrder + i + 1;
 
 			OnComponentAdded(cards[i]);
-			
 		}
-		
+
 		var c = new Change
 		{
 			Action = Change.ChangeType.Transform,
@@ -269,23 +290,21 @@ public partial class VcDeck : VisualGroupComponent
 			Component = this
 		};
 
-				
-
-
+		UpdateDeckSprites();
 
 		return new CommandResponse(true, c);
 	}
-	
+
 	public override bool Build(System.Collections.Generic.Dictionary<string, object> parameters)
 	{
 		base.Build(parameters);
-		
+
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
 
 		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
 		_backView = GetNode<TokenTextureSubViewport>("BackViewport");
-		
+
 		if (!InitializeParameters(parameters)) return false;
 
 		switch (_mode)
@@ -293,21 +312,21 @@ public partial class VcDeck : VisualGroupComponent
 			case VcToken.TokenBuildMode.Quick:
 				BuildQuick(parameters);
 				break;
-			
+
 			case VcToken.TokenBuildMode.Template:
 				BuildTemplate(parameters);
 				break;
-			
+
 			case VcToken.TokenBuildMode.Grid:
 				BuildGrid(parameters);
 				break;
 		}
-		
+
 		_thickness = 0.03f * Children.Count;
 		YHeight = _thickness;
-		
+
 		Scale = new Vector3(_width, _thickness, _height);
-		
+
 		//adjust the scales for the sprites based on the textures so they don't double adjust
 		if (_width > 0 && _height > 0)
 		{
@@ -328,51 +347,49 @@ public partial class VcDeck : VisualGroupComponent
 				r.Size = new Vector2(_width, _height);
 				ShapeProfiles.Add(r);
 				break;
-			
+
 			case TokenTextureSubViewport.TokenShape.Circle:
 				var c = new CircleShape2D();
 				c.Radius = _width / 2f;
 				ShapeProfiles.Add(c);
 				break;
-			
+
 			case TokenTextureSubViewport.TokenShape.HexPoint:
 				var hp = new ConvexPolygonShape2D();
 				hp.Points = CalcHexPointVertices();
 				ShapeProfiles.Add(hp);
 				break;
-			
+
 			case TokenTextureSubViewport.TokenShape.HexFlat:
 				var hf = new ConvexPolygonShape2D();
 				hf.Points = CalcHexPointVertices();
 				ShapeProfiles.Add(hf);
 				break;
-			
+
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
 
 		_frontView.Ready += RegisterInitializedViews;
 		_backView.Ready += RegisterInitializedViews;
-		
+
 		//place all cards below the table so they get rendered;
 
 		int h = (int)Math.Floor(_height * 20);
 		int w = (int)Math.Floor(_width * 20);
-		var fs = TextureBuilder.Build(new Color(1, 0.7f, 0.7f, 1), "DECK", new Color(0,0,0,1), h, w );
-		_frontSprite.Texture = fs;
-		_fs = fs;
+
+		UpdateDeckSprites();
 		return true;
 	}
 
 	private ImageTexture _fs;
 
-	
 
 	private Vector2[] CalcHexPointVertices()
 	{
 		Vector2[] arr = new Vector2[6];
 
-		var x = (_width/ 4f) * Mathf.Sqrt(3) / 2f;
+		var x = (_width / 4f) * Mathf.Sqrt(3) / 2f;
 		var y = (_height / 4f);
 
 		arr[0] = new Vector2(0, y * 2);
@@ -388,7 +405,7 @@ public partial class VcDeck : VisualGroupComponent
 			GD.Print(p);
 		}
 		*/
-		
+
 		return arr;
 	}
 
@@ -397,23 +414,24 @@ public partial class VcDeck : VisualGroupComponent
 		Vector2[] arr = new Vector2[6];
 
 		var x = (_width / 4f);
-		var y = (_height/ 4f) * Mathf.Sqrt(3) / 2f;
+		var y = (_height / 4f) * Mathf.Sqrt(3) / 2f;
 
-		arr[0] = new Vector2(x*2, 0);
+		arr[0] = new Vector2(x * 2, 0);
 		arr[1] = new Vector2(x, y);
 		arr[2] = new Vector2(-x, y);
-		arr[3] = new Vector2(-x *2, 0);
+		arr[3] = new Vector2(-x * 2, 0);
 		arr[4] = new Vector2(-x, -y);
 		arr[5] = new Vector2(x, -y);
-		
+
 		return arr;
 	}
+
 	private void BuildQuick(Dictionary<string, object> parameters)
 	{
 		_quickCardList = Utility.GetParam<List<QuickCardData>>(parameters, "QuickCardData");
 
-		if (_quickCardList == null ) _quickCardList = new();
-		
+		if (_quickCardList == null) _quickCardList = new();
+
 		CreateQuickCards();
 	}
 
@@ -425,9 +443,9 @@ public partial class VcDeck : VisualGroupComponent
 	private void CreateCustomFrontTexture()
 	{
 		if (!File.Exists(_frontImage)) return;
-		
+
 		_frontView.SetViewPortMode(TokenTextureSubViewport.ShapeViewportMode.Texture);
-		_frontView.SetShape((TokenTextureSubViewport.TokenShape) _shape);
+		_frontView.SetShape((TokenTextureSubViewport.TokenShape)_shape);
 		_frontView.SetTexture(LoadTexture(_frontImage));
 
 		var t = _frontView.GetTexture();
@@ -436,27 +454,26 @@ public partial class VcDeck : VisualGroupComponent
 		//GD.PrintErr($"Pixel Size: {pixelSize}");
 		_frontSprite.PixelSize = pixelSize;
 		_frontSprite.Texture = t;
-		
-		
+
+
 		if (!_differentBack)
 		{
 			_backSprite.PixelSize = pixelSize;
 			_backSprite.Texture = t;
 		}
-		
 	}
-	
+
 	//In all the texture creation routines, we scale the pixel size to 0.95.
 	//This is the base size of the front and bottom sprites in the token,
 	//and matches the side mesh (the gray punchboard texture
 	//The width is 0.95 so the highlight mesh, which is size 1.0, so it still shows.
-	
+
 	private void CreateCustomBackTexture()
 	{
 		if (!File.Exists(_backImage)) return;
-		
+
 		_backView.SetViewPortMode(TokenTextureSubViewport.ShapeViewportMode.Texture);
-		_backView.SetShape((TokenTextureSubViewport.TokenShape) _shape);
+		_backView.SetShape((TokenTextureSubViewport.TokenShape)_shape);
 		var t = _backView.GetTexture();
 
 		float pixelSize = Utility.PixelSize(t.GetSize());
@@ -464,11 +481,8 @@ public partial class VcDeck : VisualGroupComponent
 		_backView.SetTexture(LoadTexture(_backImage));
 
 		_backSprite.Texture = _backView.GetTexture();
-		
 	}
 
-
-	
 
 	private bool InitializeParameters(System.Collections.Generic.Dictionary<string, object> parameters)
 	{
@@ -481,7 +495,7 @@ public partial class VcDeck : VisualGroupComponent
 		_width = w / 10f;
 
 		_mode = Utility.GetParam<VcToken.TokenBuildMode>(parameters, "Mode");
-		
+
 		var scene = ResourceLoader.Load<PackedScene>(_templateCardPath).Instantiate();
 
 		if (scene is not VcToken token) return false;
@@ -493,7 +507,6 @@ public partial class VcDeck : VisualGroupComponent
 
 	private void CreateQuickCards()
 	{
-		
 		Clear();
 
 		foreach (var q in _quickCardList)
@@ -503,7 +516,7 @@ public partial class VcDeck : VisualGroupComponent
 			foreach (var v in values)
 			{
 				var c = CreateQuickCard(v, q.BackgroundColor, q.CardBackValue, q.CardBackColor);
-				
+
 				AddChildComponent(c);
 			}
 		}
@@ -516,13 +529,13 @@ public partial class VcDeck : VisualGroupComponent
 
 		p.Add("Height", _height * 10);
 		p.Add("Width", _width * 10);
-		p.Add("Thickness", 0.03f * 10);
+		p.Add("Thickness", 0.1f * 10);
 		p.Add("ComponentName", string.Empty); //TODO add card name
 		p.Add("FrontImage", string.Empty);
 		p.Add("BackImage", string.Empty);
-		p.Add("Shape",0);
+		p.Add("Shape", 0);
 		p.Add("Mode", VcToken.TokenBuildMode.Quick);
-		p.Add("FrontBgColor", faceColor); 
+		p.Add("FrontBgColor", faceColor);
 		p.Add("FrontCaption", faceCaption);
 		p.Add("FrontCaptionColor", Colors.Black);
 		p.Add("DifferentBack", true);
@@ -534,18 +547,18 @@ public partial class VcDeck : VisualGroupComponent
 		card.Build(p);
 
 		card.Parent = Reference;
-		
+
 		return card;
 	}
-	
+
 	#region Grid Cards
-	
+
 	private Texture2D _frontMasterSprite;
 	private Texture2D _backMasterSprite;
 	private int _gridRows;
 	private int _gridCols;
 	private int _gridCount;
-	
+
 	private void BuildGrid(Dictionary<string, object> parameters)
 	{
 		//Grid Parameters
@@ -569,10 +582,9 @@ public partial class VcDeck : VisualGroupComponent
 			AddChildComponent(c);
 		}
 	}
-	
+
 	private VcToken CreateGridCard(int index)
 	{
-		
 		var card = (VcToken)_templateCard.Duplicate();
 		var p = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -580,26 +592,24 @@ public partial class VcDeck : VisualGroupComponent
 		p.Add("Width", _width * 10);
 		p.Add("Thickness", 0.03f * 10);
 		p.Add("ComponentName", string.Empty); //TODO add card name
-		
-		p.Add("Shape",0);
+
+		p.Add("Shape", 0);
 		p.Add("Mode", VcToken.TokenBuildMode.Grid);
-		
+
 		p.Add("FrontMasterSprite", _frontMasterSprite);
 		p.Add("GridRows", _gridRows);
 		p.Add("GridCols", _gridCols);
 		p.Add("GridIndex", index);
-		
+
 		p.Add("DifferentBack", false);
-		
+
 		card.Build(p);
 
 		card.Parent = Reference;
-		
+
 		return card;
 	}
-	
-	
-	
+
 	#endregion
 
 	public override List<string> ValidateParameters(System.Collections.Generic.Dictionary<string, object> parameters)
@@ -659,51 +669,50 @@ public partial class VcDeck : VisualGroupComponent
 	private void RegisterInitializedViews()
 	{
 		_viewsInitialized++;
-		
+
 		if (_viewsInitialized == 2) UpdateDeckSprites();
 	}
-	
+
 	private void UpdateDeckSprites()
 	{
 		//set the top and bottom sprites. 
-		
+
 		//The top of the deck displays the back of the first card. 
 		//The bottom of the deck displays the face of the last card.
-		
+
 		//TODO Handle if there are no cards in the deck?
 		if (Children.Count > 0)
 		{
 			if (Children.First() is VisualComponentFlat vcf)
 			{
-				_frontSprite.PixelSize = Utility.PixelSize(_fs.GetSize());
-				_frontSprite.Texture = _fs;
+				_frontSprite.PixelSize = vcf.BackSprite.PixelSize;
+				_frontSprite.Texture = vcf.BackTexture;
 			}
 
 			if (Children.Last() is VisualComponentFlat vcb)
 			{
 				_backSprite.PixelSize = vcb.FaceSprite.PixelSize;
-				_backSprite.Texture = vcb.FaceSprite.Texture;
+				_backSprite.Texture = vcb.FaceTexture;
 			}
-		
 
-		/*
-		switch (_mode)
-			{
-				case VcToken.TokenBuildMode.Quick:
-					CreateQuickFrontTexture();
-					CreateQuickBackTexture();
-					break;
-				case VcToken.TokenBuildMode.Grid:
-					break;
-				case VcToken.TokenBuildMode.Template:
-					break;
-				case VcToken.TokenBuildMode.Nandeck:
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-			*/
-		
+
+			/*
+			switch (_mode)
+				{
+					case VcToken.TokenBuildMode.Quick:
+						CreateQuickFrontTexture();
+						CreateQuickBackTexture();
+						break;
+					case VcToken.TokenBuildMode.Grid:
+						break;
+					case VcToken.TokenBuildMode.Template:
+						break;
+					case VcToken.TokenBuildMode.Nandeck:
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+				*/
 		}
 	}
 
@@ -722,8 +731,4 @@ public partial class VcDeck : VisualGroupComponent
 	private string _backCaption;
 	private Color _backCaptionColor;
 	private List<QuickCardData> _quickCardList = new();
-
-	
-	
-
 }

@@ -145,6 +145,9 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 		var scene = GD.Load<PackedScene>($"res://Scenes/VisualComponents/{shape}");
 		var vc = scene.Instantiate<VcToken>();
 
+		//This is the value used by the UI system to tell what component we want
+		PrototypeIndex = _shapePicker.Selected;
+		
 		vc.Ready += UpdatePreview;
 		return vc;
 	}

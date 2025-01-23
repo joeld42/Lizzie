@@ -209,9 +209,9 @@ public partial class VcDie : VisualComponentBase
 	public override bool Build(Dictionary<string, object> parameters)
 	{
 		base.Build(parameters);
-		
+
 		_mainMesh = GetNode<MeshInstance3D>("ObjectMesh");
-		
+
 		float size = 0;
 
 		if (parameters.ContainsKey("Size"))
@@ -234,10 +234,21 @@ public partial class VcDie : VisualComponentBase
 			}
 		}
 
+		var sides = Utility.GetParam<string[]>(parameters, "Sides");
+
 		YHeight = size;
 		
-		//create card
 		Scale = new Vector3(size, size, size);
+
+		var mat = new StandardMaterial3D();
+
+		if (sides != null && sides.Length > 0)
+		{
+			var t = TextureBuilder.BuildD6Texture(sides);
+			mat.AlbedoTexture = t;
+		}
+
+		_mainMesh.MaterialOverride = mat;
 		
 		return true;
 	}

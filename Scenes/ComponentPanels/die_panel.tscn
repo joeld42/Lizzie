@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Scripts/ComponentPanelResults/DiePanelDialogResult.cs" id="1_5kaje"]
 [ext_resource type="PackedScene" uid="uid://ojs61k8nlddj" path="res://Scenes/ComponentPanels/ComponentPreview.tscn" id="2_6el8t"]
 
-[node name="DiePanel" type="MarginContainer"]
+[node name="DiePanel" type="MarginContainer" node_paths=PackedStringArray("_quickSideValues", "_quickSideLabels")]
 offset_right = 40.0
 offset_bottom = 40.0
 theme_override_constants/margin_left = 10
@@ -11,61 +11,66 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 script = ExtResource("1_5kaje")
+_quickSideValues = [NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit2"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit3"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit4"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit5"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit6"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit7"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit8"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit9"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit10"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit11"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit12"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit13"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit14"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit15"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit16"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit17"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit18"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit19"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/LineEdit20")]
+_quickSideLabels = [NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label2"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label3"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label4"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label5"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label6"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label7"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label8"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label9"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label10"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label11"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label12"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label13"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label14"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label15"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label16"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label17"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label18"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label19"), NodePath("VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2/Label20")]
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="GridContainer" type="GridContainer" parent="HBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Name  "
 horizontal_alignment = 2
 
-[node name="ComponentName" type="LineEdit" parent="HBoxContainer/GridContainer"]
+[node name="ComponentName" type="LineEdit" parent="VBoxContainer/HBoxContainer/GridContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 alignment = 2
 
-[node name="Label6" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label6" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 horizontal_alignment = 2
 
-[node name="Label7" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label7" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 horizontal_alignment = 2
 
-[node name="Label5" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label5" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Diameter"
 horizontal_alignment = 2
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="HBoxContainer/GridContainer"]
+[node name="HBoxContainer4" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 
-[node name="Diameter" type="LineEdit" parent="HBoxContainer/GridContainer/HBoxContainer4"]
+[node name="Diameter" type="LineEdit" parent="VBoxContainer/HBoxContainer/GridContainer/HBoxContainer4"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "16"
 alignment = 2
 
-[node name="Label" type="Label" parent="HBoxContainer/GridContainer/HBoxContainer4"]
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer/HBoxContainer4"]
 layout_mode = 2
 text = "mm"
 
-[node name="Label4" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label4" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Sides "
 horizontal_alignment = 2
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/GridContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 
-[node name="Sides" type="OptionButton" parent="HBoxContainer/GridContainer/HBoxContainer3"]
+[node name="Sides" type="OptionButton" parent="VBoxContainer/HBoxContainer/GridContainer/HBoxContainer3"]
 unique_name_in_owner = true
 layout_mode = 2
 item_count = 6
@@ -83,35 +88,265 @@ popup/item_4/id = 4
 popup/item_5/text = "20"
 popup/item_5/id = 5
 
-[node name="Label2" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "Color  "
 horizontal_alignment = 2
 
-[node name="DieColor" type="ColorPickerButton" parent="HBoxContainer/GridContainer"]
+[node name="DieColor" type="ColorPickerButton" parent="VBoxContainer/HBoxContainer/GridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 color = Color(1, 1, 1, 1)
 
-[node name="Label8" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label8" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 horizontal_alignment = 2
 
-[node name="Label9" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label9" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 horizontal_alignment = 2
 
-[node name="Label10" type="Label" parent="HBoxContainer/GridContainer"]
+[node name="Label10" type="Label" parent="VBoxContainer/HBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Quantity  "
 horizontal_alignment = 2
 
-[node name="LineEdit2" type="LineEdit" parent="HBoxContainer/GridContainer"]
+[node name="LineEdit2" type="LineEdit" parent="VBoxContainer/HBoxContainer/GridContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 alignment = 2
 
-[node name="Preview" parent="HBoxContainer" instance=ExtResource("2_6el8t")]
+[node name="Preview" parent="VBoxContainer/HBoxContainer" instance=ExtResource("2_6el8t")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+current_tab = 1
+
+[node name="Quick Sides" type="ScrollContainer" parent="VBoxContainer/MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Quick Sides2" type="GridContainer" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+columns = 4
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 1"
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "1"
+alignment = 1
+
+[node name="Label2" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 2"
+
+[node name="LineEdit2" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "2"
+alignment = 1
+
+[node name="Label3" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 3"
+
+[node name="LineEdit3" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "3"
+alignment = 1
+
+[node name="Label4" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 4"
+
+[node name="LineEdit4" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "4"
+alignment = 1
+
+[node name="Label5" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 5"
+
+[node name="LineEdit5" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "5"
+alignment = 1
+
+[node name="Label6" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 6"
+
+[node name="LineEdit6" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "6"
+alignment = 1
+
+[node name="Label7" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 7"
+
+[node name="LineEdit7" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "7"
+alignment = 1
+
+[node name="Label8" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 8"
+
+[node name="LineEdit8" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "8"
+alignment = 1
+
+[node name="Label9" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 9"
+
+[node name="LineEdit9" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "9"
+alignment = 1
+
+[node name="Label10" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 10"
+
+[node name="LineEdit10" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "10"
+alignment = 1
+
+[node name="Label11" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 11"
+
+[node name="LineEdit11" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "11"
+alignment = 1
+
+[node name="Label12" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 12"
+
+[node name="LineEdit12" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "12"
+alignment = 1
+
+[node name="Label13" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 13"
+
+[node name="LineEdit13" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "13"
+alignment = 1
+
+[node name="Label14" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 14"
+
+[node name="LineEdit14" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "14"
+alignment = 1
+
+[node name="Label15" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 15"
+
+[node name="LineEdit15" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "15"
+alignment = 1
+
+[node name="Label16" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 16"
+
+[node name="LineEdit16" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "16"
+alignment = 1
+
+[node name="Label17" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 17"
+
+[node name="LineEdit17" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "17"
+alignment = 1
+
+[node name="Label18" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 18"
+
+[node name="LineEdit18" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "18"
+alignment = 1
+
+[node name="Label19" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 19"
+
+[node name="LineEdit19" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "19"
+alignment = 1
+
+[node name="Label20" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+layout_mode = 2
+text = "Side 20"
+
+[node name="LineEdit20" type="LineEdit" parent="VBoxContainer/MarginContainer/TabContainer/Quick Sides/Quick Sides2"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "20"
+alignment = 1
+
+[node name="Image" type="VBoxContainer" parent="VBoxContainer/MarginContainer/TabContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer/TabContainer/Image"]
+layout_mode = 2
+text = "Side 1"

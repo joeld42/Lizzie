@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://5ccswp8lv6rf"]
 
 [ext_resource type="Script" path="res://Scripts/VisualComponents/VcToken.cs" id="1_mjoqy"]
-[ext_resource type="Texture2D" uid="uid://734w72cqft65" path="res://Textures/Shapes/circle.png" id="2_mmicp"]
+[ext_resource type="Texture2D" uid="uid://vv54s2nf8a7x" path="res://Textures/Shapes/circletest2.png" id="2_wn0j6"]
 [ext_resource type="Material" uid="uid://bgmgc3682qest" path="res://Materials/Highlight.material" id="4_nmdhd"]
 [ext_resource type="PackedScene" uid="uid://b576dfm4886tw" path="res://Scenes/ComponentPanels/TokenTextureSubViewport.tscn" id="4_x3ne0"]
 
@@ -25,7 +25,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49, 0)
 pixel_size = 0.008
 axis = 1
 double_sided = false
-texture = ExtResource("2_mmicp")
+texture = ExtResource("2_wn0j6")
 
 [node name="SideMesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_feocx")

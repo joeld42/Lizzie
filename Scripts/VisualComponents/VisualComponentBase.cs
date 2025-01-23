@@ -98,7 +98,11 @@ public abstract partial class VisualComponentBase : Area3D
 		if (command == VisualCommand.Delete)
 		{
 			Visible = false;
-
+			IsMouseSelected = false;
+			IsClickSelected = false;
+			IsDragging = false;
+			IsHovered = false;
+			
 			return new CommandResponse(true, 
 				new Change { Component = this, Action = Change.ChangeType.Deletion });
 		}

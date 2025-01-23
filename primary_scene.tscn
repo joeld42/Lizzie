@@ -183,9 +183,11 @@ layout_mode = 2
 visible = false
 layout_mode = 2
 
-[node name="Die" parent="UI/ComponentTabs" instance=ExtResource("15_mybtt")]
+[node name="Die" parent="UI/ComponentTabs" node_paths=PackedStringArray("_quickSideValues", "_quickSideLabels") instance=ExtResource("15_mybtt")]
 visible = false
 layout_mode = 2
+_quickSideValues = []
+_quickSideLabels = []
 
 [node name="Card" parent="UI/ComponentTabs" instance=ExtResource("16_j3qli")]
 visible = false
