@@ -107,6 +107,14 @@ public partial class QuickTextureEntry : BoxContainer
 			case 5:
 				qt.FaceType = TextureFactory.TextureObjectType.TriangleShape;
 				break;
+			
+			case 6:
+				qt.FaceType = TextureFactory.TextureObjectType.StarShape;
+				break;
+			
+			case 7:
+				qt.FaceType = TextureFactory.TextureObjectType.PentagonShape;
+				break;
 		}
 
 		return qt;

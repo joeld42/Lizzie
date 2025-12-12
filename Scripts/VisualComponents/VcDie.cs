@@ -316,16 +316,15 @@ public partial class VcDie : VisualComponentBase
 		var tx = new TextureFactory.TextureDefinition
 		{
 			BackgroundColor = color,
-			Height = 256,
+			Height = 170,
 			Width = 256,
 			Shape = TextureFactory.TextureShape.Square
 		};
 		
-		
 		var to = new TextureFactory.TextureObject
 		{
 			CenterX = 42,
-			CenterY=64,
+			CenterY=42,
 			Font = font,
 			Height = 85,
 			Width = 85,
@@ -337,11 +336,11 @@ public partial class VcDie : VisualComponentBase
 		};
 		tx.Objects.Add(to);
 	
-		tx.Objects.Add(DuplicateFace(to, 127, 64, 0, sides[1]));
-		tx.Objects.Add(DuplicateFace(to, 212, 64, 0, sides[2]));
-		tx.Objects.Add(DuplicateFace(to, 42, 194, 0, sides[3]));
-		tx.Objects.Add(DuplicateFace(to, 127, 194, 0, sides[4]));
-		tx.Objects.Add(DuplicateFace(to, 212, 194, 0, sides[5]));
+		tx.Objects.Add(DuplicateFace(to, 127, 42, 0, sides[1]));
+		tx.Objects.Add(DuplicateFace(to, 212, 42, 0, sides[2]));
+		tx.Objects.Add(DuplicateFace(to, 42, 127, 0, sides[3]));
+		tx.Objects.Add(DuplicateFace(to, 127, 127, 0, sides[4]));
+		tx.Objects.Add(DuplicateFace(to, 212, 127, 0, sides[5]));
 		
 		return tx;
 	}
@@ -405,7 +404,7 @@ public partial class VcDie : VisualComponentBase
 			Height = 71,
 			Width = 49,
 			Type= sides[0].FaceType,
-			TriangleFace = true,
+			TriangleFace = false,
 			RotationDegrees = 0,
 			Text = sides[0].Caption,
 			ForegroundColor = sides[0].ForegroundColor
@@ -446,7 +445,7 @@ public partial class VcDie : VisualComponentBase
 			Height = 53,
 			Width = 47,
 			Type= sides[0].FaceType,
-			TriangleFace = true,
+			TriangleFace = false,
 			RotationDegrees = 90,
 			Text = sides[0].Caption,
 			ForegroundColor = sides[0].ForegroundColor

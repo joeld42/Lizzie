@@ -11,6 +11,9 @@ public partial class TextureFactory : SubViewport
     private Texture2D _hexPointShape;
     private Texture2D _hexFlatShape;
     private Texture2D _roundedRectShape;
+    private Texture2D _triangleShape;
+    private Texture2D _starShape;
+    private Texture2D _pentagonShape;
     
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -22,6 +25,9 @@ public partial class TextureFactory : SubViewport
         _hexPointShape = ResourceLoader.Load("res://Textures/Shapes/hex.png") as Texture2D;
         _hexFlatShape = ResourceLoader.Load("res://Textures/Shapes/hexflat.png") as Texture2D;
         _roundedRectShape = ResourceLoader.Load("res://Textures/Shapes/RoundedRectangle.png") as Texture2D;
+        _triangleShape = ResourceLoader.Load("res://Textures/Shapes/triangle.png") as Texture2D;
+        _starShape = ResourceLoader.Load("res://Textures/Shapes/star.png") as Texture2D;
+        _pentagonShape = ResourceLoader.Load("res://Textures/Shapes/pentagon.png") as Texture2D;
     }
 
     private int _frameCount;
@@ -278,10 +284,7 @@ public partial class TextureFactory : SubViewport
 
     private void RenderShapeInTriangle(TextureObject obj)
     {
-        Vector2 textSize = obj.Font.GetStringSize(obj.Text, fontSize: 12);
-        if (textSize.Y == 0) return;
-        
-        var ratio = textSize.X / textSize.Y;
+        var ratio = 1;  //shapes are always bounded by a square
         
         var bounds = ScaleRectangleInTriangle(obj.Width, ratio);
 
@@ -328,7 +331,15 @@ public partial class TextureFactory : SubViewport
                 texture = _hexPointShape;
                 break;
             case TextureObjectType.TriangleShape:
-                texture = _rectShape;   //TODO Change to TriangleShape
+                texture = _triangleShape;   //TODO Change to TriangleShape
+                break;
+            
+            case TextureObjectType.StarShape:
+                texture = _starShape;   //TODO Change to TriangleShape
+                break;
+            
+            case TextureObjectType.PentagonShape:
+                texture = _pentagonShape;   //TODO Change to TriangleShape
                 break;
 
             default:
@@ -341,10 +352,12 @@ public partial class TextureFactory : SubViewport
         var scaleHeight = obj.Height * scale;
         
         var image = texture.GetImage();
+        //image.Resize((int)scaleWidth, (int)scaleHeight);
         
-        //tr.Size = new Vector2(_activeQueueEntry.TextureDefinition.Width, _activeQueueEntry.TextureDefinition.Height);
         tr.Size = new Vector2(scaleWidth, scaleHeight);
-        tr.StretchMode = TextureRect.StretchModeEnum.Scale;
+        tr.CustomMinimumSize = new Vector2(scaleWidth, scaleHeight);
+        tr.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+        tr.StretchMode = TextureRect.StretchModeEnum.KeepAspect;
         tr.ClipChildren = CanvasItem.ClipChildrenMode.Only;
         tr.Texture = ImageTexture.CreateFromImage(image);
 
@@ -411,7 +424,9 @@ public partial class TextureFactory : SubViewport
         CircleShape,
         HexFlatUpShape,
         HexPointUpShape,
-        TriangleShape
+        TriangleShape,
+        StarShape,
+        PentagonShape
     }
 
     public enum TextureShape
