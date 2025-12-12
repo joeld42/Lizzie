@@ -12,8 +12,8 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 	private TabContainer _tabContainer;
 	private ComponentPreview _preview;
 
-	[Export] private LineEdit[] _quickSideValues;
-	[Export] private Label[] _quickSideLabels;
+	[Export] private QuickTextureEntry[] _quickSideEntries;
+	
 
 	public override void _Ready()
 	{
@@ -32,11 +32,14 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 
 		_tabContainer = GetNode<TabContainer>("%TabContainer");
 		_tabContainer.CurrentTab = 0;
-		
 
-		foreach (var l in _quickSideValues)
+
+		int i = 0;
+		foreach (var l in _quickSideEntries)
 		{
-			l.TextChanged += text => UpdatePreview();
+			l.TextValue = (i + 1).ToString();
+			l.FieldChanged += (sender, args) => UpdatePreview();
+			i++;
 		}
 		
 		PrototypeIndex = 1;
@@ -105,14 +108,13 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 
 	private void UpdateQuickSidesVisibility()
 	{
-		if (_quickSideLabels.Length < 20) return;
+		if (_quickSideEntries.Length < 20) return;
 		
 		if (int.TryParse(_sidesInput.Text, out var target))
 		{
 			for (int i = 0; i < 20; i++)
 			{
-				_quickSideLabels[i].Visible = (i < target);
-				_quickSideValues[i].Visible = (i < target);
+				_quickSideEntries[i].Visible = (i < target);
 			}
 		}
 			
@@ -135,15 +137,15 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 		return d;
 	}
 
-	private string[] PackageSides()
+	private QuickTextureField[] PackageSides()
 	{
-		if (!int.TryParse(_sidesInput.Text, out var sides)) return Array.Empty<string>();
+		if (!int.TryParse(_sidesInput.Text, out var sides)) return Array.Empty<QuickTextureField>();
 
-		var s = new string[sides];
+		var s = new QuickTextureField[sides];
 
 		for (int i = 0; i < sides; i++)
 		{
-			s[i] = _quickSideValues[i].Text;
+			s[i] = _quickSideEntries[i].GetQuickTextureField();
 		}
 
 		return s;

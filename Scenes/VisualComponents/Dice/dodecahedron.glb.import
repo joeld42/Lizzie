@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://ureh4u35stiq"
-path="res://.godot/imported/dodecahedron.glb-a1b917aacef2cfcea0cd0af869781db6.scn"
+path="res://.godot/imported/dodecahedron.glb-40046d518c32c0bba152f10c5ad103a4.scn"
 
 [deps]
 
-source_file="res://Textures/Dice/dodecahedron.glb"
-dest_files=["res://.godot/imported/dodecahedron.glb-a1b917aacef2cfcea0cd0af869781db6.scn"]
+source_file="res://Scenes/VisualComponents/Dice/dodecahedron.glb"
+dest_files=["res://.godot/imported/dodecahedron.glb-40046d518c32c0bba152f10c5ad103a4.scn"]
 
 [params]
 

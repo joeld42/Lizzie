@@ -237,7 +237,7 @@ public partial class VcDie : VisualComponentBase
 				}
 		}
 
-		var sides = Utility.GetParam<string[]>(parameters, "Sides");
+		var sides = Utility.GetParam<QuickTextureField[]>(parameters, "Sides");
 
 		YHeight = size;
 		
@@ -309,7 +309,7 @@ public partial class VcDie : VisualComponentBase
 		return new List<string>();
 	}
 
-	private TextureFactory.TextureDefinition D6TextureDefinition(string[] sides, Color color)
+	private TextureFactory.TextureDefinition D6TextureDefinition(QuickTextureField[] sides, Color color)
 	{
 		var font = new SystemFont();
 
@@ -329,13 +329,14 @@ public partial class VcDie : VisualComponentBase
 			Font = font,
 			Height = 85,
 			Width = 85,
-			Type= TextureFactory.TextureObjectType.RectangleText,
+			Type= sides[0].FaceType,
 			RotationDegrees = 0,
-			Text = sides[0],
-			TextColor = Colors.Black
+			Text = sides[0].Caption,
+			TriangleFace = false,
+			ForegroundColor = sides[0].ForegroundColor
 		};
 		tx.Objects.Add(to);
-		
+	
 		tx.Objects.Add(DuplicateFace(to, 127, 64, 0, sides[1]));
 		tx.Objects.Add(DuplicateFace(to, 212, 64, 0, sides[2]));
 		tx.Objects.Add(DuplicateFace(to, 42, 194, 0, sides[3]));
@@ -345,7 +346,7 @@ public partial class VcDie : VisualComponentBase
 		return tx;
 	}
 	
-	private TextureFactory.TextureDefinition D8TextureDefinition(string[] sides, Color color)
+	private TextureFactory.TextureDefinition D8TextureDefinition(QuickTextureField[] sides, Color color)
 	{
 		var font = new SystemFont();
 
@@ -364,10 +365,11 @@ public partial class VcDie : VisualComponentBase
 			Font = font,
 			Height = 110,
 			Width = 110,
-			Type = TextureFactory.TextureObjectType.TriangleText,
+			Type= sides[0].FaceType,
+			TriangleFace = true,
 			RotationDegrees = 90,
-			Text = sides[0],
-			TextColor = Colors.Black
+			Text = sides[0].Caption,
+			ForegroundColor = sides[0].ForegroundColor
 		};
 
 		tx.Objects.Add(t0);
@@ -382,7 +384,7 @@ public partial class VcDie : VisualComponentBase
 		return tx;
 	}
 	
-	private TextureFactory.TextureDefinition D10TextureDefinition(string[] sides, Color color)
+	private TextureFactory.TextureDefinition D10TextureDefinition(QuickTextureField[] sides, Color color)
 	{
 		var font = new SystemFont();
 
@@ -402,10 +404,11 @@ public partial class VcDie : VisualComponentBase
 			Font = font,
 			Height = 71,
 			Width = 49,
-			Type= TextureFactory.TextureObjectType.RectangleText,
+			Type= sides[0].FaceType,
+			TriangleFace = true,
 			RotationDegrees = 0,
-			Text = sides[0],
-			TextColor = Colors.Black
+			Text = sides[0].Caption,
+			ForegroundColor = sides[0].ForegroundColor
 		};
 		tx.Objects.Add(to);
 		
@@ -422,7 +425,7 @@ public partial class VcDie : VisualComponentBase
 		return tx;
 	}
 	
-	private TextureFactory.TextureDefinition D12TextureDefinition(string[] sides, Color color)
+	private TextureFactory.TextureDefinition D12TextureDefinition(QuickTextureField[] sides, Color color)
 	{
 		var font = new SystemFont();
 
@@ -442,10 +445,11 @@ public partial class VcDie : VisualComponentBase
 			Font = font,
 			Height = 53,
 			Width = 47,
-			Type= TextureFactory.TextureObjectType.RectangleText,
+			Type= sides[0].FaceType,
+			TriangleFace = true,
 			RotationDegrees = 90,
-			Text = sides[0],
-			TextColor = Colors.Black
+			Text = sides[0].Caption,
+			ForegroundColor = sides[0].ForegroundColor
 		};
 		tx.Objects.Add(to);
 		
@@ -464,7 +468,7 @@ public partial class VcDie : VisualComponentBase
 		return tx;
 	}
 
-	private TextureFactory.TextureDefinition D20TextureDefinition(string[] sides, Color color)
+	private TextureFactory.TextureDefinition D20TextureDefinition(QuickTextureField[] sides, Color color)
 	{
 		var font = new SystemFont();
 
@@ -484,10 +488,11 @@ public partial class VcDie : VisualComponentBase
 			Font = font,
 			Height = 82,
 			Width = 82,
-			Type= TextureFactory.TextureObjectType.TriangleText,
+			Type= sides[0].FaceType,
+			TriangleFace = true,
 			RotationDegrees = 90,
-			Text = sides[0],
-			TextColor = Colors.Black
+			Text = sides[0].Caption,
+			ForegroundColor = sides[0].ForegroundColor
 		};
 		tx.Objects.Add(to);
 		
@@ -522,7 +527,7 @@ public partial class VcDie : VisualComponentBase
 	}
 	
 	private TextureFactory.TextureObject DuplicateFace(TextureFactory.TextureObject obj, int centerX, int centerY, int rotation,
-		string text)
+		QuickTextureField qtf)
 	{
 		TextureFactory.TextureObject tx = new()
 		{
@@ -531,10 +536,11 @@ public partial class VcDie : VisualComponentBase
 			Font = obj.Font,
 			Height = obj.Height,
 			Width = obj.Width,
-			Type = obj.Type,
+			Type = qtf.FaceType,
 			RotationDegrees = rotation,
-			Text = text,
-			TextColor = obj.TextColor
+			Text = qtf.Caption,
+			TriangleFace = obj.TriangleFace,
+			ForegroundColor = qtf.ForegroundColor
 		};
 
 		return tx;

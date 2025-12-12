@@ -25,8 +25,8 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 
 	//quick method back of token
 	private ColorPickerButton _quickBackgroundColor2;
-	private ColorPickerButton _quickTextColor2;
-	private LineEdit _quickText2;
+	//private ColorPickerButton _quickTextColor2;
+	//private LineEdit _quickText2;
 
 
 	private CheckBox _quickBackCheckbox;
@@ -41,6 +41,8 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 	private Label _label;
 	
 	private ComponentPreview _preview;
+	private QuickTextureEntry _frontField;
+	private QuickTextureEntry _backField;
 
 	public override void _Ready()
 	{
@@ -70,27 +72,26 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 		_backButton.Pressed += GetBackFile;
 
 		_quickBackgroundColor = GetNode<ColorPickerButton>("%TopBgColor");
-		_quickText =
-			GetNode<LineEdit>("%TopCaption");
-		_quickTextColor = GetNode<ColorPickerButton>("%TopTextColor");
+		
 		_quickBackCheckbox =
 			GetNode<CheckBox>("%ToggleBack");
 
-
-		_quickText.TextChanged += OnTextChange;
+		
+		//TODO Restore to panel
+		//_quickText.TextChanged += OnTextChange;
+		//_quickTextColor.ColorChanged += OnPreviewTextColorChange;
+		_frontField = GetNode<QuickTextureEntry>("%FrontField");
+		_frontField.FieldChanged += (sender, args) => UpdatePreview();
+		
 		_quickBackgroundColor.ColorChanged += OnBackgroundColorChanged;
-		_quickTextColor.ColorChanged += OnPreviewTextColorChange;
 		_quickBackCheckbox.Pressed += OnQuickBackCheckboxChange;
 
 		_quickBackgroundColor2 = GetNode<ColorPickerButton>("%BottomBgColor");
-		_quickText2 =
-			GetNode<LineEdit>("%BottomCaption");
-		_quickTextColor2 = GetNode<ColorPickerButton>("%BottomTextColor");
-
-		_quickText2.TextChanged += OnText2Change;
 		_quickBackgroundColor2.ColorChanged += OnBackgroundColor2Changed;
-		_quickTextColor2.ColorChanged += OnPreviewTextColor2Change;
 
+		_backField = GetNode<QuickTextureEntry>("%BackField");
+		_backField.FieldChanged += (sender, args) => UpdatePreview();
+		
 		_shapePicker = GetNode<OptionButton>("%ShapePicker");
 		_shapePicker.ItemSelected += ShapePickerOnItemSelected;
 		
@@ -181,10 +182,8 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 	{
 		var h4 = GetNode<HBoxContainer>("%BottomBgContainer");
 
-		var h5 = GetNode<HBoxContainer>("%BottomCaptionContainer");
-
 		h4.Visible = _quickBackCheckbox.ButtonPressed;
-		h5.Visible = _quickBackCheckbox.ButtonPressed;
+		_backField.Visible = _quickBackCheckbox.ButtonPressed;
 		
 		UpdatePreview();
 	}
@@ -302,8 +301,11 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 		d.Add("Shape", _shapePicker.Selected);
 		d.Add("Mode", TabToBuildMode(_tabs.CurrentTab));
 		d.Add("FrontBgColor", _quickBackgroundColor.Color);
-		d.Add("FrontCaption", _quickText.Text);
-		d.Add("FrontCaptionColor", _quickTextColor.Color);
+		
+		//TODO Replace with panel
+		d.Add("QuickFront", _frontField.GetQuickTextureField());
+		d.Add("QuickBack", _backField.GetQuickTextureField());
+		
 		d.Add("Type", VcToken.TokenType.Token);
 		d.Add("FrontFontSize", 24);
 		
@@ -318,8 +320,6 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 
 
 		d.Add("BackBgColor", _quickBackgroundColor2.Color);
-		d.Add("BackCaption", _quickText2.Text);
-		d.Add("BackCaptionColor", _quickTextColor2.Color);
 		d.Add("BackFontSize", 24);
 
 		return d;
@@ -366,8 +366,13 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 		d.Add("Shape", _shapePicker.Selected);
 		d.Add("Mode", TabToBuildMode(_tabs.CurrentTab));
 		d.Add("FrontBgColor", _quickBackgroundColor.Color);
-		d.Add("FrontCaption", _quickText.Text);
-		d.Add("FrontCaptionColor", _quickTextColor.Color);
+		
+		//TODO fix for panel
+		//d.Add("FrontCaption", "");
+		//d.Add("FrontCaptionColor", Colors.Black);
+		d.Add("QuickFront", _frontField.GetQuickTextureField());
+		d.Add("QuickBack", _backField.GetQuickTextureField());
+		
 		d.Add("Type", VcToken.TokenType.Token);
 		d.Add("FrontFontSize", 24);
 		
@@ -382,8 +387,6 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 
 
 		d.Add("BackBgColor", _quickBackgroundColor2.Color);
-		d.Add("BackCaption", _quickText2.Text);
-		d.Add("BackCaptionColor", _quickTextColor2.Color);
 		d.Add("BackFontSize", 24);
 
 		_preview.Build(d, TextureFactory);

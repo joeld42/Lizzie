@@ -369,13 +369,13 @@ public partial class VcToken : VisualComponentFlat
 	
 	private void CreateQuickFrontTexture(TextureFactory textureFactory)
 	{
-		var td = CreateQuickTextureDefinition(_frontBgColor, _frontCaption, _frontCaptionColor);
+		var td = CreateQuickTextureDefinition(_frontBgColor, _frontField);
 
 		textureFactory.GenerateTexture(td, FinalizeFrontQuickTexture);
 		
 	}
 
-	private TextureFactory.TextureDefinition CreateQuickTextureDefinition(Color bgColor, string caption, Color captionColor)
+	private TextureFactory.TextureDefinition CreateQuickTextureDefinition(Color bgColor, QuickTextureField qtf)
 	{
 		int sH = 256;
 		int sW = 256;
@@ -432,11 +432,13 @@ public partial class VcToken : VisualComponentFlat
 			CenterX = sW / 2,
 			CenterY = sH / 2,
 			Multiline = true,
-			Text= caption,
-			TextColor = captionColor,
+			Text= qtf.Caption,
+			ForegroundColor = qtf.ForegroundColor,
 			Font= new SystemFont(),
-			Type = TextureFactory.TextureObjectType.RectangleText
+			Type = qtf.FaceType
 		});
+		
+		
 
 		return td;
 	}
@@ -460,7 +462,7 @@ public partial class VcToken : VisualComponentFlat
 
 	private void CreateQuickBackTexture(TextureFactory textureFactory)
 	{
-		var td = CreateQuickTextureDefinition(_backBgColor, _backCaption, _backCaptionColor);
+		var td = CreateQuickTextureDefinition(_backBgColor, _backField);
 
 		textureFactory.GenerateTexture(td, FinalizeBackQuickTexture);
 	}
@@ -495,14 +497,16 @@ public partial class VcToken : VisualComponentFlat
 		
 		// Quick parameters
 		_frontBgColor = Utility.GetParam<Color>(parameters,  "FrontBgColor");
-		_frontCaption = Utility.GetParam<string>(parameters, "FrontCaption");
-		_frontCaptionColor = Utility.GetParam<Color>(parameters, "FrontCaptionColor");
+		
+		//_frontCaption = Utility.GetParam<string>(parameters, "FrontCaption");
+		//_frontCaptionColor = Utility.GetParam<Color>(parameters, "FrontCaptionColor");
+		_frontField = Utility.GetParam<QuickTextureField>(parameters, "QuickFront");
+		_backField = Utility.GetParam<QuickTextureField>(parameters, "QuickBack");
+		
 		_frontFontSize = Utility.GetParam<int>(parameters, "FrontFontSize");
 		_differentBack = Utility.GetParam<bool>(parameters, "DifferentBack");
 		
 		_backBgColor = Utility.GetParam<Color>(parameters, "BackBgColor");
-		_backCaption = Utility.GetParam<string>(parameters, "BackCaption");
-		_backCaptionColor = Utility.GetParam<Color>(parameters, "BackCaptionColor");
 		_backFontSize = Utility.GetParam<int>(parameters, "BackFontSize");
 		
 		//Grid Parameters
@@ -585,12 +589,11 @@ public partial class VcToken : VisualComponentFlat
 	private int _shape;
 	private TokenBuildMode _mode;
 	private Color _frontBgColor;
-	private string _frontCaption;
-	private Color _frontCaptionColor;
+	private QuickTextureField _frontField;
+	private QuickTextureField _backField;
 	private bool _differentBack;
 	private Color _backBgColor;
-	private string _backCaption;
-	private Color _backCaptionColor;
+
 	private TokenType _tokenType;
 	private int _frontFontSize;
 	private int _backFontSize;

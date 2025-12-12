@@ -127,33 +127,10 @@ public partial class TextureFactory : SubViewport
         
         _viewport.AddChild(tr);
 
-        
-        foreach (var obj in definition.Objects.Take(Take))
-        {
-            switch (obj.Type)
-            {
-                case TextureObjectType.RectangleText:
-                    RenderRectangleText(obj);
-                    break;
-                case TextureObjectType.TriangleText:
-                    RenderTriangleText(obj);
-                    break;
-                case TextureObjectType.RectangleShape:
-                    break;
-                case TextureObjectType.CircleShape:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
-        }
-        
-        
-        // Get the rendered texture
         _viewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
         
         _viewportUpdating = 2;
-        _skip = 1;
+        _skip = 0;
 
     }
     
@@ -175,32 +152,41 @@ public partial class TextureFactory : SubViewport
         tr.Texture = ImageTexture.CreateFromImage(image);
         _viewport.AddChild(tr);
 
-        foreach (var obj in definition.Objects.Skip(_skip * Take).Take(Take))
-        {
-            switch (obj.Type)
-            {
-                case TextureObjectType.RectangleText:
-                    RenderRectangleText(obj);
-                    break;
-                case TextureObjectType.TriangleText:
-                    RenderTriangleText(obj);
-                    break;
-                case TextureObjectType.RectangleShape:
-                    break;
-                case TextureObjectType.CircleShape:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
-        }
-        
+        RenderObjects(definition);
         
         // Get the rendered texture
         _viewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
         
         _viewportUpdating = 2;
         _skip++;
+    }
+
+    private void RenderObjects(TextureDefinition definition)
+    {
+        foreach (var obj in definition.Objects.Skip(_skip * Take).Take(Take))
+        {
+            if (obj.Type == TextureObjectType.Text)
+            {
+                RenderText(obj);
+            }
+            else
+            {
+                RenderShape(obj);
+            }
+
+        }
+    }
+    
+    private void RenderText(TextureObject obj)
+    {
+        if (obj.TriangleFace)
+        {
+            RenderTriangleText(obj);
+        }
+        else
+        {
+            RenderRectangleText(obj);
+        }
     }
 
     private void RenderRectangleText(TextureObject obj)
@@ -217,7 +203,7 @@ public partial class TextureFactory : SubViewport
         // Create a Label for the text
         var label = new Label();
         label.Text = obj.Text;
-        label.AddThemeColorOverride("font_color", obj.TextColor);
+        label.AddThemeColorOverride("font_color", obj.ForegroundColor);
         label.AddThemeFontOverride("font", obj.Font);
         label.AddThemeFontSizeOverride("font_size", fontSize);
 
@@ -256,8 +242,9 @@ public partial class TextureFactory : SubViewport
             Multiline = obj.Multiline,
             RotationDegrees = obj.RotationDegrees,
             Text = obj.Text,
-            TextColor = obj.TextColor,
-            Type = TextureObjectType.RectangleText
+            ForegroundColor = obj.ForegroundColor,
+            TriangleFace = false,
+            Type = TextureObjectType.Text
         };
         
         RenderRectangleText(o);
@@ -276,6 +263,106 @@ public partial class TextureFactory : SubViewport
 
         return new Vector2(aspectRatio * h, h);
     }
+
+    private void RenderShape(TextureObject obj)
+    {
+        if (obj.TriangleFace)
+        {
+            RenderShapeInTriangle(obj);
+        }
+        else
+        {
+            RenderShapeInRectangle(obj);
+        }
+    }
+
+    private void RenderShapeInTriangle(TextureObject obj)
+    {
+        Vector2 textSize = obj.Font.GetStringSize(obj.Text, fontSize: 12);
+        if (textSize.Y == 0) return;
+        
+        var ratio = textSize.X / textSize.Y;
+        
+        var bounds = ScaleRectangleInTriangle(obj.Width, ratio);
+
+        var hh = bounds.Y / 2;
+        var rotRad = Mathf.DegToRad(obj.RotationDegrees);
+        
+        var newX = obj.CenterX + hh * Mathf.Sin(rotRad);
+        var newY = obj.CenterY + hh * Mathf.Cos(rotRad);
+
+        var o = new TextureObject
+        {
+            CenterX = (int)newX,
+            CenterY = (int)newY,
+            Font = obj.Font,
+            Height = (int)bounds.Y,
+            Width = (int)bounds.X,
+            Multiline = obj.Multiline,
+            RotationDegrees = obj.RotationDegrees,
+            ForegroundColor = obj.ForegroundColor,
+            TriangleFace = false,
+            Type = obj.Type
+        };
+        
+        RenderShapeInRectangle(o);
+    }
+    
+    private void RenderShapeInRectangle(TextureObject obj)
+    {
+        var tr = new TextureRect();
+        Texture2D texture;
+        
+        switch (obj.Type)  
+        {
+            case TextureObjectType.RectangleShape:
+                texture = _rectShape;
+                break;
+            case TextureObjectType.CircleShape:
+                texture = _circleShape;
+                break;
+            case TextureObjectType.HexFlatUpShape:
+                texture = _hexFlatShape;
+                break;
+            case TextureObjectType.HexPointUpShape:
+                texture = _hexPointShape;
+                break;
+            case TextureObjectType.TriangleShape:
+                texture = _rectShape;   //TODO Change to TriangleShape
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        float scale = 0.8f;
+        
+        var scaleWidth = obj.Width * scale;
+        var scaleHeight = obj.Height * scale;
+        
+        var image = texture.GetImage();
+        
+        //tr.Size = new Vector2(_activeQueueEntry.TextureDefinition.Width, _activeQueueEntry.TextureDefinition.Height);
+        tr.Size = new Vector2(scaleWidth, scaleHeight);
+        tr.StretchMode = TextureRect.StretchModeEnum.Scale;
+        tr.ClipChildren = CanvasItem.ClipChildrenMode.Only;
+        tr.Texture = ImageTexture.CreateFromImage(image);
+
+        
+        
+        var bgRect = new ColorRect();
+        bgRect.Color = obj.ForegroundColor;
+        bgRect.Size = new Vector2(scaleWidth, scaleHeight) ;
+        tr.AddChild(bgRect);
+        
+        var halfWidth = scaleWidth / 2;
+        var halfHeight = scaleHeight / 2;
+        tr.Position = new Vector2(obj.CenterX - halfWidth, obj.CenterY - halfHeight);
+        tr.PivotOffset = new Vector2(halfWidth, halfHeight);
+        tr.RotationDegrees = obj.RotationDegrees;
+
+        _viewport.AddChild(tr);
+    }   
     
     private void AfterRender()
     {
@@ -285,6 +372,8 @@ public partial class TextureFactory : SubViewport
         // Create ImageTexture from the rendered image
         var imageTexture = ImageTexture.CreateFromImage(image);
 
+        
+        
         _activeQueueEntry.TextureReadyCallback?.Invoke(imageTexture);
         
         //cleanup
@@ -317,10 +406,12 @@ public partial class TextureFactory : SubViewport
 
     public enum TextureObjectType
     {
-        RectangleText,
-        TriangleText,
+        Text,
         RectangleShape,
         CircleShape,
+        HexFlatUpShape,
+        HexPointUpShape,
+        TriangleShape
     }
 
     public enum TextureShape
@@ -344,8 +435,10 @@ public partial class TextureFactory : SubViewport
     public class TextureObject
     {
         public TextureObjectType Type { get; set; }
+        
+        public bool TriangleFace { get; set; }
         public string Text { get; set; }
-        public Color TextColor { get; set; } = Colors.Black;
+        public Color ForegroundColor { get; set; } = Colors.Black;
         public Font Font { get; set; }
         public int Height { get; set; }
         public int Width { get; set; }
