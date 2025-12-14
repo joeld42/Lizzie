@@ -20,9 +20,22 @@ public partial class ComponentDefinition : HBoxContainer
 
 	private Button _cancelButton;
 	
+	[Export] private TextureFactory _textureFactory;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		}
+
+	private bool _isInitialized;
+	public void Initialize()
+	{
+		Visible = true;
+		
+		if (_isInitialized) return;
+
+		_isInitialized = true;
+		
 		buttonPanel = GetNode<VBoxContainer>("ButtonStrip");
 		_componentPanel = GetNode<Panel>("ComponentPanel");
 		
@@ -36,6 +49,12 @@ public partial class ComponentDefinition : HBoxContainer
 			buttonPanel.AddChild(b);
 
 			var ci = CreateComponentPanel(c.DefinitionDialogName);
+
+			if (ci is ComponentPanelDialogResult cpdr)
+			{
+				cpdr.TextureFactory = _textureFactory;
+			}
+			
 			_componentPanel.AddChild(ci);
 
 			_panelDictionary.Add(c.ComponentName, ci);
@@ -53,6 +72,7 @@ public partial class ComponentDefinition : HBoxContainer
 
 		_cancelButton = GetNode<Button>("%CancelButton");
 		_cancelButton.Pressed += CancelClicked;
+
 	}
 	
 
@@ -67,6 +87,11 @@ public partial class ComponentDefinition : HBoxContainer
 				ComponentType = NameToType(CurName),
 				Params = r.GetParams(),
 			};
+
+			if (!e.Params.ContainsKey("BaseName"))
+			{
+				e.Params.Add("BaseName", CurName);
+			}
 
 			var cd = _components.First(x => x.ComponentName == CurName);
 
@@ -106,7 +131,22 @@ public partial class ComponentDefinition : HBoxContainer
 	{
 		foreach (var kv in _panelDictionary)
 		{
-			kv.Value.Visible = (kv.Key == name);
+			if (kv.Value is ComponentPanelDialogResult cpdr)
+			{
+				if (kv.Key == name)
+				{
+					kv.Value.Visible = true;
+					cpdr.Activate();
+				}
+				else
+				{
+					kv.Value.Visible = false;
+					cpdr.Deactivate();
+				}
+			}
+			
+			
+			
 		}
 	}
 

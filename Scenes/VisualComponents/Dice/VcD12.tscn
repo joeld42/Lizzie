@@ -1,12 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bmanti5q0gk2i"]
+[gd_scene load_steps=6 format=3 uid="uid://bmanti5q0gk2i"]
 
 [ext_resource type="ArrayMesh" uid="uid://b7d6f35880p10" path="res://Scenes/VisualComponents/Dice/d12mesh.tres" id="2_4v3c2"]
 [ext_resource type="Script" path="res://Scripts/VisualComponents/VcDie.cs" id="2_vxow7"]
-[ext_resource type="Texture2D" uid="uid://cc18yvwknwe15" path="res://Scenes/VisualComponents/Dice/d12a-numbers.png" id="3_u30h3"]
+[ext_resource type="ArrayMesh" uid="uid://dn2kconx3niu6" path="res://Scenes/VisualComponents/Dice/d12cmesh.tres" id="2_y56pc"]
 [ext_resource type="Material" uid="uid://bgmgc3682qest" path="res://Materials/Highlight.material" id="4_s3snl"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mu76u"]
-albedo_texture = ExtResource("3_u30h3")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_la7hy"]
 radius = 0.95
@@ -19,9 +16,8 @@ _sideRotations = PackedVector3Array(52, -36, 0, 0, -126, 30, 30, -144, -90, 150,
 
 [node name="ObjectMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.95, 0, 0, 0, 0.95, 0, 0, 0, 0.95, 0, 0, 0)
-mesh = ExtResource("2_4v3c2")
+mesh = ExtResource("2_y56pc")
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_mu76u")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_la7hy")

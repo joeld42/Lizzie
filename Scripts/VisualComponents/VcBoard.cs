@@ -69,13 +69,13 @@ public partial class VcBoard : VisualComponentBase
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		MainMesh = _frontSurface;
 	
-		base.Build(parameters);
+		base.Build(parameters, textureFactory);
 
 		if (parameters.ContainsKey(nameof(Height)))
 		{
@@ -132,9 +132,9 @@ public partial class VcBoard : VisualComponentBase
 		var ret = new List<string>();
 
 		//must have a name and height. Width/length optional
-		if (parameters.ContainsKey(nameof(InstanceName)))
+		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
-			if (string.IsNullOrEmpty(parameters[nameof(InstanceName)].ToString()))
+			if (string.IsNullOrEmpty(parameters[nameof(ComponentName)].ToString()))
 				ret.Add("Instance Name may not be blank");
 		}
 		else

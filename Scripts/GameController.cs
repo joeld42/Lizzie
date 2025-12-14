@@ -9,6 +9,9 @@ public partial class GameController : Node3D
 
 	private UI _uiController;
 	
+	[Export]
+	private TextureFactory _textureFactory;
+	
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -16,10 +19,15 @@ public partial class GameController : Node3D
 		_mainScene = GetNode<SceneController>("3DSceneNoPhysics");
 		_mainScene.SetMode(SceneMode.TwoD);
 		_mainScene.ShowComponentPopup2 += MainSceneOnShowComponentPopup2;
-
+		_mainScene.HoveredComponentChange += MainSceneOnHoveredNameChange;
+		_mainScene.GameObjects.TextureFactory = _textureFactory;
+		
 		_uiController = GetNode<UI>("UI");
 		_uiController.MasterModeChange += OnMasterModeChange;
 		_uiController.CreateObject += OnCreateObject;
+
+		var commandDic = new CommandDictionary(_mainScene);
+		
 	}
 
 	private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)
@@ -27,6 +35,11 @@ public partial class GameController : Node3D
 		ShowComponentPopup(e.Position, e.Components);
 	}
 
+	private void MainSceneOnHoveredNameChange(object sender, HoveredComponentChangeEventArgs e)
+	{
+		_uiController.UpdateHoveredName(e.Component);
+	}
+	
 	private void OnCreateObject(object sender, CreateObjectEventArgs args)
 	{
 		VisualComponentBase component = SpawnComponent(args.PrototypeName);
@@ -37,7 +50,18 @@ public partial class GameController : Node3D
 			return;
 		}
 
-		if (component.Build(args.Params))
+		//if the name is blank in the parameters, set it
+		if (args.Params.ContainsKey("ComponentName") && args.Params.ContainsKey("BaseName"))
+		{
+			if (string.IsNullOrWhiteSpace(args.Params["ComponentName"].ToString()))
+			{
+				args.Params["ComponentName"] =
+					_mainScene.GameObjects.CreateUniqueName(args.Params["BaseName"].ToString());
+			}
+		}
+		
+		
+		if (component.Build(args.Params, _textureFactory))
 		{
 			_mainScene.EnterSpawnMode(component);
 		}

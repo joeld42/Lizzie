@@ -20,7 +20,13 @@ public partial class UI : CanvasLayer
 	private PopupMenu _helpMenu;
 
 	private PopupMenu _componentPopup;
+	private Label _componentName;
 
+	private GameController _gameController;
+	private GameObjects _gameObjects;
+
+	private TabContainer _componentTabs;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -46,6 +52,19 @@ public partial class UI : CanvasLayer
 		_componentPopup = GetNode<PopupMenu>("ComponentPopup");
 		_componentPopup.IdPressed += PopupMenuCommandSelected;
 		_componentPopup.CloseRequested += ComponentPopupClosed;
+
+		_componentName = GetNode<Label>("%ComponentName");
+		
+		_componentTabs = GetNode<TabContainer>("%ComponentTabs");
+		var textureFactory = GetNode<TextureFactory>("%TextureFactory");
+
+		foreach (var c in _componentTabs.GetChildren())
+		{
+			if (c is ComponentPanelDialogResult cpdr)
+			{
+				cpdr.TextureFactory = textureFactory;
+			}
+		}
 	}
 
 	public override void _Process(double delta)
@@ -139,6 +158,8 @@ public partial class UI : CanvasLayer
 			.Select(y => y.Key);
 
 		_componentPopup.Clear();
+		
+		
 
 		if (commands.Any(x => x == VisualCommand.ToggleLock))
 		{
@@ -182,7 +203,10 @@ public partial class UI : CanvasLayer
 
 	private void OnInsertMenuSelection(long id)
 	{
-		if (id == 1) _componentDefinition.Visible = true;
+		if (id == 1)
+		{
+			_componentDefinition.Initialize();
+		}
 	}
 
 	private void OnInsertPressed()
@@ -295,6 +319,15 @@ public partial class UI : CanvasLayer
 		target.Texture = t;
 	}
 
+	public void UpdateHoveredName(VisualComponentBase component)
+	{
+		if (component == null)
+		{
+			_componentName.Text = string.Empty;
+			return;
+		}
+		_componentName.Text = component.ComponentName;
+	}
 
 	public const int LongClickTime = 1000;
 }

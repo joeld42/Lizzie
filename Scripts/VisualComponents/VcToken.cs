@@ -2,7 +2,10 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.Json;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
+using Vector2 = Godot.Vector2;
 
 public partial class VcToken : VisualComponentFlat
 {
@@ -109,27 +112,39 @@ public partial class VcToken : VisualComponentFlat
 
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
+
+	private bool _firstBuild = true;
+
+	public enum TokenBuildMode {Quick, Custom, Grid, Template, Nandeck}
 	
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
 		FaceSprite = GetNode<Sprite3D>("FrontSprite");
 		BackSprite = GetNode<Sprite3D>("BackSprite");
 		_sideMesh = GetNode<MeshInstance3D>("SideMesh");
 		
-		if (!InitializeParameters(parameters)) return false;
+		if (!InitializeParameters(parameters, textureFactory)) return false;
 
 		switch (_mode)
 		{
-			case 0:
-				BuildQuick();
+			case TokenBuildMode.Quick:
+				BuildQuick(textureFactory);
 				break;
 			
-			case 1:
+			case TokenBuildMode.Custom:
 				BuildCustom();
 				break;
 			
-			case 2:
-				BuildImport();
+			case TokenBuildMode.Grid:
+				BuildGrid();
+				break;
+			
+			case TokenBuildMode.Template:
+				BuildTemplate();
+				break;
+			
+			case TokenBuildMode.Nandeck:
+				BuildNanDeck();
 				break;
 		}
 		
@@ -149,7 +164,7 @@ public partial class VcToken : VisualComponentFlat
 			var size = new Vector3(scale / _width, 1, scale / _height);
 			FaceSprite.Scale = size;
 			BackSprite.Scale = size;
-			GD.PrintErr(size);
+			//GD.PrintErr(size);
 		}
 
 		var shape = (TokenTextureSubViewport.TokenShape)_shape;
@@ -183,8 +198,9 @@ public partial class VcToken : VisualComponentFlat
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
-		
-		
+
+
+		_firstBuild = false;
 		
 		return true;
 	}
@@ -230,31 +246,74 @@ public partial class VcToken : VisualComponentFlat
 		
 		return arr;
 	}
-	private void BuildQuick()
+	
+	
+	private void BuildQuick(TextureFactory textureFactory)
 	{
-		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
-		_frontView.Ready += () => CreateQuickFrontTexture();
-		
-		if (_differentBack)
-		{
-			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
-			_backView.Ready += () => CreateQuickBackTexture();
-		}
+		CreateQuickFrontTexture(textureFactory);
+		if (_differentBack) CreateQuickBackTexture(textureFactory);
 	}
 
 	private void BuildCustom()
 	{
 		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
-		_frontView.Ready += CreateCustomFrontTexture;
+		if (_firstBuild)
+		{
+			_frontView.Ready += CreateCustomFrontTexture;
+		}
+		else
+		{
+			CreateCustomFrontTexture();
+		}
 		
 		if (_differentBack)
 		{
 			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
-			_backView.Ready += CreateCustomBackTexture;
+			if (_firstBuild)
+			{
+				_backView.Ready += CreateCustomBackTexture;
+			}
+			else
+			{
+				CreateCustomBackTexture();
+			}
 		}
 		
 	}
-	
+
+	private void BuildGrid()
+	{
+		if (_frontMasterSprite is null) return;
+
+		if (_gridCols == 0 || _gridRows == 0) return;
+		
+		var ts = _frontMasterSprite.GetSize();
+
+		var cv = new Vector2(ts.X / _gridCols, ts.Y / _gridRows);
+		var pixelSize = PixelSize(cv);
+		
+		FaceSprite.PixelSize = pixelSize;
+		
+		if (!_differentBack)
+		{
+			BackSprite.PixelSize = pixelSize;
+			//BackSprite.Texture = t;
+		}
+
+		FaceSprite.Texture = _frontMasterSprite;
+		FaceSprite.Hframes = _gridCols;
+		FaceSprite.Vframes = _gridRows;
+		FaceSprite.Frame = _gridIndex;
+	}
+
+	private void BuildTemplate()
+	{
+	}
+
+	private void BuildNanDeck()
+	{
+	}
+
 	private void BuildImport(){}
 
 	private void CreateCustomFrontTexture()
@@ -308,91 +367,155 @@ public partial class VcToken : VisualComponentFlat
 		return 0.95f / Mathf.Max(size.X, size.Y);
 	}
 	
-	private void CreateQuickFrontTexture()
+	private void CreateQuickFrontTexture(TextureFactory textureFactory)
 	{
-		var textureParameters = new TokenTextureParameters
+		var td = CreateQuickTextureDefinition(_frontBgColor, _frontField);
+
+		textureFactory.GenerateTexture(td, FinalizeFrontQuickTexture);
+		
+	}
+
+	private TextureFactory.TextureDefinition CreateQuickTextureDefinition(Color bgColor, QuickTextureField qtf)
+	{
+		int sH = 256;
+		int sW = 256;
+		
+		if (_height <= 0 || _width <= 0) return new TextureFactory.TextureDefinition();
+		if (_height > _width)
 		{
-			BackgroundColor = _frontBgColor,
-			Caption = _frontCaption,
-			CaptionColor = _frontCaptionColor,
-			Shape = (TokenTextureSubViewport.TokenShape)_shape,
-			Height = _height,
-			Width = _width,
-			FontSize = _frontFontSize
+			sW = (int)(_width * 256 / _height);
+		}
+		else
+		{
+			sH = (int)(_height * 256 / _width);
+		}
+		
+		
+		var td = new TextureFactory.TextureDefinition
+		{
+			BackgroundColor = bgColor,
+			Height = sH,
+			Width = sW
 		};
+
+		/*
+		 Square = 0,
+		Circle = 1,
+		HexPoint = 2,
+		HexFlat = 3,
+		RoundedRect = 4
+		 */
 		
-		var t = _frontView.CreateQuickTexture(textureParameters);
+		switch (_shape)
+		{
+			case 0:
+				td.Shape = TextureFactory.TextureShape.Square;
+				break;
+			
+			case 1:
+				td.Shape = TextureFactory.TextureShape.Circle;
+				break;
+			
+			case 2:
+				td.Shape = TextureFactory.TextureShape.HexPoint;
+				break;
+			
+			case 3:
+				td.Shape = TextureFactory.TextureShape.HexFlat;
+				break;
+		}
 		
+		td.Objects.Add(new TextureFactory.TextureObject
+		{
+			Width = sW,
+			Height = sH,
+			CenterX = sW / 2,
+			CenterY = sH / 2,
+			Multiline = true,
+			Text= qtf.Caption,
+			ForegroundColor = qtf.ForegroundColor,
+			Font= new SystemFont(),
+			Type = qtf.FaceType
+		});
+		
+		
+
+		return td;
+	}
+
+	private void FinalizeFrontQuickTexture(ImageTexture t)
+	{
 		float pixelSize = PixelSize(t.GetSize());
 		FaceSprite.PixelSize = pixelSize;
-		FaceSprite.Texture = t;
-
-
+		FaceTexture = t;
 		
 		if (!_differentBack)
 		{
 			BackSprite.PixelSize = pixelSize;
-			BackSprite.Texture = t;
+			BackTexture = t;
 		}
-	}
-	
-	private void CreateQuickBackTexture()
-	{
-		var textureParameters = new TokenTextureParameters
-		{
-			BackgroundColor = _backBgColor,
-			Caption = _backCaption,
-			CaptionColor = _backCaptionColor,
-			Shape = (TokenTextureSubViewport.TokenShape)_shape,
-			Height = _height,
-			Width = _width,
-			FontSize = _backFontSize
-		};
-
-		var t = _backView.CreateQuickTexture(textureParameters);
-		var pixelSize = PixelSize(t.GetSize());
-		BackSprite.PixelSize = pixelSize;
-		BackSprite.Texture = t;
-	}
-
-	private bool InitializeParameters(Dictionary<string, object> parameters)
-	{
-		base.Build(parameters);
-
-		if (parameters.ContainsKey("Height"))
-		{
-			if (parameters["Height"] is float h)
-			{
-				if (h <= 0) return false;
-				_height = h / 10f;
-			}
-
-			if (parameters["Width"] is float w)
-			{
-				_width = w / 10f;
-			}
-			
-			if (parameters["Thickness"] is float t)
-			{
-				_thickness = t / 10f;
-			}
-		}
-
-		_frontImage = parameters["FrontImage"].ToString();
-		_backImage = parameters["BackImage"].ToString();
-
-		_shape = (int)parameters["Shape"];
-		_mode = (int)parameters["Mode"];
-		_frontBgColor = (Color)parameters["FrontBgColor"];
-		_frontCaption = parameters["FrontCaption"].ToString();
-		_frontCaptionColor = (Color)parameters["FrontCaptionColor"];
-		_frontFontSize = (int)parameters["FrontFontSize"];
-		_differentBack = (bool)parameters["DifferentBack"];
 		
-		_backBgColor = (Color)parameters["BackBgColor"];
-		_backCaption = parameters["BackCaption"].ToString();
-		_backCaptionColor = (Color)parameters["BackCaptionColor"];
-		_backFontSize = (int)parameters["BackFontSize"];
+		var d = t.GetImage();
+		d.SavePng(@"c:\winwam5\token.png");
+	}
+
+
+	private void CreateQuickBackTexture(TextureFactory textureFactory)
+	{
+		var td = CreateQuickTextureDefinition(_backBgColor, _backField);
+
+		textureFactory.GenerateTexture(td, FinalizeBackQuickTexture);
+	}
+
+	private void FinalizeBackQuickTexture(ImageTexture t)
+	{
+		float pixelSize = PixelSize(t.GetSize());
+		BackSprite.PixelSize = pixelSize;
+		BackTexture = t;
+	}
+
+	private bool InitializeParameters(Dictionary<string, object> parameters, TextureFactory textureFactory)
+	{
+		base.Build(parameters, textureFactory);
+
+		var h = Utility.GetParam<float>(parameters, "Height");
+		if (h <= 0) return false;
+		_height = h / 10f;
+
+		var w = Utility.GetParam<float>(parameters, "Width");
+		_width = w / 10;
+		
+		var t = Utility.GetParam<float>(parameters, "Thickness");
+		_thickness = t / 10;
+
+		_frontImage = Utility.GetParam<string>(parameters, "FrontImage");
+		_backImage = Utility.GetParam<string>(parameters, "BackImage");
+
+
+		_shape = Utility.GetParam<int>(parameters, "Shape");
+		_mode = Utility.GetParam<TokenBuildMode>(parameters, "Mode");
+		
+		// Quick parameters
+		_frontBgColor = Utility.GetParam<Color>(parameters,  "FrontBgColor");
+		
+		//_frontCaption = Utility.GetParam<string>(parameters, "FrontCaption");
+		//_frontCaptionColor = Utility.GetParam<Color>(parameters, "FrontCaptionColor");
+		_frontField = Utility.GetParam<QuickTextureField>(parameters, "QuickFront");
+		_backField = Utility.GetParam<QuickTextureField>(parameters, "QuickBack");
+		
+		_frontFontSize = Utility.GetParam<int>(parameters, "FrontFontSize");
+		_differentBack = Utility.GetParam<bool>(parameters, "DifferentBack");
+		
+		_backBgColor = Utility.GetParam<Color>(parameters, "BackBgColor");
+		_backFontSize = Utility.GetParam<int>(parameters, "BackFontSize");
+		
+		//Grid Parameters
+		_frontMasterSprite = Utility.GetParam<Texture2D>(parameters, "FrontMasterSprite");
+		_backMasterSprite = Utility.GetParam<Texture2D>(parameters, "BackMasterSprite");
+
+		_gridRows = Utility.GetParam<int>(parameters, "GridRows");
+		_gridCols = Utility.GetParam<int>(parameters, "GridCols");
+		_gridIndex = Utility.GetParam<int>(parameters, "GridIndex");
 		
 		if (parameters.TryGetValue("Type", out var tokenType))
 		{
@@ -411,9 +534,9 @@ public partial class VcToken : VisualComponentFlat
 		var ret = new List<string>();
 
 		//must have a name and height. Width/length optional
-		if (parameters.ContainsKey(nameof(InstanceName)))
+		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
-			if (string.IsNullOrEmpty(parameters[nameof(InstanceName)].ToString()))
+			if (string.IsNullOrEmpty(parameters[nameof(ComponentName)].ToString()))
 				ret.Add("Instance Name may not be blank");
 		}
 		else
@@ -464,17 +587,23 @@ public partial class VcToken : VisualComponentFlat
 	private string _frontImage;
 	private string _backImage;
 	private int _shape;
-	private int _mode;
+	private TokenBuildMode _mode;
 	private Color _frontBgColor;
-	private string _frontCaption;
-	private Color _frontCaptionColor;
+	private QuickTextureField _frontField;
+	private QuickTextureField _backField;
 	private bool _differentBack;
 	private Color _backBgColor;
-	private string _backCaption;
-	private Color _backCaptionColor;
+
 	private TokenType _tokenType;
 	private int _frontFontSize;
 	private int _backFontSize;
+	
+	//grid parameters
+	private Texture2D _frontMasterSprite;
+	private Texture2D _backMasterSprite;
+	private int _gridRows;
+	private int _gridCols;
+	private int _gridIndex;
 	
 	public enum TokenType {Card, Token, Board}
 	

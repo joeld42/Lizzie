@@ -57,14 +57,22 @@ public abstract partial class VisualComponentBase : Area3D
 		
 		base._Ready();
 	}
-	
 
-	public virtual bool Build(Dictionary<string, object> parameters)
+	
+	public void MoveToTargetY(float y)
+	{
+		var tween = GetTree().CreateTween();
+
+		var newPos = new Vector3(Position.X, y, Position.Z);
+		tween.TweenProperty(this, "position", newPos, 0.2f);
+	}
+
+	public virtual bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
 		Parameters = parameters;
-		if (parameters.ContainsKey(nameof(InstanceName)))
+		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
-			InstanceName = parameters[nameof(InstanceName)].ToString();
+			ComponentName = parameters[nameof(ComponentName)].ToString();
 		}
 
 		return true;
@@ -98,7 +106,11 @@ public abstract partial class VisualComponentBase : Area3D
 		if (command == VisualCommand.Delete)
 		{
 			Visible = false;
-
+			IsMouseSelected = false;
+			IsClickSelected = false;
+			IsDragging = false;
+			IsHovered = false;
+			
 			return new CommandResponse(true, 
 				new Change { Component = this, Action = Change.ChangeType.Deletion });
 		}
@@ -110,13 +122,29 @@ public abstract partial class VisualComponentBase : Area3D
 	{
 		var l = new List<MenuCommand>();
 		
-		l.Add(new MenuCommand(VisualCommand.ToggleLock, Locked));
+		//l.Add(new MenuCommand(VisualCommand.ToggleLock, Locked));
+		switch (Layer)
+		{
+			case LayerType.Normal:
+				l.Add(new MenuCommand(VisualCommand.Freeze));
+				l.Add(new MenuCommand(VisualCommand.Tuck));
+				break;
+			case LayerType.Frozen:
+				l.Add(new MenuCommand(VisualCommand.Unfreeze));
+				break;
+			case LayerType.Tucked:
+				l.Add(new MenuCommand(VisualCommand.Untuck));
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+		
 		l.Add(new MenuCommand(VisualCommand.Delete));
 
 		return l;
 	}
 
-	public virtual string InstanceName { get; set; }
+	public virtual string ComponentName { get; set; }
 
 	public virtual Guid Reference { get; set; } = new Guid();
 	
@@ -140,6 +168,11 @@ public abstract partial class VisualComponentBase : Area3D
 		protected set => _yHeight = value;
 	}
 
+	
+	public enum LayerType {Normal, Frozen, Tucked}
+
+	public LayerType Layer { get; set; } = LayerType.Normal;
+	
 	/// <summary>
 	/// Sets the Z-order for stacking. A "0" is the lowest - on the table.
 	/// If two items have the same Z-Order (should never happen), then
@@ -170,7 +203,7 @@ public abstract partial class VisualComponentBase : Area3D
 	protected bool _locked;
 	public virtual bool Locked
 	{
-		get => _locked;
+		get => Layer == LayerType.Frozen;
 		set
 		{
 			if (_locked != value)
@@ -231,6 +264,9 @@ public abstract partial class VisualComponentBase : Area3D
 			IsMouseSelected = false;
 			IsHovered = false;
 		}
+		
+		//TODO only call this when necessary
+		SetHighlightColor(Colors.White);	//reset in case we were a drag target
 	}
 
 	//these two events are used when the component itself is creating / removing 
@@ -279,12 +315,48 @@ public abstract partial class VisualComponentBase : Area3D
 		}
 	}
 
+	public virtual bool CanAcceptDrop { get; set; } = false;
+
+	public virtual bool DragOver(IEnumerable<VisualComponentBase> dragObjects)
+	{
+		if (CanObjectsBeDropped(dragObjects))
+		{
+			SetHighlightColor(Colors.Yellow);
+			return true;
+		}
+
+		return false;
+	}
+
+	public void DragOverExit()
+	{
+		SetHighlightColor(Colors.White);
+	}
+
+	public virtual bool CanObjectsBeDropped(IEnumerable<VisualComponentBase> dragObjects)
+	{
+		return true;
+	}
+
+	public virtual void DropObjects(IEnumerable<VisualComponentBase> dragObjects)
+	{
+	}
+
 	public virtual void SetColor(Color color)
 	{
 		var objMesh = GetNode<MeshInstance3D>("ObjectMesh");
 		var mat = new StandardMaterial3D();
 		mat.AlbedoColor = color;
 		objMesh.MaterialOverride = mat;
+	}
+
+	public virtual void SetHighlightColor(Color color)
+	{
+		var mat = _highlightMesh.GetActiveMaterial(0);
+		if (mat is ShaderMaterial sm)
+		{
+			sm.SetShaderParameter("outline_color", color);
+		}
 	}
 
 	protected ImageTexture LoadTexture(string filename)

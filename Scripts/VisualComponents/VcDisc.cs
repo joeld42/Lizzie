@@ -15,10 +15,10 @@ public partial class VcDisc : VisualComponentBase
 
 	}
 
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
 		
-		base.Build(parameters);
+		base.Build(parameters, textureFactory);
 		
 		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
 		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
@@ -64,9 +64,9 @@ public partial class VcDisc : VisualComponentBase
 		var ret = new List<string>();
 		
 		//must have a name and height. Width/length optional
-		if (parameters.ContainsKey(nameof(InstanceName)))
+		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
-			if (string.IsNullOrEmpty(parameters[nameof(InstanceName)].ToString())) 
+			if (string.IsNullOrEmpty(parameters[nameof(ComponentName)].ToString())) 
 				ret.Add("Instance Name may not be blank");
 		}
 		else
