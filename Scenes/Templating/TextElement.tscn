@@ -1,0 +1,114 @@
+[gd_scene load_steps=3 format=3 uid="uid://b85wrptsrn3yv"]
+
+[ext_resource type="Script" uid="uid://bymsxthv6q1nm" path="res://Scripts/Templating/TextElement.cs" id="1_xq642"]
+[ext_resource type="Script" uid="uid://cqncdo33dv4vf" path="res://Scripts/Templating/PosSizeBlock.cs" id="2_5jxbm"]
+
+[node name="FoldableContainer" type="FoldableContainer"]
+title = "Ttitle Text"
+script = ExtResource("1_xq642")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer"]
+layout_mode = 2
+current_tab = 0
+
+[node name="Pos-Size" type="VBoxContainer" parent="MarginContainer/TabContainer"]
+layout_mode = 2
+script = ExtResource("2_5jxbm")
+metadata/_tab_index = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/TabContainer/Pos-Size"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer"]
+layout_mode = 2
+text = "X"
+
+[node name="PosX" type="LineEdit" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer"]
+layout_mode = 2
+text = "Y"
+
+[node name="PosY" type="LineEdit" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/TabContainer/Pos-Size"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer2"]
+layout_mode = 2
+text = "Width"
+
+[node name="PosW" type="LineEdit" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer2"]
+layout_mode = 2
+text = "Height"
+
+[node name="PosH" type="LineEdit" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/TabContainer/Pos-Size"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer3"]
+layout_mode = 2
+text = "Rotation"
+
+[node name="Rotation" type="LineEdit" parent="MarginContainer/TabContainer/Pos-Size/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Text" type="VBoxContainer" parent="MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/TabContainer/Text"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Text/HBoxContainer4"]
+layout_mode = 2
+text = "Caption"
+
+[node name="Caption" type="LineEdit" parent="MarginContainer/TabContainer/Text/HBoxContainer4"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MarginContainer/TabContainer/Text/HBoxContainer4"]
+layout_mode = 2
+text = "Color"
+
+[node name="ForegroundColor" type="ColorPickerButton" parent="MarginContainer/TabContainer/Text/HBoxContainer4"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="MarginContainer/TabContainer/Text"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/TabContainer/Text/HBoxContainer5"]
+layout_mode = 2
+text = "Justification"
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/TabContainer/Text/HBoxContainer5"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MarginContainer/TabContainer/Text/HBoxContainer5"]
+layout_mode = 2
+text = "Wrap"
+
+[node name="LineEdit2" type="CheckButton" parent="MarginContainer/TabContainer/Text/HBoxContainer5"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2

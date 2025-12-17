@@ -21,6 +21,3 @@ func _on_file_dialog_file_selected(path):
 	sprite_3d.vframes = 7
 	sprite_3d.frame_coords = Vector2i(2,2)
 	file_dialog.visible = false
-
-
-

@@ -12,6 +12,8 @@ public partial class GameController : Node3D
 	[Export]
 	private TextureFactory _textureFactory;
 	
+	[Export]
+	private TemplateCreator _templateCreator;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -28,6 +30,7 @@ public partial class GameController : Node3D
 
 		var commandDic = new CommandDictionary(_mainScene);
 		
+		_templateCreator.TextureFactory = _textureFactory;
 	}
 
 	private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)

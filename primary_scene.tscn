@@ -1,10 +1,10 @@
-[gd_scene load_steps=28 format=3 uid="uid://caj4d7v430lhp"]
+[gd_scene load_steps=29 format=3 uid="uid://caj4d7v430lhp"]
 
-[ext_resource type="Script" path="res://Scripts/GameController.cs" id="1_hibmt"]
-[ext_resource type="Script" path="res://Scripts/UI.cs" id="2_a0mv7"]
+[ext_resource type="Script" uid="uid://cb04ev3xy2y8r" path="res://Scripts/GameController.cs" id="1_hibmt"]
+[ext_resource type="Script" uid="uid://caw45erf0ap1j" path="res://Scripts/UI.cs" id="2_a0mv7"]
 [ext_resource type="PackedScene" uid="uid://c10pvpfntkay3" path="res://Scenes/3d_scene_no_physics.tscn" id="3_6khan"]
-[ext_resource type="Script" path="res://Scripts/HandManager.cs" id="3_h6pmi"]
-[ext_resource type="Script" path="res://Scripts/ComponentDefinition.cs" id="4_eclwi"]
+[ext_resource type="Script" uid="uid://3274wuq0qfvx" path="res://Scripts/HandManager.cs" id="3_h6pmi"]
+[ext_resource type="Script" uid="uid://34qdnax57ldx" path="res://Scripts/ComponentDefinition.cs" id="4_eclwi"]
 [ext_resource type="Texture2D" uid="uid://r8l25si7dbtm" path="res://Textures/queen_of_spades.jpg" id="4_vbm5h"]
 [ext_resource type="Resource" uid="uid://ceywqk4reme07" path="res://Scenes/ComponentPanels/TokenPanel.tres" id="7_la08l"]
 [ext_resource type="Resource" uid="uid://mljy81wn7au4" path="res://Scenes/ComponentPanels/BoardPanel.tres" id="8_dwpay"]
@@ -24,7 +24,8 @@
 [ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="19_mftnr"]
 [ext_resource type="PackedScene" uid="uid://div11bya2rlmh" path="res://Scenes/ComponentPanels/mesh_panel.tscn" id="19_xcrb0"]
 [ext_resource type="Texture2D" uid="uid://b0ghdcbyhne5f" path="res://Textures/UI/flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="20_7j0c8"]
-[ext_resource type="Script" path="res://Scripts/TextureFactory.cs" id="25_461bj"]
+[ext_resource type="PackedScene" uid="uid://0wsvxlpthnkp" path="res://Scenes/Templating/TemplateCreator.tscn" id="24_f3vmv"]
+[ext_resource type="Script" uid="uid://rkus14o3uk6n" path="res://Scripts/TextureFactory.cs" id="25_461bj"]
 
 [sub_resource type="Theme" id="Theme_a3w6s"]
 
@@ -179,34 +180,42 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+current_tab = 0
 
 [node name="Cube" parent="UI/ComponentTabs" instance=ExtResource("13_gbiwn")]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="Disc" parent="UI/ComponentTabs" instance=ExtResource("14_u4hc7")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="Die" parent="UI/ComponentTabs" node_paths=PackedStringArray("_quickSideEntries") instance=ExtResource("15_mybtt")]
 visible = false
 layout_mode = 2
 _quickSideEntries = []
+metadata/_tab_index = 2
 
 [node name="Card" parent="UI/ComponentTabs" instance=ExtResource("16_j3qli")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 3
 
 [node name="Deck" parent="UI/ComponentTabs" instance=ExtResource("17_mgf4o")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 4
 
 [node name="Token" parent="UI/ComponentTabs" instance=ExtResource("18_c5hxe")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 5
 
 [node name="Mesh Panel" parent="UI/ComponentTabs" instance=ExtResource("19_xcrb0")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 6
 
 [node name="ComponentPopup" type="PopupMenu" parent="UI"]
 size = Vector2i(163, 174)
@@ -218,14 +227,12 @@ item_0/id = 0
 item_1/text = "Flip"
 item_1/icon = ExtResource("20_7j0c8")
 item_1/id = 1
-item_2/text = ""
 item_2/id = 6
 item_2/separator = true
 item_3/text = "Rotate CW"
 item_3/id = 2
 item_4/text = "Rotate CCW"
 item_4/id = 3
-item_5/text = ""
 item_5/id = 5
 item_5/separator = true
 item_6/text = "Delete"
@@ -282,10 +289,12 @@ offset_bottom = 23.0
 grow_horizontal = 0
 horizontal_alignment = 2
 
+[node name="TemplateCreator" parent="UI" instance=ExtResource("24_f3vmv")]
+
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open a File"
 initial_position = 2
-size = Vector2i(340, 500)
+size = Vector2i(348, 500)
 ok_button_text = "Open"
 file_mode = 0
 access = 2
