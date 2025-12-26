@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://0wsvxlpthnkp"]
+[gd_scene load_steps=6 format=3 uid="uid://0wsvxlpthnkp"]
 
-[ext_resource type="PackedScene" uid="uid://b85wrptsrn3yv" path="res://Scenes/Templating/TextElement.tscn" id="1_g6sqh"]
 [ext_resource type="Script" uid="uid://blvugxyae05ee" path="res://Scripts/Templating/TemplateCreator.cs" id="1_wn7e0"]
 [ext_resource type="Texture2D" uid="uid://73pb5eqwq0y4" path="res://Textures/Shapes/square.png" id="2_cvjoa"]
+[ext_resource type="PackedScene" uid="uid://bu73q18jh72yk" path="res://Scenes/Templating/NumericParam.tscn" id="2_hnkns"]
+[ext_resource type="PackedScene" uid="uid://ctjcejwbo05qm" path="res://Scenes/Templating/ColorParam.tscn" id="3_4cjo0"]
+[ext_resource type="Script" uid="uid://bl1v61t413ui2" path="res://Scripts/Templating/BoundsRect.cs" id="5_4cjo0"]
 
-[node name="TemplateCreator" type="MarginContainer"]
+[node name="TemplateCreator" type="MarginContainer" node_paths=PackedStringArray("_preview")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -15,6 +17,7 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 script = ExtResource("1_wn7e0")
+_preview = NodePath("Panel/VBoxContainer/HBoxContainer/Panel/TextureRect")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 2
@@ -29,77 +32,68 @@ grow_vertical = 2
 [node name="Toolbar" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+[node name="SaveButton" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Save"
 
-[node name="Button2" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+[node name="SaveAsButton" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Save As"
 
-[node name="Button3" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Close"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="TestButton" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Test"
+
+[node name="HBoxContainer" type="HSplitContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(400, 0)
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer"]
-custom_minimum_size = Vector2(400, 0)
+[node name="VSplitContainer" type="VSplitContainer" parent="Panel/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="FoldableContainer" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4985494, 0.6590421, 0.9960043, 1)
-title = "Group 1"
+size_flags_vertical = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-
-[node name="GroupElements" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer/MarginContainer"]
+[node name="TemplateElements" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TextElement" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer/MarginContainer/GroupElements" instance=ExtResource("1_g6sqh")]
+[node name="Label" type="Label" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer/TemplateElements"]
+layout_mode = 2
+text = "Element 1"
+
+[node name="Label2" type="Label" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer/TemplateElements"]
+layout_mode = 2
+text = "Element 1"
+
+[node name="Label3" type="Label" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer/TemplateElements"]
+layout_mode = 2
+text = "Element 1"
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TemplateParams" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NumericParam" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer2/TemplateParams" instance=ExtResource("2_hnkns")]
 layout_mode = 2
 
-[node name="FoldableContainer2" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer/MarginContainer/GroupElements"]
+[node name="ColorParam" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer2/TemplateParams" instance=ExtResource("3_4cjo0")]
 layout_mode = 2
-title = "Background"
-
-[node name="FoldableContainer3" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer/MarginContainer/GroupElements"]
-layout_mode = 2
-title = "Icon"
-
-[node name="FoldableContainer2" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.49803922, 0.65882355, 0.99607843, 1)
-title = "Group 2"
-
-[node name="MarginContainer" type="MarginContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer2"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer2/MarginContainer"]
-layout_mode = 2
-
-[node name="FoldableContainer" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer2/MarginContainer/VBoxContainer"]
-layout_mode = 2
-title = "Effect Text"
-
-[node name="FoldableContainer2" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer2/MarginContainer/VBoxContainer"]
-layout_mode = 2
-title = "Background"
-
-[node name="FoldableContainer3" type="FoldableContainer" parent="Panel/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/FoldableContainer2/MarginContainer/VBoxContainer"]
-layout_mode = 2
-title = "Circle"
 
 [node name="Panel" type="Panel" parent="Panel/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -120,3 +114,126 @@ offset_bottom = 64.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_cvjoa")
+
+[node name="BoundsRect" type="MarginContainer" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+script = ExtResource("5_4cjo0")
+
+[node name="ReferenceRect" type="ReferenceRect" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+editor_only = false
+
+[node name="TopLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 0
+offset_left = -8.0
+offset_top = -8.0
+mouse_default_cursor_shape = 12
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="TopCenter" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -4.0
+offset_top = -8.0
+offset_right = 4.0
+grow_horizontal = 2
+mouse_default_cursor_shape = 9
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="TopRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_top = -8.0
+offset_right = 8.0
+grow_horizontal = 0
+mouse_default_cursor_shape = 11
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="MiddleLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -4.0
+offset_bottom = 4.0
+grow_vertical = 2
+mouse_default_cursor_shape = 10
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="MiddleRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -4.0
+offset_right = 8.0
+offset_bottom = 4.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_default_cursor_shape = 10
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="BottomLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_bottom = 8.0
+grow_vertical = 0
+mouse_default_cursor_shape = 11
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="BottomCenter" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -4.0
+offset_right = 4.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 9
+action_mode = 0
+keep_pressed_outside = true
+
+[node name="BottomRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_default_cursor_shape = 12
+action_mode = 0
+keep_pressed_outside = true

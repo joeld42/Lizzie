@@ -34,32 +34,52 @@ public partial class PosSizeBlock : Node
 
 	public int X
 	{
-		get => int.Parse(_x.Text);
+		get
+		{
+			int.TryParse(_x.Text, out var x);
+			return x;
+		} 
 		set => _x.Text = value.ToString();
 	}
 
 	public int Y
 	{
-		get => int.Parse(_y.Text);
+		get
+		{
+			int.TryParse(_y.Text, out var x);
+			return x;
+		} 
 		set => _y.Text = value.ToString();
 	}
 
 	public int Width
 	{
-		get => int.Parse(_width.Text);
+		get
+		{
+			int.TryParse(_width.Text, out var x);
+			return x;
+		} 
 		set => _width.Text = value.ToString();
 	}
 
 	public int Height
 	{
-		get => int.Parse(_height.Text);
+		get
+		{
+			int.TryParse(_height.Text, out var x);
+			return x;
+		} 
 		set => _height.Text = value.ToString();
 	}
 
 	public int Rotation
 	{
 
-		get { return int.Parse(_rotation.Text); }
+		get
+		{
+			int.TryParse(_rotation.Text, out var x);
+			return x;
+		} 
 		set => _rotation.Text = value.ToString();
 	}
 }

@@ -5,7 +5,7 @@ using TTSS.Scripts.Templating;
 
 public partial class GroupElement : TemplateElement
 {
-	[Export]TextElement _textElement;
+	
 
 	[Export] private VBoxContainer _groupElements;
 	
@@ -13,12 +13,13 @@ public partial class GroupElement : TemplateElement
 	public override void _Ready()
 	{
 		base._Ready();
-		_add.Pressed += AddPressed;
+		
 	}
 
 	private void AddPressed()
 	{
-		var e = new TextElement();
+		var p = GD.Load <PackedScene>("res://Scenes/Templating/TextElement.tscn");
+		var e = p.Instantiate<TextElement>();
 		AddElement(e);
 	}
 

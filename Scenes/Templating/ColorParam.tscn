@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://ctjcejwbo05qm"]
+
+[ext_resource type="Script" uid="uid://llb5fr1ij6ba" path="res://Scripts/Templating/ColorParamControl.cs" id="1_vf83d"]
+[ext_resource type="Texture2D" uid="uid://cip23cunm7y51" path="res://Textures/UI/menu16.png" id="2_6bpgr"]
+
+[node name="ColorParam" type="HBoxContainer"]
+script = ExtResource("1_vf83d")
+
+[node name="Caption" type="Label" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Foreground"
+
+[node name="LineEdit" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="."]
+custom_minimum_size = Vector2(24, 0)
+layout_mode = 2
+
+[node name="Formula" type="Button" parent="."]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+icon = ExtResource("2_6bpgr")

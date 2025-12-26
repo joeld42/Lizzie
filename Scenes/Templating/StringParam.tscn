@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://ckoww4et2jq3w"]
+
+[ext_resource type="Script" uid="uid://cwlx0v6ao2cwk" path="res://Scripts/Templating/NumericParamControl.cs" id="1_4xju5"]
+[ext_resource type="Texture2D" uid="uid://cip23cunm7y51" path="res://Textures/UI/menu16.png" id="2_v8xnv"]
+
+[node name="StringParam" type="HBoxContainer"]
+script = ExtResource("1_4xju5")
+
+[node name="Caption" type="Label" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Caption"
+
+[node name="LineEdit" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Formula" type="Button" parent="."]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+icon = ExtResource("2_v8xnv")

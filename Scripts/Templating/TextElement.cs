@@ -9,25 +9,22 @@ namespace TTSS.Scripts.Templating;
 
 public partial class TextElement : TemplateElement
 {
-	private LineEdit _caption;
-	private ColorPickerButton _foregroundColor;
+	[Export] private LineEdit _caption;
+	[Export] private ColorPickerButton _foregroundColor;
 
+	
+	
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		base._Ready();
 		
-		ElementType = TemplateElementType.Text;
+		ElementType = ITemplateElement.TemplateElementType.Text;
 
-		_caption = GetNode<LineEdit>("%Caption");
-		_foregroundColor = GetNode<ColorPickerButton>("%ForegroundColor");
+		Parameters.Add(new TemplateParameter{ Name = "Text" });
+		Parameters.Add(new TemplateParameter{ Name = "ForegroundColor", Value = (Colors.Black).ToString()});
 		
-		
-		_caption.TextChanged += _  => OnElementUpdated();
-		_foregroundColor.ColorChanged += _  => OnElementUpdated();
-		
-
 	}
 
 	public override List<TextureFactory.TextureObject> ElementData
@@ -38,13 +35,13 @@ public partial class TextElement : TemplateElement
 
 			var t = new TextureFactory.TextureObject
 			{
-				CenterX = Position.X,
-				CenterY = Position.Y,
-				Height = Position.Height,
-				Width = Position.Width,
-				RotationDegrees = Position.Rotation,
-				Text = _caption.Text,
-				ForegroundColor = _foregroundColor.Color,
+				CenterX = Parameters.EvaluateNumberParameter("X"),
+				CenterY = Parameters.EvaluateNumberParameter("Y"),
+				Height = Parameters.EvaluateNumberParameter("Height"),
+				Width = Parameters.EvaluateNumberParameter("Width"),
+				RotationDegrees = Parameters.EvaluateNumberParameter("Rotation"),
+				Text = Parameters.EvaluateTextParameter( "Text"),
+				ForegroundColor = Parameters.EvaluateColorParameter("ForegroundColor"),
 			};
 			
 			l.Add(t);

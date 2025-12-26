@@ -34,9 +34,10 @@ font_size = 32
 font_color = Color(0, 0, 0, 1)
 outline_size = 1
 
-[node name="PrimaryScene" type="Node3D" node_paths=PackedStringArray("_textureFactory")]
+[node name="PrimaryScene" type="Node3D" node_paths=PackedStringArray("_textureFactory", "_templateCreator")]
 script = ExtResource("1_hibmt")
 _textureFactory = NodePath("SubViewportContainer/TextureFactory")
+_templateCreator = NodePath("UI/TemplateCreator")
 
 [node name="UI" type="CanvasLayer" parent="."]
 script = ExtResource("2_a0mv7")
