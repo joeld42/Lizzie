@@ -54,6 +54,12 @@ public partial class ColorParamControl : HBoxContainer, IParamControl
 			MapParam();
 		}
 	}
+	public void UpdateParameter(string newValue)
+	{
+		_parameter.Value = newValue;
+		_value.Text = _parameter.Value;
+	}
+	
 
 	public TemplateParameter GetParameter()
 	{

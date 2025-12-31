@@ -10,6 +10,7 @@ public partial class QuickTextureEntry : BoxContainer
 	private OptionButton _coreIcons;
 	private OptionButton _extendedIcons;
 	private OptionButton _userIcons;
+	private OptionButton _qtyPicker;
 
 	private bool _initializing;
 	// Called when the node enters the scene tree for the first time.
@@ -40,6 +41,9 @@ public partial class QuickTextureEntry : BoxContainer
 		_text = GetNode<LineEdit>("%TopCaption");
 		_text.TextChanged += _ => RaiseFieldChanged();
 		
+		_qtyPicker = GetNode<OptionButton>("%Qty");
+		_qtyPicker.ItemSelected += _ => RaiseFieldChanged();
+		_qtyPicker.Hide();
 		UpdateVisibility(0);
 		
 		_initializing = false;
@@ -63,6 +67,7 @@ public partial class QuickTextureEntry : BoxContainer
 	private void UpdateVisibility(long index)
 	{
 		_text.Visible = (index == 0);
+		_qtyPicker.Visible = (index > 0);
 		_coreIcons.Visible = (index == 1);
 		_extendedIcons.Visible = (index == 2);
 		_userIcons.Visible = (index == 3);
@@ -133,6 +138,8 @@ public partial class QuickTextureEntry : BoxContainer
 			
 		}
 
+		qt.Quantity = _qtyPicker.Selected + 1;
+
 		return qt;
 	}
 }
@@ -151,4 +158,6 @@ public class QuickTextureField
 	public TextureFactory.TextureObjectType FaceType { get; set; }
 	public Color ForegroundColor { get; set; }
 	public string Caption { get; set; }
+
+	public int Quantity { get; set; } = 1;
 }

@@ -43,6 +43,13 @@ public partial class NumericParamControl : HBoxContainer, IParamControl
 		}
 	}
 
+	public void UpdateParameter(string newValue)
+	{
+		_parameter.Value = newValue;
+		_value.Text = _parameter.Value;
+	}
+
+
 	public TemplateParameter GetParameter()
 	{
 		_parameter.Value = _value.Text;

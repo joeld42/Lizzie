@@ -78,6 +78,8 @@ public partial class TextureFactory : SubViewport
         TextureDefinition definition,
         Action<ImageTexture> textureReadyCallback)
     {
+        ExpandMultipleShapes(definition);
+        
         var tqe = new TextureQueueEntry
         {
             TextureDefinition = definition,
@@ -264,6 +266,83 @@ public partial class TextureFactory : SubViewport
 
     }
 
+    private void ExpandMultipleShapes(TextureDefinition definition)
+    {
+        var l = new List<TextureObject>();
+        
+        foreach (var obj in definition.Objects)
+        {
+            if (obj.Quantity > 1)
+            {
+                l.AddRange(BuildMultiShape(obj));
+            }
+        }
+        
+        definition.Objects.RemoveAll(x => x.Quantity > 1);
+        
+        definition.Objects.AddRange(l);
+    }
+
+    private List<TextureObject> BuildMultiShape(TextureObject obj)
+    {
+        if (obj.Quantity == 1) return new List<TextureObject> {obj};
+
+        return BuildMultiShapeRectangle(obj);
+    }
+
+    private List<TextureObject> BuildMultiShapeRectangle(TextureObject obj)
+    {
+        var shapes = new List<TextureObject>();
+
+        Rect2[] nr = new Rect2[obj.Quantity];
+        var h2 = obj.Height / 2;
+        var w2 = obj.Width / 2;
+        var h3 = obj.Height / 3;
+        var w3 = obj.Width / 3;
+
+        
+        
+        switch (obj.Quantity)
+        {
+            case 2:
+                nr[0] = new Rect2(w2/2, h2/2, w2, h2);
+                nr[1] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+                break;
+            
+            case 3: 
+                nr[0] = new Rect2( w2, h2/2, w2, h2);
+                nr[1] = new Rect2(w2/2, h2 * 1.5f, w2, h2);
+                nr[2] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+                break;
+            
+            case 4:
+                nr[0] = new Rect2(w2/2, h2/2, w2, h2);
+                nr[1] = new Rect2(w2 * 1.5f, h2/2, w2, h2);
+                nr[2] = new Rect2(w2/2, h2 * 1.5f, w2, h2);
+                nr[3] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+                break;
+            
+            default:
+                nr[0] = new Rect2(w2/2, h2/2, w2, h2);
+                nr[1] = new Rect2(w2 * 1.5f, h2/2, w2, h2);
+                nr[2] = new Rect2(w2/2, h2 * 1.5f, w2, h2);
+                nr[3] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+                break;
+        }
+
+        foreach (var r in nr)
+        {
+            var to = new TextureObject(obj);
+            to.CenterX = (int)(r.Position.X);
+            to.CenterY = (int)(r.Position.Y);
+            to.Height = (int)r.Size.Y;
+            to.Width = (int)r.Size.X;
+            to.Quantity = 1;
+            shapes.Add(to);
+        }
+        
+        return shapes;
+    }
     
     private void RenderTriangleText(TextureObject obj)
     {
@@ -372,7 +451,8 @@ public partial class TextureFactory : SubViewport
         tr.Size = new Vector2(scaleWidth, scaleHeight);
         tr.CustomMinimumSize = new Vector2(scaleWidth, scaleHeight);
         tr.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
-        tr.StretchMode = TextureRect.StretchModeEnum.KeepAspect;
+        
+        tr.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
         tr.ClipChildren = CanvasItem.ClipChildrenMode.Only;
         tr.Texture = ImageTexture.CreateFromImage(image);
 
@@ -477,6 +557,23 @@ public partial class TextureFactory : SubViewport
             CenterY = Height / 2;
             Anchor = AnchorPoint.MiddleCenter;
         }
+
+        public TextureObject(TextureObject obj)
+        {
+            Type = obj.Type;
+            TriangleFace = obj.TriangleFace;
+            Text = obj.Text;
+            ForegroundColor = obj.ForegroundColor;
+            Font = obj.Font;
+            Height = obj.Height;
+            Width = obj.Width;
+            CenterX = obj.CenterX;
+            CenterY = obj.CenterY;
+            Anchor = obj.Anchor;
+            RotationDegrees = obj.RotationDegrees;
+            Quantity = obj.Quantity;
+            Multiline = obj.Multiline;
+        }
         
         public TextureObjectType Type { get; set; }
         
@@ -492,8 +589,10 @@ public partial class TextureFactory : SubViewport
         public AnchorPoint Anchor { get; set; }
         public int RotationDegrees { get; set; } 
         public bool Multiline { get; set; }
-
-
+        
+        public int Quantity { get; set; }
+        
+       
         public static AnchorPoint AnchorStringToEnum(string anchor)
         {
             switch (anchor.ToLower())

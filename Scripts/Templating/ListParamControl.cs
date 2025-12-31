@@ -69,6 +69,12 @@ public partial class ListParamControl :  HBoxContainer, IParamControl
 			MapParam();
 		}
 	}
+	
+	public void UpdateParameter(string newValue)
+	{
+		_parameter.Value = newValue;
+		_value.Text = _parameter.Value;
+	}
 
 	public TemplateParameter GetParameter()
 	{

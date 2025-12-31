@@ -190,6 +190,8 @@ public partial class BoundsRect : MarginContainer
             if (_dragRight) DragRight(mouseDelta);
 
             _dragLast = GetViewport().GetMousePosition();
+            
+            RaiseBoundsChanged();
         }
     }
 
@@ -216,6 +218,13 @@ public partial class BoundsRect : MarginContainer
         var or = GetThemeConstant("margin_right");
         AddThemeConstantOverride("margin_right", or - (int)mouseDelta.X);
     }
+    
+    public event EventHandler BoundsChanged;
+
+    private void RaiseBoundsChanged()
+    {
+        BoundsChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     public void SetBounds(Rect2I rect, TextureContext context)
     {
@@ -223,5 +232,14 @@ public partial class BoundsRect : MarginContainer
         AddThemeConstantOverride("margin_top", rect.Position.Y);
         AddThemeConstantOverride("margin_right", (int)context.ParentSize.X - rect.Position.X - rect.Size.X);
         AddThemeConstantOverride("margin_bottom", (int)context.ParentSize.Y - rect.Position.Y - rect.Size.Y);
+    }
+
+    public (int l, int t, int r, int b) GetBounds()
+    {
+        return (
+            GetThemeConstant("margin_left"), 
+            GetThemeConstant("margin_top"), 
+            GetThemeConstant("margin_right"),
+            GetThemeConstant("margin_bottom"));
     }
 }

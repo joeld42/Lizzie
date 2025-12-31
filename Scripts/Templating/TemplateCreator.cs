@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mime;
 using TTSS.Scripts.Templating;
@@ -29,6 +30,9 @@ public partial class TemplateCreator : MarginContainer
     private List<ITemplateElement> _templateElements = new();
     private TextureContext _textureContext = new();
 
+    private Timer _updateTimer;
+    private bool _updateRequired;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -38,6 +42,8 @@ public partial class TemplateCreator : MarginContainer
         _testButton.Pressed += TestFunction;
 
         _boundsRect = GetNode<BoundsRect>("%BoundsRect");
+        _boundsRect.Hide();
+        _boundsRect.BoundsChanged += BoundsChanged;
         
         _stringParam = GD.Load<PackedScene>("res://Scenes/Templating/StringParam.tscn");
         _numberParam = GD.Load<PackedScene>("res://Scenes/Templating/NumericParam.tscn");
@@ -48,7 +54,55 @@ public partial class TemplateCreator : MarginContainer
         _elementTree.ItemSelected += TreeItemSelected;
         
         _textureContext.ParentSize = _preview.GetSize();
+
+        _updateTimer = GetNode<Timer>("Timer");
+        _updateTimer.Timeout += UpdateTimerExpired;
+        _updateTimer.Start();
     }
+
+    private void UpdateTimerExpired()
+    {
+        if (_updateRequired)
+        {
+            _updateRequired = false;
+            UpdateTexture(false);
+        }
+    }
+
+    private void BoundsChanged(object sender, EventArgs e)
+    {
+        if (_selectedElement == null) return;
+    
+        var m = _boundsRect.GetBounds();
+            
+        UpdateParamControl("X", m.l.ToString());
+        UpdateParamControl("Y", m.t.ToString());
+        UpdateParamControl("Width", (_textureContext.ParentSize.X - m.l - m.r).ToString(CultureInfo.InvariantCulture));
+        UpdateParamControl("Height", (_textureContext.ParentSize.Y - m.t - m.b).ToString(CultureInfo.InvariantCulture));
+
+        _updateRequired = true;
+    }
+
+    private void UpdateParamControl(string name, string value)
+    {
+        var p = GetParamControl(name);
+        if (p != null) p.UpdateParameter(value);
+    }
+
+    private IParamControl GetParamControl(string name)
+    {
+        foreach (var node in _paramContainer.GetChildren())
+        {
+            if (node is IParamControl pc && pc.GetParameter().Name == name)
+            {
+                return pc;
+            }
+        }
+
+        return null;
+    }
+    
+    
 
     private void TreeItemSelected()
     {
@@ -61,6 +115,7 @@ public partial class TemplateCreator : MarginContainer
         {
             _selectedElement = p;
             RemapParameters();
+            _boundsRect.Show();
             UpdateBoundsRect();
         }
     }
@@ -137,22 +192,27 @@ public partial class TemplateCreator : MarginContainer
             if (t is IParamControl pc)
             {
                 pc.SetParameter(p);
-                pc.ParameterUpdated += UpdateTexture;
+                pc.ParameterUpdated += OnTextureUpdate;
             }
 
             _paramContainer.AddChild(t);
         }
     }
 
-    private void UpdateTexture(object sender, EventArgs e)
+    private void OnTextureUpdate(object sender, EventArgs e)
+    {
+       UpdateTexture(true);
+    }
+
+    private void UpdateTexture(bool updateBounds)
     {
         _textureContext.ParentSize = _preview.GetSize();
         
         var td = new TextureFactory.TextureDefinition
         {
             BackgroundColor = Colors.White,
-            Height = 256,
-            Width = 256 * 250 / 350,
+            Height = (int)_textureContext.ParentSize.Y,
+            Width = (int) _textureContext.ParentSize.X,
             Shape = TextureFactory.TokenShape.Square
         };
 
@@ -178,14 +238,14 @@ public partial class TemplateCreator : MarginContainer
 
         TextureFactory.GenerateTexture(td, UpdatePreview);
         
-        UpdateBoundsRect();
+        if (updateBounds) UpdateBoundsRect();
     }
 
     private void ClearParameters()
     {
         foreach (var p in _paramContainer.GetChildren())
         {
-            if (p is IParamControl pc) pc.ParameterUpdated -= UpdateTexture;
+            if (p is IParamControl pc) pc.ParameterUpdated -= OnTextureUpdate;
             p.QueueFree();
         }
     }

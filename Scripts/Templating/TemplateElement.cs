@@ -24,7 +24,12 @@ public class TemplateElement : ITemplateElement
     }
 
     public int Id { get; set; }
-   
+    public void SetParameterValue(string name, string value)
+    {
+        var p = GetParameterByName(name);
+        if (p != null) p.Value = value;
+    }
+
     public ITemplateElement.TemplateElementType ElementType { get; protected set; }
     public string ElemeentName { get; set; }
     public IList<TemplateParameter> Parameters => _parameters;
@@ -44,6 +49,11 @@ public class TemplateElement : ITemplateElement
         to.RotationDegrees = EvaluateNumberParameter(_parameters, "Rotation", context);
     }
 
+    public void UpdatePositionParameters(int x, int y, int width, int height)
+    {
+        
+    }
+    
     public TemplateElementPosition Position { get; set; }
     
     public event EventHandler<EventArgs> ElementUpdated;
@@ -52,7 +62,10 @@ public class TemplateElement : ITemplateElement
         ElementUpdated?.Invoke(this, EventArgs.Empty);
     
     #region Parameter Processing
-        
+    
+    public TemplateParameter GetParameterByName(string name) => _parameters.FirstOrDefault(x => x.Name == name);
+    
+    
     public string EvaluateTextParameter(IList<TemplateParameter> parameters, string key, TextureContext context)
     {
         var p = parameters.FirstOrDefault(x => x.Name == key);
@@ -133,7 +146,7 @@ public interface ITemplateElement
     
     int Id { get; set; }
 
-
+    void SetParameterValue(string name, string value);
 }
 
 public class TemplateParameter 
