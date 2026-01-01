@@ -299,29 +299,122 @@ public partial class TextureFactory : SubViewport
         var w2 = obj.Width / 2;
         var h3 = obj.Height / 3;
         var w3 = obj.Width / 3;
-
+        var w4 = obj.Width / 4;
+        var h4 = obj.Height / 4;
+        var w6 = obj.Width / 6;
+        var h6 = obj.Height / 6;
+        var h34 = h2 * 1.5f;
+        var w34 = w2 * 1.5f;
+        var h56 = h6 * 5;
+        var w56 = w6 * 5;
         
         
         switch (obj.Quantity)
         {
             case 2:
-                nr[0] = new Rect2(w2/2, h2/2, w2, h2);
-                nr[1] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+                nr[0] = new Rect2(w4, h4, w2, h2);
+                nr[1] = new Rect2(w34, h34, w2, h2);
                 break;
             
-            case 3: 
-                nr[0] = new Rect2( w2, h2/2, w2, h2);
-                nr[1] = new Rect2(w2/2, h2 * 1.5f, w2, h2);
-                nr[2] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+            case 3:
+
+                if (h2 > w2)
+                {
+                    nr[0] = new Rect2(w4, h2, w2, h2);
+                    nr[1] = new Rect2(w34, h4, w2, h2);
+                    nr[2] = new Rect2(w34, h34, w2, h2);
+                }
+                else
+                {
+                    nr[0] = new Rect2(w2, h4, w2, h2);
+                    nr[1] = new Rect2(w4, h34, w2, h2);
+                    nr[2] = new Rect2(w34, h34, w2, h2);
+                }
+
                 break;
             
             case 4:
-                nr[0] = new Rect2(w2/2, h2/2, w2, h2);
-                nr[1] = new Rect2(w2 * 1.5f, h2/2, w2, h2);
-                nr[2] = new Rect2(w2/2, h2 * 1.5f, w2, h2);
-                nr[3] = new Rect2(w2 * 1.5f, h2 * 1.5f, w2, h2);
+                nr[0] = new Rect2(w4, h4, w2, h2);
+                nr[1] = new Rect2(w34, h4, w2, h2);
+                nr[2] = new Rect2(w4, h34, w2, h2);
+                nr[3] = new Rect2(w34, h34, w2, h2);
                 break;
             
+            case 5:
+                nr[0] = new Rect2(w6, h6, w3, h3);
+                nr[1] = new Rect2(w56, h6, w3, h3);
+                nr[2] = new Rect2(w2, h2, w3, h3);
+                nr[3] = new Rect2(w6, h56, w3, h3);
+                nr[4] = new Rect2(w56, h56, w3, h3);
+                break;
+            
+            case 6:
+                if (w2 > h2)
+                {
+                    nr[0] = new Rect2(w6, h6, w3, h3);
+                    nr[1] = new Rect2(w2, h6, w3, h3);
+                    nr[2] = new Rect2(w56, h6, w3, h3);
+                    nr[3] = new Rect2(w6, h56, w3, h3);
+                    nr[4] = new Rect2(w2, h56, w3, h3);
+                    nr[5] = new Rect2(w56, h56, w3, h3);
+                }
+                else
+                {
+                    nr[0] = new Rect2(w6, h6, w3, h3);
+                    nr[1] = new Rect2(w6, h2, w3, h3);
+                    nr[2] = new Rect2(w6, h56, w3, h3);
+                    nr[3] = new Rect2(w56, h6, w3, h3);
+                    nr[4] = new Rect2(w56, h2, w3, h3);
+                    nr[5] = new Rect2(w56, h56, w3, h3);
+                }
+                break;
+            
+            case 7:
+                if (w2 > h2)
+                {
+                    nr[0] = new Rect2(w6, h6, w3, h3);
+                    nr[1] = new Rect2(w2, h6, w3, h3);
+                    nr[2] = new Rect2(w56, h6, w3, h3);
+                    nr[3] = new Rect2(w6, h56, w3, h3);
+                    nr[4] = new Rect2(w2, h56, w3, h3);
+                    nr[5] = new Rect2(w56, h56, w3, h3);
+                    nr[6] = new Rect2(w2, h2, w3, h3);
+                }
+                else
+                {
+                    nr[0] = new Rect2(w6, h6, w3, h3);
+                    nr[1] = new Rect2(w6, h2, w3, h3);
+                    nr[2] = new Rect2(w6, h56, w3, h3);
+                    nr[3] = new Rect2(w56, h6, w3, h3);
+                    nr[4] = new Rect2(w56, h2, w3, h3);
+                    nr[5] = new Rect2(w56, h56, w3, h3);
+                    nr[6] = new Rect2(w2, h2, w3, h3);
+                }
+                break;
+            
+            case 8:
+                nr[0] = new Rect2(w6, h6, w3, h3);
+                nr[1] = new Rect2(w2, h6, w3, h3);
+                nr[2] = new Rect2(w56, h6, w3, h3);
+                nr[3] = new Rect2(w6, h56, w3, h3);
+                nr[4] = new Rect2(w2, h56, w3, h3);
+                nr[5] = new Rect2(w56, h56, w3, h3);
+                nr[6] = new Rect2(w6, h2, w3, h3);
+                nr[7] = new Rect2(w56, h2, w3, h3);
+                break;
+            
+            case 9:
+                nr[0] = new Rect2(w6, h6, w3, h3);
+                nr[1] = new Rect2(w2, h6, w3, h3);
+                nr[2] = new Rect2(w56, h6, w3, h3);
+                nr[3] = new Rect2(w6, h56, w3, h3);
+                nr[4] = new Rect2(w2, h56, w3, h3);
+                nr[5] = new Rect2(w56, h56, w3, h3);
+                nr[6] = new Rect2(w6, h2, w3, h3);
+                nr[7] = new Rect2(w2, h2, w3, h3);
+                nr[8] = new Rect2(w56, h2, w3, h3);
+                break;
+
             default:
                 nr[0] = new Rect2(w2/2, h2/2, w2, h2);
                 nr[1] = new Rect2(w2 * 1.5f, h2/2, w2, h2);
@@ -333,11 +426,12 @@ public partial class TextureFactory : SubViewport
         foreach (var r in nr)
         {
             var to = new TextureObject(obj);
-            to.CenterX = (int)(r.Position.X);
-            to.CenterY = (int)(r.Position.Y);
+            to.CenterX = (int)(r.Position.X + obj.CenterX - w2);
+            to.CenterY = (int)(r.Position.Y + obj.CenterY - h2);
             to.Height = (int)r.Size.Y;
             to.Width = (int)r.Size.X;
             to.Quantity = 1;
+            to.RotationDegrees = obj.RotationDegrees;
             shapes.Add(to);
         }
         

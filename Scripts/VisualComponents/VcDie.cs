@@ -332,7 +332,8 @@ public partial class VcDie : VisualComponentBase
 			RotationDegrees = 0,
 			Text = sides[0].Caption,
 			TriangleFace = false,
-			ForegroundColor = sides[0].ForegroundColor
+			ForegroundColor = sides[0].ForegroundColor,
+			Quantity = sides[0].Quantity
 		};
 		tx.Objects.Add(to);
 	
@@ -368,7 +369,8 @@ public partial class VcDie : VisualComponentBase
 			TriangleFace = true,
 			RotationDegrees = 90,
 			Text = sides[0].Caption,
-			ForegroundColor = sides[0].ForegroundColor
+			ForegroundColor = sides[0].ForegroundColor,
+			Quantity = sides[0].Quantity
 		};
 
 		tx.Objects.Add(t0);
@@ -407,7 +409,8 @@ public partial class VcDie : VisualComponentBase
 			TriangleFace = false,
 			RotationDegrees = 0,
 			Text = sides[0].Caption,
-			ForegroundColor = sides[0].ForegroundColor
+			ForegroundColor = sides[0].ForegroundColor,
+			Quantity = sides[0].Quantity
 		};
 		tx.Objects.Add(to);
 		
@@ -448,7 +451,8 @@ public partial class VcDie : VisualComponentBase
 			TriangleFace = false,
 			RotationDegrees = 90,
 			Text = sides[0].Caption,
-			ForegroundColor = sides[0].ForegroundColor
+			ForegroundColor = sides[0].ForegroundColor,
+			Quantity = sides[0].Quantity
 		};
 		tx.Objects.Add(to);
 		
@@ -491,7 +495,8 @@ public partial class VcDie : VisualComponentBase
 			TriangleFace = true,
 			RotationDegrees = 90,
 			Text = sides[0].Caption,
-			ForegroundColor = sides[0].ForegroundColor
+			ForegroundColor = sides[0].ForegroundColor,
+			Quantity = sides[0].Quantity
 		};
 		tx.Objects.Add(to);
 		
@@ -539,7 +544,8 @@ public partial class VcDie : VisualComponentBase
 			RotationDegrees = rotation,
 			Text = qtf.Caption,
 			TriangleFace = obj.TriangleFace,
-			ForegroundColor = qtf.ForegroundColor
+			ForegroundColor = qtf.ForegroundColor,
+			Quantity = qtf.Quantity
 		};
 
 		return tx;
