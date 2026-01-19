@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://0wsvxlpthnkp"]
+[gd_scene load_steps=13 format=3 uid="uid://0wsvxlpthnkp"]
 
 [ext_resource type="Theme" uid="uid://cgw83xinre6u" path="res://Themes/bluetheme.tres" id="1_hnkns"]
 [ext_resource type="Script" uid="uid://blvugxyae05ee" path="res://Scripts/Templating/TemplateCreator.cs" id="1_wn7e0"]
@@ -8,6 +8,9 @@
 [ext_resource type="Script" uid="uid://bl1v61t413ui2" path="res://Scripts/Templating/BoundsRect.cs" id="5_4cjo0"]
 [ext_resource type="Texture2D" uid="uid://cetgsjrqd6vjj" path="res://Textures/UI/trash-can.png" id="5_si24g"]
 [ext_resource type="Texture2D" uid="uid://cugnc5143oecw" path="res://Textures/UI/pencil.png" id="6_6qm3h"]
+[ext_resource type="Texture2D" uid="uid://b2dp0funivpga" path="res://Textures/UI/zoom-out.png" id="9_6qm3h"]
+[ext_resource type="Texture2D" uid="uid://b0qbv1mmnp4c4" path="res://Textures/UI/fullscreen.png" id="10_5a5fc"]
+[ext_resource type="Texture2D" uid="uid://c2xtoa1ewjtfd" path="res://Textures/UI/zoom-in.png" id="11_275yv"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hnkns"]
 bg_color = Color(0.99736375, 0.793054, 0.8017672, 1)
@@ -53,11 +56,6 @@ text = "Save"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Duplicate"
-
-[node name="Zoom" type="Button" parent="Panel/VBoxContainer/Toolbar"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Zoom"
 
 [node name="Panel" type="Panel" parent="Panel/VBoxContainer/Toolbar"]
 layout_mode = 2
@@ -344,6 +342,7 @@ keep_pressed_outside = true
 
 [node name="PreviewHScroll" type="HScrollBar" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -354,11 +353,12 @@ offset_right = -24.0
 grow_horizontal = 2
 grow_vertical = 0
 step = 1.0
-page = 1.0
+page = 10.0
 value = 50.0
 
 [node name="PreviewVScroll" type="VScrollBar" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
@@ -369,8 +369,30 @@ offset_bottom = -17.0
 grow_horizontal = 0
 grow_vertical = 2
 step = 1.0
-page = 1.0
+page = 10.0
 value = 50.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 90.0
+offset_bottom = 41.0
+
+[node name="ZoomOut" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("9_6qm3h")
+
+[node name="ZoomFit" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("10_5a5fc")
+
+[node name="ZoomIn" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("11_275yv")
 
 [node name="NewTemplateDialog" type="MarginContainer" parent="Panel"]
 unique_name_in_owner = true

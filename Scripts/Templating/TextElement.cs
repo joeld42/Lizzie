@@ -43,10 +43,22 @@ public class TextElement : TemplateElement
         UpdateCoreParameterData(t, context);
         t.Text = EvaluateTextParameter(Parameters, "Text", context);
         t.ForegroundColor = EvaluateColorParameter(Parameters, "Foreground", context);
-        t.FontSize = EvaluateNumberParameter(Parameters, "Font Size", context);
+        
+        var f = EvaluateNumberParameter(Parameters, "Font Size", context);
+        t.FontSize = ScaleFontSize(f, context);
+        
         t.Autosize = EvaluateBooleanParameter(Parameters, "Autosize", context);
         l.Add(t);
         return l;
+    }
+
+    private int ScaleFontSize(int fontSize, TextureContext context)
+    {
+    const int TwelvePointHeight = 18;   //pixels in 12 point font. (Actually was 17, but I changed it to 18 to make it look better)
+
+    float targetDots = (fontSize / 72f) * context.Dpi;  //fontsize / 72 = font size in inches
+
+    return (int)(fontSize * targetDots / TwelvePointHeight);
     }
 
 

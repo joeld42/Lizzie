@@ -53,17 +53,19 @@ public partial class TemplateCreator : MarginContainer
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
+        InitPreview();
+
         InitToolbar();
         
         InitElementTree();
 
         InitParamTypes();
 
-        InitPreview();
-
         InitializeNewTemplateDialog();
         
         _textureContext.ParentSize = _preview.GetSize();
+
+        InitializeFit();
         
         this.VisibilityChanged += UpdateScrollBarVisibility;
     }
@@ -94,11 +96,10 @@ public partial class TemplateCreator : MarginContainer
 
         _cardSizes = GetNode<OptionButton>("%StandardSize");
         _cardSizes.ItemSelected += StandardSizeChanged;
+        
         InitializeStandardSizes();
         StandardSizeChanged(0);
         
-        _zoomButton = GetNode<Button>("%Zoom");
-        _zoomButton.Pressed += ZoomIn;
     }
 
 
@@ -149,6 +150,7 @@ public partial class TemplateCreator : MarginContainer
 
     private ScrollBar _previewHScroll;
     private ScrollBar _previewVScroll;
+
     
     private void InitPreview()
     {
@@ -168,6 +170,13 @@ public partial class TemplateCreator : MarginContainer
         
         _previewVScroll = GetNode<ScrollBar>("%PreviewVScroll");
         _previewVScroll.ValueChanged += OnScroll;
+        
+        _zoomInButton = GetNode<Button>("%ZoomIn");
+        _zoomInButton.Pressed += ZoomIn;
+        _zoomOutButton = GetNode<Button>("%ZoomOut");
+        _zoomOutButton.Pressed += ZoomOut;
+        _zoomFitButton = GetNode<Button>("%ZoomFit");
+        _zoomFitButton.Pressed += ZoomFit;
         
         UpdateScrollBarVisibility();
 
@@ -204,7 +213,8 @@ public partial class TemplateCreator : MarginContainer
 
     private void HeightWidthChange(string newtext)
     {
-        //update preview
+        InitializeFit();
+        _updateRequired = true;
     }
 
     public IconLibrary IconLibrary { get; set; } = new();
@@ -399,8 +409,6 @@ public partial class TemplateCreator : MarginContainer
 
     private void UpdateTexture(bool updateBounds)
     {
-        _textureContext.ParentSize = _preview.GetSize();
-
         var td = new TextureFactory.TextureDefinition
         {
             BackgroundColor = Colors.White,
@@ -728,32 +736,47 @@ public partial class TemplateCreator : MarginContainer
     
     #region Zoom
     
-    private Vector2 _windowSize = new(256, 256);
-
+    private Vector2 _windowSize = Vector2.Zero;
     private Vector2 _topLeftMargin = Vector2.Zero;
+    private Button _zoomInButton;
+    private Button _zoomOutButton;
+    private Button _zoomFitButton;
     
+    private float _zoomDelta = 0.1f;
+
+    private float _curZoomScale = 1;
     
-    private void ZoomIn()
+    private void Zoom(float newScale)
     {
+        if (newScale < 1f) newScale = 1;
+        
+        _curZoomScale = newScale;
+        
         //check to see if we have saved the _topLeftMargin. If not, cache it
         if (_topLeftMargin == Vector2.Zero)
         {
             _topLeftMargin = _preview.Position;
         }
         
-        var v = _preview.GetScale();
-        if (v.X > 1.1f)
-        {
-            _preview.SetScale(new Vector2(1,1));
-        }
-        else
-        {
-            _preview.SetScale(new Vector2(1.5f, 1.5f));
-        }
-
+        _preview.SetScale(new Vector2(_curZoomScale, _curZoomScale));
+        
         UpdateScrollBarVisibility();
         OnScroll(0);
+    }
+    
+    private void ZoomIn()
+    {
+      Zoom(_curZoomScale + _zoomDelta);
+    }
 
+    private void ZoomOut()
+    {
+        Zoom(_curZoomScale - _zoomDelta);
+    }
+
+    private void ZoomFit()
+    {
+        Zoom(1);
     }
 
     private void UpdateScrollBarVisibility()
@@ -770,23 +793,79 @@ public partial class TemplateCreator : MarginContainer
     
     private void OnScroll(double value)
     {
-        var vv = _previewVScroll.Value / 100;
+        var py = _preview.Size.Y * _preview.Scale.Y;
+        var px = _preview.Size.X * _preview.Scale.X;
         
-        var fullHeight = (2 * _topLeftMargin.Y) + (_preview.Size.Y * _preview.Scale.Y);
+        var _windowSize = _previewWindow.Size;
+        
+        
+        float vv = (float)(_previewVScroll.Value / (100 - _previewVScroll.Page));
 
-        var zeroPos = _topLeftMargin.Y;
-        var fullPos = -2 * _topLeftMargin.Y;
+        var v0 = _topLeftMargin.Y;
+        var v1 = _windowSize.Y - (_topLeftMargin.Y + py);
+        
+        float ny =(float)( Lerp(v0, v1, vv));
 
-        //var newPos = zeroPos + (fullPos - zeroPos) * vv;
-        float newPos =(float)( -2 * _topLeftMargin.Y * vv * _preview.Scale.Y);
+        float hh = (float)(_previewHScroll.Value / (100 - _previewHScroll.Page));
 
-        _preview.Position = _topLeftMargin + new Vector2(0, newPos);
+        var h0 = _topLeftMargin.X;
+        var h1 = _windowSize.X - (_topLeftMargin.X + px);
+        
+        float nx =(float)( Lerp(h0, h1, hh));
+
+        _preview.Position = new Vector2(nx, ny);
+    }
+
+    public static float Lerp(float a, float b, float t)
+    {
+        return a + (b - a) * t;
+    }
+
+    private const float MarginScale = 0.9f;
+
+    private float _previewDpi;
+    
+    public void InitializeFit()
+    {
+        float.TryParse(_widthInput.Text, out var w);
+        float.TryParse(_heightInput.Text, out var h);
+        
+        if (w <= 0 || h <= 0) return;
+
+        _textureContext.ParentSize = _preview.Size;
+        _textureContext.Dpi = 25.4f * _textureContext.ParentSize.Y / h;
+        
+        //size to fit in the preview window
+        var aspectRation = w / h;
+        
+        var wSize = _previewWindow.Size;
+
+        var sh = wSize.Y * MarginScale;
+
+        var sw = sh * aspectRation;
+
+        if (sw > wSize.X * MarginScale)
+        {
+            sw = wSize.X * MarginScale;
+            sh = sw / aspectRation;
+        }
+        
+        //scale / position the preview window
+        _preview.SetSize(new Vector2(sw, sh));
+        _preview.SetPosition(new Vector2((wSize.X - sw) / 2, (wSize.Y - sh) / 2));
+        
+        _previewDpi = 25.4f * sw / w;
+        
+        ZoomFit();
     }
     
     #endregion
 }
 
+
+
 public class TextureContext()
 {
     public Vector2 ParentSize { get; set; }
+    public float Dpi { get; set; }
 }
