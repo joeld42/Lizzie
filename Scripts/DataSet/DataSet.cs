@@ -33,4 +33,25 @@ public class DataSet
         
         return d;
     }
+
+    public static DataSet TestDataSet()
+    {
+        var ds = new DataSet();
+        var c = new List<string> { "Title", "Cost", "Image", "Effect" };
+        
+        var r1 = new DataRow { Name = "Test1", Qty = 1, Data = new List<string> { "Title1", "1", "Heart", "+1 Health" } };
+        var r2 = new DataRow { Name = "Test2", Qty = 2, Data = new List<string> { "Title2", "2", "Star", "+2 Magic" } };
+        var r3 = new DataRow { Name = "Test3", Qty = 3, Data = new List<string> { "Title3", "3", "Axe", "+3 Attack" } };
+        var r4 = new DataRow { Name = "Test4", Qty = 4, Data = new List<string> { "Title4", "4", "Sword", "+4 Attack" } };
+        var r5 = new DataRow { Name = "Test5", Qty = 5, Data = new List<string> { "Title5", "5", "Bow", "+5 Range" } };
+        
+        ds.Columns = c;
+        ds.Rows.Add("Test1", r1);
+        ds.Rows.Add("Test2", r2);
+        ds.Rows.Add("Test3", r3);
+        ds.Rows.Add("Test4", r4);
+        ds.Rows.Add("Test5", r5);
+        
+        return ds;
+    }
 }

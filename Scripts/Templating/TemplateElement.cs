@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Godot;
 
 namespace TTSS.Scripts.Templating;
@@ -158,7 +159,33 @@ public class TemplateElement : ITemplateElement
         
         s = s.Replace("{HalfHeight}", ((int)(context.ParentSize.Y/2)).ToString(), StringComparison.InvariantCultureIgnoreCase);
         
+        //check dataset to column match
+        if (context.DataSet != null && !string.IsNullOrEmpty(context.CurrentRowName) && context.DataSet.Rows.ContainsKey(context.CurrentRowName))
+        {
+            s = s.Replace("{Name}", context.CurrentRowName, StringComparison.InvariantCultureIgnoreCase);
+
+            for (int i = 0; i < context.DataSet.Columns.Count; i++)
+            {
+                var r = "{" + context.DataSet.Columns[i] + "}";
+                s = s.Replace(r, context.DataSet.Rows[context.CurrentRowName].Data[i]);
+            }
+        }
+        
         return s;
+    }
+    
+    /// <summary>
+    /// Retrieves all public static Color fields from the Godot.Colors class.
+    /// </summary>
+    private List<(string Name, Color Value)> GetAllColors()
+    {
+        var colorType = typeof(Colors);
+
+        return colorType
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(Color))
+            .Select(f => (f.Name, (Color)f.GetValue(null)!))
+            .ToList();
     }
     
     #endregion

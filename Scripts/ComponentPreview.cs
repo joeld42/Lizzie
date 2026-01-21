@@ -177,6 +177,13 @@ public class ItemSelectedEventArgs : EventArgs
 	{
 		Index = index;
 	}
+
+	public ItemSelectedEventArgs(int index, string caption)
+	{
+		Index = index;
+		Caption = caption;
+	}
 	public int Index { get; set; }
+	public string Caption { get; set; }
 }
 

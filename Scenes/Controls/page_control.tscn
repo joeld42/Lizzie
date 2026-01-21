@@ -1,0 +1,57 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1a1y6r1hea4l"]
+
+[ext_resource type="Script" uid="uid://dvp5ggoyetquq" path="res://Scenes/Controls/PageControl.cs" id="1_p2227"]
+
+[node name="PageControl" type="HBoxContainer"]
+script = ExtResource("1_p2227")
+
+[node name="MarginContainer3" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 0
+
+[node name="FirstItem" type="Button" parent="MarginContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "First card"
+text = "<<"
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_right = 12
+
+[node name="PrevItem" type="Button" parent="MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Previous card"
+text = "<"
+
+[node name="CurItemLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Card 1 of 32"
+horizontal_alignment = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 0
+
+[node name="NextItem" type="Button" parent="MarginContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Next card"
+text = ">"
+
+[node name="MarginContainer4" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_right = 12
+
+[node name="LastItem" type="Button" parent="MarginContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Last card"
+text = ">>"

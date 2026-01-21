@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ojs61k8nlddj"]
 
-[ext_resource type="Script" path="res://Scripts/ComponentPreview.cs" id="1_5fnph"]
+[ext_resource type="Script" uid="uid://0bd6nlas58lp" path="res://Scripts/ComponentPreview.cs" id="1_5fnph"]
 [ext_resource type="Texture2D" uid="uid://dtc70uy7e7n8" path="res://Textures/UI/rotate-right.png" id="2_3qart"]
 
 [node name="ComponentPreview" type="Panel"]
@@ -9,7 +9,7 @@ script = ExtResource("1_5fnph")
 
 [node name="PreviewLabel" type="Label" parent="."]
 custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
+layout_mode = 0
 offset_left = 4.0
 offset_right = 204.0
 offset_bottom = 23.0
@@ -18,7 +18,6 @@ text = "Preview"
 horizontal_alignment = 1
 
 [node name="Multipreview" type="HBoxContainer" parent="."]
-visible = false
 layout_mode = 0
 offset_right = 246.0
 offset_bottom = 31.0

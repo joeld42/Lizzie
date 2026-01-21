@@ -88,6 +88,8 @@ public partial class ProjectManager : Panel
 
 		p.Templates.Add("Issue Face", t);
 		
+		p.Datasets.Add("Test Data", DataSet.TestDataSet());
+		
 		return p;
 	}
 

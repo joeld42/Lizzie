@@ -18,6 +18,9 @@ public partial class TemplateCreator : MarginContainer
     private Button _textButton;
     private Button _closeButton;
     private Button _imageButton;
+    private Button _deleteElementButton;
+    private Button _renameElementButton;
+    private Button _duplicateElementButton;
 
     private BoundsRect _boundsRect;
 
@@ -45,10 +48,13 @@ public partial class TemplateCreator : MarginContainer
     private bool _updateRequired;
 
     private Button _newButton;
-    public Button _saveButton;
-    public Button _duplicateButton;
-    public Button _zoomButton;
-    public Panel _previewWindow;
+    private Button _saveButton;
+    private Button _duplicateButton;
+    private Button _zoomButton;
+    private Panel _previewWindow;
+    private OptionButton _dataSetSelector;
+    
+    private PageControl _pageControl;
     
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -96,11 +102,18 @@ public partial class TemplateCreator : MarginContainer
 
         _cardSizes = GetNode<OptionButton>("%StandardSize");
         _cardSizes.ItemSelected += StandardSizeChanged;
-        
         InitializeStandardSizes();
         StandardSizeChanged(0);
         
+        _dataSetSelector = GetNode<OptionButton>("%Dataset");
+        _dataSetSelector.ItemSelected += OnDatasetChanged;
+        InitializeDataSets();
+        
+        _pageControl = GetNode<PageControl>("%PageControl");
+        _pageControl.Hide();
+        _pageControl.ItemSelected += ChangePage;
     }
+
 
 
 
@@ -144,8 +157,12 @@ public partial class TemplateCreator : MarginContainer
     private void ChangeTemplate(long index)
     {
         string name = _templateNameSelector.GetItemText((int)index);
-        
-        if (Templates.ContainsKey(name)) CurrentTemplate = Templates[name];
+        UpdateTemplate(CurrentTemplate);
+
+        if (Templates.ContainsKey(name))
+        {
+            CurrentTemplate = Templates[name];
+        }
     }
 
     private ScrollBar _previewHScroll;
@@ -197,6 +214,17 @@ public partial class TemplateCreator : MarginContainer
 
         _rootItem = _elementTree.CreateItem(); //create root item
         _elementTree.ItemSelected += TreeItemSelected;
+        
+        _deleteElementButton = GetNode<Button>("%DeleteElement");
+        _deleteElementButton.Pressed += DeleteCurrentElement;
+        
+        _renameElementButton = GetNode<Button>("%RenameElement");
+        _renameElementButton.Pressed += RenameCurrentElement;
+        
+        _duplicateElementButton = GetNode<Button>("%DuplicateElement");
+        _duplicateElementButton.Pressed += DuplicateCurrentElement;
+        
+        EnableTreeDragAndDrop();
     }
 
     private void InitParamTypes()
@@ -280,6 +308,34 @@ public partial class TemplateCreator : MarginContainer
             UpdateBoundsRect();
         }
     }
+    
+    #region Element Tools
+
+    private void DeleteCurrentElement()
+    {
+        if (_selectedElement == null) return;
+        var ti = _elementTree.GetSelected();
+
+        if (ti.GetMetadata(0).AsInt32() != _selectedElement.Id) return;
+        
+        //_elementTree.
+        
+    }
+
+    private void RenameCurrentElement()
+    {
+        if (_selectedElement == null) return;
+        var ti = _elementTree.GetSelected();
+        ti.SetEditable(0,true);
+    }
+
+    private void DuplicateCurrentElement()
+    {
+        if (_selectedElement == null) return;
+    }
+    
+    
+    #endregion
 
     private void ClearParameterBox()
     {
@@ -311,13 +367,14 @@ public partial class TemplateCreator : MarginContainer
             prefix = "Text";
         }
 
-
+        var elementName = $"{prefix}{max}";
+        
         var ni = _elementTree.CreateItem(_rootItem);
         ni.SetMetadata(0, max);
-        ni.SetText(0, $"{prefix} {max}");
+        ni.SetText(0, elementName);
 
         t.Id = max;
-
+        t.ElementName = elementName;
         _templateElements.Add(t);
 
         _elementTree.SetSelected(ni, 0);
@@ -519,25 +576,48 @@ public partial class TemplateCreator : MarginContainer
         }
     }
 
+    private float _curHeight;
+    private float _curWidth;
+    private string _curSizeType;
 
     private void StandardSizeChanged(long index)
     {
-        var cardType = _cardSizes.Text;
+        _curSizeType = _cardSizes.Text;
 
-        if (!_standardSizes.TryGetValue(cardType, out var size)) return;
+        if (!_standardSizes.TryGetValue(_curSizeType, out var size)) return;
 
-        var w = size.Item1;
-        var h = size.Item2;
+        _curWidth = size.Item1;
+        _curHeight = size.Item2;
 
-        if (w == 0 || h == 0) return;
+        if (_curWidth == 0 || _curHeight == 0) return;
 
         float conversion = 25.4f;
 
-        _heightInput.Text = (h * conversion).ToString("f1");
-        _widthInput.Text = (w * conversion).ToString("f1");
+        _heightInput.Text = (_curHeight * conversion).ToString("f1");
+        _widthInput.Text = (_curWidth * conversion).ToString("f1");
 
         HeightWidthChange(string.Empty);
     }
+
+    private void InitializeDataSets()
+    {
+        if (_projectManager == null) return;
+        
+        _dataSetSelector.Clear();
+        _dataSetSelector.AddItem("(none)", 0);
+
+        var i = 1;
+
+        foreach (var d in _projectManager.CurrentProject.Datasets)
+        {
+            _dataSetSelector.AddItem(d.Key, i);
+            i++;
+        }
+        
+        _dataSetSelector.Select(0);
+    }
+
+   
 
     #endregion
 
@@ -595,6 +675,9 @@ public partial class TemplateCreator : MarginContainer
 
     private void OnNewTemplateOkPressed()
     {
+        //save current template
+        UpdateTemplate(CurrentTemplate);
+        
         var t = new Template
         {
             Name = _newTemplateName.Text,
@@ -610,6 +693,8 @@ public partial class TemplateCreator : MarginContainer
         Templates.Add(t.Name, t);
         _templateNameSelector.AddItem(t.Name);
         _templateNameSelector.Select(_templateNameSelector.GetItemCount() - 1);
+
+        CurrentTemplate = t;
         
         _newTemplateName.Clear();
         
@@ -624,11 +709,10 @@ public partial class TemplateCreator : MarginContainer
 
     public Dictionary<string, Template> Templates
     {
-        get => _templates;
-        set
+        get
         {
-            _templates = value;
-            LoadTemplateNameSelector();
+            if (_projectManager == null) return new();
+            return _projectManager.CurrentProject.Templates;       
         }
     }
 
@@ -694,7 +778,7 @@ public partial class TemplateCreator : MarginContainer
         return te;
     }
 
-    private Dictionary<string, string> ExportTemplateElement(TemplateElement te)
+    private Dictionary<string, string> ExportTemplateElement(ITemplateElement te)
     {
         var parameters = new Dictionary<string, string>();
         
@@ -704,11 +788,28 @@ public partial class TemplateCreator : MarginContainer
         {
             parameters.Add(p.Name, p.Value);
         }
+
+        var tp = "Text";
+        if (te is ImageElement) tp = "Image";
         
-        parameters.Add("Type", te.ElementName);
+        parameters.Add("Type", tp);
         
         return parameters;
     }
+
+    private void UpdateTemplate(Template template)
+    {
+        template.SizeTemplate = _curSizeType;
+        template.Width = _curWidth;
+        template.Height = _curHeight;
+        
+        template.Elements.Clear();
+        foreach (var e in _templateElements)
+        {
+            template.Elements.Add(ExportTemplateElement(e));
+        }
+    }
+    
     
     private ProjectManager _projectManager;
 
@@ -725,13 +826,209 @@ public partial class TemplateCreator : MarginContainer
         _templateNameSelector.Select(0);
         CurrentTemplate = _projectManager.CurrentProject.Templates[_templateNameSelector.GetItemText(0)];
 
-
+        InitializeDataSets();
     }
     
     
     
     
     
+    
+    
+    
+    
+    #endregion
+    
+    #region DragAndDrop
+
+    private void EnableTreeDragAndDrop()
+    {
+        _elementTree.SetDragForwarding(
+            Callable.From<Vector2, Variant>(_GetTreeDragData),
+            Callable.From<Vector2, Variant, bool>(_CanDropTreeData),
+            Callable.From<Vector2, Variant>(_DropTreeData)
+        );
+    }
+
+    private Variant _GetTreeDragData(Vector2 position)
+    {
+        var selectedItem = _elementTree.GetSelected();
+        if (selectedItem == null || selectedItem == _rootItem)
+            return default;
+
+        var previewLabel = new Label();
+        previewLabel.Text = selectedItem.GetText(0);
+        _elementTree.SetDragPreview(previewLabel);
+
+        var dragData = new Godot.Collections.Dictionary
+        {
+            { "type", "tree_item" },
+            { "item_id", selectedItem.GetMetadata(0) },
+            { "item_text", selectedItem.GetText(0) }
+        };
+
+        return dragData;
+    }
+
+    private bool _CanDropTreeData(Vector2 position, Variant data)
+    {
+        if (data.VariantType != Variant.Type.Dictionary)
+            return false;
+
+        var dragData = data.AsGodotDictionary();
+        if (!dragData.ContainsKey("type") || dragData["type"].AsString() != "tree_item")
+            return false;
+
+        var dropSection = _elementTree.GetDropSectionAtPosition(position);
+        var targetItem = _elementTree.GetItemAtPosition(position);
+
+        if (targetItem == null)
+            return false;
+
+        if (targetItem == _rootItem)
+            return true;
+
+        var draggedId = dragData["item_id"].AsInt32();
+        var draggedItem = FindTreeItemById(_rootItem, draggedId);
+
+        if (draggedItem == null || draggedItem == targetItem)
+            return false;
+
+        if (IsItemDescendantOf(targetItem, draggedItem))
+            return false;
+
+        return true;
+    }
+
+    private void _DropTreeData(Vector2 position, Variant data)
+    {
+        var dragData = data.AsGodotDictionary();
+        var draggedId = dragData["item_id"].AsInt32();
+        var draggedItem = FindTreeItemById(_rootItem, draggedId);
+
+        if (draggedItem == null)
+            return;
+
+        var targetItem = _elementTree.GetItemAtPosition(position);
+        if (targetItem == null)
+            return;
+
+        var dropSection = _elementTree.GetDropSectionAtPosition(position);
+
+        var draggedElement = _templateElements.FirstOrDefault(x => x.Id == draggedId);
+        if (draggedElement == null)
+            return;
+
+        TreeItem newParent;
+        TreeItem insertBefore = null;
+
+        if (dropSection == 0)
+        {
+            if (targetItem == _rootItem)
+            {
+                newParent = _rootItem;
+            }
+            else
+            {
+                newParent = targetItem;
+            }
+        }
+        else if (dropSection == -1)
+        {
+            newParent = targetItem.GetParent();
+            insertBefore = targetItem;
+        }
+        else
+        {
+            newParent = targetItem.GetParent();
+            insertBefore = targetItem.GetNext();
+        }
+
+        if (newParent == null)
+            newParent = _rootItem;
+
+        var oldParent = draggedItem.GetParent();
+
+        var newItem = _elementTree.CreateItem(newParent, insertBefore == null ? -1 : -1); //newParent.GetChildIndex(insertBefore));
+        newItem.SetMetadata(0, draggedElement.Id);
+        newItem.SetText(0, draggedElement.ElementName);
+
+        var children = new List<TreeItem>();
+        var child = draggedItem.GetFirstChild();
+        while (child != null)
+        {
+            children.Add(child);
+            child = child.GetNext();
+        }
+
+        foreach (var childItem in children)
+        {
+            MoveTreeItemRecursive(childItem, newItem);
+        }
+
+        oldParent?.RemoveChild(draggedItem);
+        draggedItem.Free();
+
+        _elementTree.SetSelected(newItem, 0);
+        
+        _updateRequired = true;
+    }
+
+    private void MoveTreeItemRecursive(TreeItem source, TreeItem newParent)
+    {
+        var id = source.GetMetadata(0).AsInt32();
+        var text = source.GetText(0);
+
+        var newItem = _elementTree.CreateItem(newParent);
+        newItem.SetMetadata(0, id);
+        newItem.SetText(0, text);
+
+        var children = new List<TreeItem>();
+        var child = source.GetFirstChild();
+        while (child != null)
+        {
+            children.Add(child);
+            child = child.GetNext();
+        }
+
+        foreach (var childItem in children)
+        {
+            MoveTreeItemRecursive(childItem, newItem);
+        }
+    }
+
+    private TreeItem FindTreeItemById(TreeItem root, int id)
+    {
+        if (root == null)
+            return null;
+
+        if (root != _rootItem && root.GetMetadata(0).AsInt32() == id)
+            return root;
+
+        var child = root.GetFirstChild();
+        while (child != null)
+        {
+            var found = FindTreeItemById(child, id);
+            if (found != null)
+                return found;
+            child = child.GetNext();
+        }
+
+        return null;
+    }
+
+    private bool IsItemDescendantOf(TreeItem potentialDescendant, TreeItem potentialAncestor)
+    {
+        var current = potentialDescendant.GetParent();
+        while (current != null)
+        {
+            if (current == potentialAncestor)
+                return true;
+            current = current.GetParent();
+        }
+        return false;
+    }
+
     #endregion
     
     #region Zoom
@@ -860,6 +1157,37 @@ public partial class TemplateCreator : MarginContainer
     }
     
     #endregion
+    
+    #region Datasets
+    
+    private void ChangePage(object sender, ItemSelectedEventArgs e)
+    {
+        _textureContext.CurrentRowName = e.Caption;
+        _updateRequired = true;
+    }
+    
+    private void OnDatasetChanged(long index)
+    {
+        if (index == 0)
+        {
+            _textureContext.DataSet = null;
+            _pageControl.Hide();
+        }
+        else
+        {
+            var n = _dataSetSelector.GetItemText((int)index);
+            if (_projectManager.CurrentProject.Datasets.ContainsKey(n))
+            {
+                _textureContext.DataSet = _projectManager.CurrentProject.Datasets[n];
+                _pageControl.SetItemLabels(_textureContext.DataSet.Rows.Select(x => x.Key).ToArray());
+                _pageControl.Show();
+            }
+        }
+        
+        _updateRequired = true;
+    }
+    
+    #endregion
 }
 
 
@@ -868,4 +1196,8 @@ public class TextureContext()
 {
     public Vector2 ParentSize { get; set; }
     public float Dpi { get; set; }
+    
+    public DataSet DataSet { get; set; }
+    
+    public string CurrentRowName { get; set; }
 }
