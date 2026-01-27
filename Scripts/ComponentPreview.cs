@@ -100,7 +100,7 @@ public partial class ComponentPreview : Panel
 	private void ChangePage(object sender, ItemSelectedEventArgs e)
 	{
 		CurrentItem = _pageControl.GetCurrentItem();
-		ItemSelected?.Invoke(this, new ItemSelectedEventArgs(ItemCount) );
+		ItemSelected?.Invoke(this, new ItemSelectedEventArgs(CurrentItem) );
 	}
 	
 
@@ -121,7 +121,12 @@ public partial class ComponentPreview : Panel
 			}
 			_pageControl.SetItemCount(_itemCount);
 		}
-	} 
+	}
+
+	public void SetItemLabels(IList<string> labels)
+	{
+		_pageControl.SetItemLabels(labels);
+	}
 	
 	public int CurrentItem { get; set; }
 	

@@ -71,4 +71,6 @@ public abstract partial class ComponentPanelDialogResult : Control
         set;
     }
     
+    public virtual Project CurrentProject { get; set; }
+    
 }

@@ -20,6 +20,8 @@ public abstract partial class VisualComponentBase : Area3D
 		Mesh
 	}
 
+	public bool TextureReady { get; set; } 
+	
 	public virtual VisualComponentType ComponentType { get; set; }
 	protected GeometryInstance3D MainMesh;
 
@@ -69,6 +71,8 @@ public abstract partial class VisualComponentBase : Area3D
 
 	public virtual bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
+		TextureReady = false;
+		
 		Parameters = parameters;
 		if (parameters.ContainsKey(nameof(ComponentName)))
 		{

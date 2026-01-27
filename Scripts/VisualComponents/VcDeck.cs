@@ -33,6 +33,8 @@ public partial class VcDeck : VisualGroupComponent
 
 	public override void _Process(double delta)
 	{
+		if (!TextureReady) UpdateDeckSprites();
+		
 		if (_flipInProcess)
 		{
 			ProcessFlip(delta);
@@ -316,7 +318,7 @@ public partial class VcDeck : VisualGroupComponent
 				break;
 
 			case VcToken.TokenBuildMode.Template:
-				BuildTemplate(parameters);
+				BuildTemplate(parameters, textureFactory);
 				break;
 
 			case VcToken.TokenBuildMode.Grid:
@@ -437,11 +439,40 @@ public partial class VcDeck : VisualGroupComponent
 		CreateQuickCards(textureFactory);
 	}
 
-	private void BuildTemplate(Dictionary<string, object> parameters)
+	private void BuildTemplate(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
+		var f = Utility.GetParam<List<TextureFactory.TextureDefinition>>(parameters, "FrontTemplateTextureDefinitions");
+		var b = Utility.GetParam<List<TextureFactory.TextureDefinition>>(parameters, "BackTemplateTextureDefinitions");
+
+		if (f == null)
+		{
+			f = new List<TextureFactory.TextureDefinition>();
+		}
+		if (b == null)
+		{
+			b = new List<TextureFactory.TextureDefinition>();
+		}
+		
+		CreateTemplateCards(f, b, textureFactory);
 	}
 
+	private void CreateTemplateCards(List<TextureFactory.TextureDefinition>  frontDefinitions, List<TextureFactory.TextureDefinition> backDefinitions, TextureFactory textureFactory)
+	{
+		Clear();
 
+		for (int i = 0; i < frontDefinitions.Count; i++)
+		{
+			var f = frontDefinitions.ElementAt(i);
+			
+			var b = backDefinitions.ElementAt(Math.Min(i, backDefinitions.Count - 1));
+			
+			var c = CreateTemplateCard(f,b, textureFactory);
+
+			AddChildComponent(c);
+		}
+	}
+	
+	
 	private void CreateCustomFrontTexture()
 	{
 		if (!File.Exists(_frontImage)) return;
@@ -553,6 +584,27 @@ public partial class VcDeck : VisualGroupComponent
 		return card;
 	}
 
+	private VcToken CreateTemplateCard(TextureFactory.TextureDefinition frontTextureDefinition, TextureFactory.TextureDefinition backTextureDefinition,
+		TextureFactory textureFactory)
+	{
+		var card = (VcToken)_templateCard.Duplicate();
+		var p = new System.Collections.Generic.Dictionary<string, object>();
+		p.Add("Height", _height * 10);
+		p.Add("Width", _width * 10);
+		p.Add("Thickness", 0.1f * 10);
+		p.Add("ComponentName", string.Empty); //TODO add card name
+		p.Add("Shape", 0);
+		p.Add("Mode", VcToken.TokenBuildMode.Template);
+		p.Add("DifferentBack", true);
+		p.Add("TemplateFrontTextureDefinition", frontTextureDefinition);
+		p.Add("TemplateBackTextureDefinition", backTextureDefinition);
+		
+		card.Build(p, textureFactory);
+		
+		card.Parent = Reference;
+
+		return card;
+	}
 	#region Grid Cards
 
 	private Texture2D _frontMasterSprite;
@@ -675,8 +727,14 @@ public partial class VcDeck : VisualGroupComponent
 		if (_viewsInitialized == 2) UpdateDeckSprites();
 	}
 
+	private bool _frontTextureReady;
+	private bool _backTextureReady;
+	
 	private void UpdateDeckSprites()
 	{
+		_frontTextureReady = false;
+		_backTextureReady = false;
+		
 		//set the top and bottom sprites. 
 
 		//The top of the deck displays the back of the first card. 
@@ -687,16 +745,26 @@ public partial class VcDeck : VisualGroupComponent
 		{
 			if (Children.First() is VisualComponentFlat vcf)
 			{
-				_frontSprite.PixelSize = vcf.BackSprite.PixelSize;
-				_frontSprite.Texture = vcf.BackTexture;
+				if (vcf.TextureReady)
+				{
+					_frontSprite.PixelSize = vcf.BackSprite.PixelSize;
+					_frontSprite.Texture = vcf.BackTexture;
+					_frontTextureReady = true;
+				}
+				
 			}
 
 			if (Children.Last() is VisualComponentFlat vcb)
 			{
-				_backSprite.PixelSize = vcb.FaceSprite.PixelSize;
-				_backSprite.Texture = vcb.FaceTexture;
+				if (vcb.TextureReady)
+				{
+					_backSprite.PixelSize = vcb.FaceSprite.PixelSize;
+					_backSprite.Texture = vcb.FaceTexture;
+					_backTextureReady = true;
+				}
 			}
 
+			TextureReady = _frontTextureReady && _backTextureReady;
 
 			/*
 			switch (_mode)

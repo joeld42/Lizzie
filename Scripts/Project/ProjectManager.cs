@@ -93,8 +93,20 @@ public partial class ProjectManager : Panel
 		return p;
 	}
 
-	public Project CurrentProject { get; set; }
+	private Project _currentProject;
 
+	public Project CurrentProject
+	{
+		get => _currentProject;
+		set
+		{
+			_currentProject = value;
+			ProjectChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public event EventHandler ProjectChanged;
+	
 	public Project LoadProject(string name)
 	{
 		if (!FileAccess.FileExists($"user://{name}.proj"))

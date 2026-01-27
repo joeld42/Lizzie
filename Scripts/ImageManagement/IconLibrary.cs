@@ -11,7 +11,7 @@ public class IconLibrary : Dictionary<string, IconEntry >
     {
         LoadDictionary();
     }
-    
+
     private void LoadDictionary()
     {
         Clear();
@@ -67,7 +67,7 @@ public class IconLibrary : Dictionary<string, IconEntry >
         Addl("Book-Open", "open-book.png");
         Addl("Magic", "sparkler.png");
         Addl("Laser", "laser.png");
-        Addl("Diamond", "diamond.png");
+        Addl("Gem", "diamond.png");
         Addl("Barrel", "barrel.png");
         Addl("Oil Drum", "oil-barrel.png");
         Addl("Exclamation Mark", "exclamation.png");
@@ -78,6 +78,39 @@ public class IconLibrary : Dictionary<string, IconEntry >
         Addl("Eye", "eye.png");
         Addl("Hide", "hidden.png");
         Addl("Cube", "cube.png");
+        Addl("Cylinder", "cylinder.png");
+        Addl("Meeple", "meeple.png");
+        Addl("Hand", "hand.png");
+        Addl("Fireball", "fireball.png");
+        Addl("Palm Tree", "palm-tree.png");
+        Addl("Pine Tree", "christmas-tree.png");
+        Addl("Tree", "tree.png");
+        Addl("House", "house.png");
+        Addl("Hammer", "hammer.png");
+        Addl("Temple", "bank.png");
+        Addl("Building", "building.png");
+        Addl("Bottle", "bottle.png");
+        Addl("Grapes", "grapes.png");
+        Addl("Apple", "apple.png");
+        Addl("Electronics", "cpu.png");
+        Addl("Computer", "computer.png");
+        Addl("Diamond", "diamond-suit.png");
+        Addl("Sound Wave", "sound.png");
+        Addl("Water Waves", "water-waves.png");
+        Addl("Atom", "atom.png");
+        Addl("Lightning", "thunder.png");
+        Addl("Club", "club.png");
+        Addl("Spade", "spade.png");
+        Addl("Castle", "castle.png");
+        Addl("Tower", "tower.png");
+        Addl("Flag", "flag.png");
+        Addl("Pennant", "pennant.png");
+        Addl("Checkered Flag", "checkered-flag.png");
+        Addl("Bomb 1", "bomb.png");
+        Addl("Bomb 2", "bomb-drop.png");
+        Addl("Skull and Crossbones", "skull-and-crossbones.png");
+        Addl("Crown", "crown.png");
+        Addl("Paw", "paw.png");
     }
 
     private void Addl(string key, string value, bool isCore = false)

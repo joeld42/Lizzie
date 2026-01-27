@@ -62,12 +62,21 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 	private CheckButton _gridSingleBack;
 	
 	private ComponentPreview _componentPreview;
+	
+	private OptionButton _frontTemplatePicker;
+	private Button _editFrontTemplateButton;
+	private OptionButton _backTemplatePicker;
+	private Button _editBackTemplateButton;
+	private OptionButton _datasetPicker;
+	private Button _datasetEditorButton;
+	
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		InitializeBinding();
 		InitializeStandardSizes();
+		InitializeTemplates();
 		
 		HeightWidthChange(string.Empty); //just to start
 
@@ -116,7 +125,24 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 			_cardSizes.AddItem(kv.Key);
 		}
 	}
-	
+
+	private void InitializeTemplates()
+	{
+		_frontTemplatePicker = GetNode<OptionButton>("%FrontTemplateList");
+		_frontTemplatePicker.ItemSelected += OnFrontTemplateChanged;
+		_editFrontTemplateButton = GetNode<Button>("%EditFrontTemplateButton");
+		
+		_backTemplatePicker = GetNode<OptionButton>("%BackTemplateList");
+		_backTemplatePicker.ItemSelected += OnBackTemplateChanged;
+		_editBackTemplateButton = GetNode<Button>("%EditBackTemplateButton");		
+		
+		_datasetPicker = GetNode<OptionButton>("%DatasetList");
+		_datasetPicker.ItemSelected += OnDatasetChanged;
+		
+		_datasetEditorButton = GetNode<Button>("%EditDatasetButton");
+		
+		UpdateTemplateTab();
+	}
 	
 	private void StandardSizeChanged(long index)
 	{
@@ -380,6 +406,10 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 			case 1:	//Grid
 				AddGridParameters(d);
 				break;
+			
+			case 2:
+				AddTemplateParameters(d);
+				break;
 		}
 		
 
@@ -402,7 +432,16 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		d.Add("Mode", VcToken.TokenBuildMode.Grid);
 		d.Add("DifferentBack", false);
 	}
-	
+
+	private void AddTemplateParameters(Dictionary<string, object> d)
+	{
+		d.Add("Mode", VcToken.TokenBuildMode.Template);
+		if (_frontTemplate != null)
+		{
+			d.Add("FrontTemplateTextureDefinitions", TemplateEngine.GenerateTextureDefinitions(_frontTemplate, _textureContext));
+			d.Add("BackTemplateTextureDefinitions", TemplateEngine.GenerateTextureDefinitions(_backTemplate, _textureContext));
+		}
+	}
 	
 
 	private void QuickSuitCountChanged(long suitCount)
@@ -453,6 +492,11 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		//normalize dimensions to 10x10x10 outer extants
 		var scale = 10f / Math.Max(h, w);
 		
+		const int dpi = 250;
+		
+		
+		_textureContext.ParentSize = new Vector2(350,250);
+		_textureContext.Dpi = 100;	//TODO - Figure out what this should be
 		
 		var d = new Dictionary<string, object>();
 
@@ -473,6 +517,10 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 			case 1:
 				UpdateGrid(d, card);
 				break;
+			
+			case 2:
+				UpdateTemplate(d, card);
+				break;
 		}
 		
 		_componentPreview.Build(d, TextureFactory);
@@ -492,6 +540,95 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		d.Add("Shape",0);
 		d.Add("Mode", VcToken.TokenBuildMode.Grid);
 		d.Add("DifferentBack", false);
+		
+	}
+
+	private TextureContext _textureContext = new();
+	
+	private void OnDatasetChanged(long index)
+	{
+		if (_datasetPicker.Selected == 0)
+		{
+			_textureContext.DataSet = null;
+			_textureContext.CurrentRowName = null;
+			_componentPreview.MultiItemMode = false;
+		}
+		else
+		{
+			_textureContext.DataSet = _currentProject.Datasets[_datasetPicker.GetItemText((int)index)];
+			_componentPreview.MultiItemMode = true;
+			_componentPreview.SetItemLabels(_textureContext.DataSet.Rows.Keys.ToList());
+		}
+		
+		UpdatePreview();
+		
+	}
+
+	private Template _frontTemplate;
+	private Template _backTemplate;
+	
+	private void OnFrontTemplateChanged(long index)
+	{
+		if (_frontTemplatePicker.Selected == 0)
+		{
+			_frontTemplate = null;
+		}
+		else
+		{
+			_frontTemplate = _currentProject.Templates[_frontTemplatePicker.GetItemText((int)index)];
+		}
+		
+		UpdatePreview();
+	}
+
+	private void OnBackTemplateChanged(long index)
+	{
+		if (_backTemplatePicker.Selected == 0)
+		{
+			_backTemplate = null;
+		}
+		else
+		{
+			_backTemplate = _currentProject.Templates[_backTemplatePicker.GetItemText((int)index)];
+		}
+		
+		UpdatePreview();
+	}
+	
+	private void UpdateTemplate(Dictionary<string, object> d, int card)
+	{
+		_textureContext.ParentSize = new Vector2(250, 350);
+		_textureContext.Dpi = 100;
+		
+		d.Add("Mode", VcToken.TokenBuildMode.Template);
+		if (_textureContext.DataSet == null)
+		{
+			_textureContext.CurrentRowName = string.Empty;
+		}
+		else
+		{
+			var cardName = _textureContext.DataSet.Rows.ElementAt(card).Key;
+			_textureContext.CurrentRowName = cardName;
+		}
+
+		TextureFactory.TextureDefinition tfd = new();
+		TextureFactory.TextureDefinition tbd = new();
+		
+		if (_frontTemplate != null)
+		{
+			tfd = TemplateEngine.GenerateTextureDefinition(_frontTemplate, _textureContext);
+			d.Add("TemplateFrontTextureDefinition", tfd);
+		}
+		
+		if (_backTemplate != null)
+		{
+			tbd = TemplateEngine.GenerateTextureDefinition(_backTemplate, _textureContext);
+			d.Add("TemplateBackTextureDefinition", tbd);
+		}
+		else if (tfd.Height != 0)
+		{
+			d.Add("TemplateBackTextureDefinition", tfd);
+		}
 		
 	}
 
@@ -529,8 +666,63 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		p.Add("BackCaptionColor", Colors.Black);
 		p.Add("FrontFontSize", 72);
 		p.Add("BackFontSize", 24);
-
+		
+		var fqt = new QuickTextureField
+		{
+			
+			ForegroundColor = Colors.Black,
+			FaceType = TextureFactory.TextureObjectType.Text,
+			Caption = cardData.Caption,
+			Quantity = 1,
+		};
+		p.Add("QuickFront", fqt);
+		
+		var bqt = new QuickTextureField
+		{
+			
+			ForegroundColor = Colors.Black,
+			FaceType = TextureFactory.TextureObjectType.Text,
+			Caption = cardData.CardBackValue,
+			Quantity = 1,
+		};
+		p.Add("QuickBack", bqt);
+		
 		return p;
+	}
+
+	private Project _currentProject;
+	public override Project CurrentProject
+	{
+		get => _currentProject;
+		set
+		{
+			_currentProject = value;
+			UpdateTemplateTab();
+		}
+	}
+
+	private void UpdateTemplateTab()
+	{
+		
+		if (CurrentProject == null || _frontTemplatePicker == null) return;
+
+		_frontTemplatePicker.Clear();
+		_backTemplatePicker.Clear();
+		
+		_frontTemplatePicker.AddItem("(none)");
+		_backTemplatePicker.AddItem("(none)");
+		foreach (var t in CurrentProject.Templates)
+		{
+			_frontTemplatePicker.AddItem(t.Key);
+			_backTemplatePicker.AddItem(t.Key);
+		}
+		
+		_datasetPicker.Clear();
+		_datasetPicker.AddItem("(none)");
+		foreach(var d in CurrentProject.Datasets)
+		{
+			_datasetPicker.AddItem(d.Key);
+		}
 	}
 }
 

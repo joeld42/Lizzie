@@ -22,13 +22,15 @@ public partial class ComponentDefinition : HBoxContainer
 	
 	[Export] private TextureFactory _textureFactory;
 	
+	public Project CurrentProject { get; set; }
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		}
 
 	private bool _isInitialized;
-	public void Initialize()
+	public void Initialize(Project curProject)
 	{
 		Visible = true;
 		
@@ -41,6 +43,8 @@ public partial class ComponentDefinition : HBoxContainer
 		
 		var bg = new ButtonGroup();
 
+		CurrentProject = curProject;
+		
 		bool firstButton = true;
 		
 		foreach (var c in _components)
@@ -53,6 +57,7 @@ public partial class ComponentDefinition : HBoxContainer
 			if (ci is ComponentPanelDialogResult cpdr)
 			{
 				cpdr.TextureFactory = _textureFactory;
+				cpdr.CurrentProject = CurrentProject;
 			}
 			
 			_componentPanel.AddChild(ci);

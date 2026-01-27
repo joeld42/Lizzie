@@ -36,7 +36,7 @@ public partial class PageControl : HBoxContainer
 	
 	public int GetCurrentItem()
 	{
-		return 0;
+		return CurrentItem;
 	}
 	
 	public void SetItemLabels(IList<string> items)

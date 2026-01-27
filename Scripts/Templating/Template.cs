@@ -12,4 +12,6 @@ public  class Template
 	public float Width { get; set; }
 	public float Height { get; set; }
 	public List<Dictionary<string,string>> Elements { get; set; } = new();
+
+	public string DataSet { get; set; } = string.Empty;
 }

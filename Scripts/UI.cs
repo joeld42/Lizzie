@@ -32,6 +32,8 @@ public partial class UI : CanvasLayer
 
     private ProjectManager _projectManager;
 
+    private TextureFactory _textureFactory;
+    
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -69,19 +71,29 @@ public partial class UI : CanvasLayer
         _componentTabs = GetNode<TabContainer>("%ComponentTabs");
         _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
 
-        var textureFactory = GetNode<TextureFactory>("%TextureFactory");
+        _textureFactory = GetNode<TextureFactory>("%TextureFactory");
+        _projectManager = GetNode<ProjectManager>("%ProjectManager");
+        _projectManager.ProjectChanged += ProjectChanged;
+        UpdateComponentTabs();
 
+    }
+
+    private void ProjectChanged(object sender, EventArgs e)
+    {
+        UpdateComponentTabs();
+    }
+
+    private void UpdateComponentTabs()
+    {
         foreach (var c in _componentTabs.GetChildren())
         {
             if (c is ComponentPanelDialogResult cpdr)
             {
-                cpdr.TextureFactory = textureFactory;
+                cpdr.TextureFactory = _textureFactory;
+                cpdr.CurrentProject = _projectManager.CurrentProject;
             }
         }
-
-        _projectManager = GetNode<ProjectManager>("%ProjectManager");
     }
-
     private void FileMenuOnIdPressed(long id)
     {
         switch (id)
@@ -239,7 +251,7 @@ public partial class UI : CanvasLayer
     {
         if (id == 1)
         {
-            _componentDefinition.Initialize();
+            _componentDefinition.Initialize(_projectManager.CurrentProject);
         }
     }
 

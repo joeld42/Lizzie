@@ -140,7 +140,7 @@ public partial class VcToken : VisualComponentFlat
 				break;
 			
 			case TokenBuildMode.Template:
-				BuildTemplate();
+				BuildTemplate(textureFactory);
 				break;
 			
 			case TokenBuildMode.Nandeck:
@@ -306,9 +306,46 @@ public partial class VcToken : VisualComponentFlat
 		FaceSprite.Frame = _gridIndex;
 	}
 
-	private void BuildTemplate()
+	private TextureFactory.TextureDefinition _templateFrontTextureDefinition;
+	private TextureFactory.TextureDefinition _templateBackTextureDefinition;
+	
+	private void BuildTemplate(TextureFactory textureFactory)
 	{
+		int sH = 256;
+		int sW = 256;
+		
+		if (_height <= 0 || _width <= 0) return;
+
+		if (_height > _width)
+		{
+			sW = (int)(_width * 256 / _height);
+		}
+		else
+		{
+			sH = (int)(_height * 256 / _width);
+		}
+		
+		if (_templateFrontTextureDefinition is null) return;
+
+		_frontTextureGenerated = true;
+		_backTextureGenerated = true;
+
+		if (_templateFrontTextureDefinition is not null)
+		{
+			_frontTextureGenerated = false;
+			textureFactory.GenerateTexture(_templateFrontTextureDefinition, FinalizeFrontTexture);
+		}
+		
+		
+		if (_templateBackTextureDefinition is not null)
+		{
+			_backTextureGenerated = false;
+			textureFactory.GenerateTexture(_templateBackTextureDefinition, FinalizeBackTexture);
+		}
 	}
+	
+	private bool _frontTextureGenerated;
+	private bool _backTextureGenerated;
 
 	private void BuildNanDeck()
 	{
@@ -371,7 +408,7 @@ public partial class VcToken : VisualComponentFlat
 	{
 		var td = CreateQuickTextureDefinition(_frontBgColor, _frontField);
 
-		textureFactory.GenerateTexture(td, FinalizeFrontQuickTexture);
+		textureFactory.GenerateTexture(td, FinalizeFrontTexture);
 		
 	}
 
@@ -405,6 +442,17 @@ public partial class VcToken : VisualComponentFlat
 		HexFlat = 3,
 		RoundedRect = 4
 		 */
+
+		if (qtf == null)
+		{
+			qtf = new QuickTextureField
+			{
+				Caption = string.Empty,
+				FaceType = TextureFactory.TextureObjectType.Text,
+				ForegroundColor=Colors.Black,
+				Quantity = 1
+			};
+		}
 		
 		switch (_shape)
 		{
@@ -448,20 +496,24 @@ public partial class VcToken : VisualComponentFlat
 		return td;
 	}
 
-	private void FinalizeFrontQuickTexture(ImageTexture t)
+	private void FinalizeFrontTexture(ImageTexture t)
 	{
+		_frontTextureGenerated = true;
 		float pixelSize = PixelSize(t.GetSize());
 		FaceSprite.PixelSize = pixelSize;
 		FaceTexture = t;
 		
 		if (!_differentBack)
 		{
+			_backTextureGenerated = true;
 			BackSprite.PixelSize = pixelSize;
 			BackTexture = t;
 		}
 		
 		var d = t.GetImage();
 		d.SavePng(@"c:\winwam5\token.png");
+
+		TextureReady = _frontTextureGenerated && _backTextureGenerated;
 	}
 
 
@@ -469,14 +521,18 @@ public partial class VcToken : VisualComponentFlat
 	{
 		var td = CreateQuickTextureDefinition(_backBgColor, _backField);
 
-		textureFactory.GenerateTexture(td, FinalizeBackQuickTexture);
+		textureFactory.GenerateTexture(td, FinalizeBackTexture);
 	}
 
-	private void FinalizeBackQuickTexture(ImageTexture t)
+	private void FinalizeBackTexture(ImageTexture t)
 	{
+		_backTextureGenerated = true;
+		
 		float pixelSize = PixelSize(t.GetSize());
 		BackSprite.PixelSize = pixelSize;
 		BackTexture = t;
+		
+		TextureReady = _frontTextureGenerated && _backTextureGenerated;
 	}
 
 	private bool InitializeParameters(Dictionary<string, object> parameters, TextureFactory textureFactory)
@@ -530,6 +586,9 @@ public partial class VcToken : VisualComponentFlat
 		{
 			_tokenType = TokenType.Token;	//default
 		}
+		
+		_templateFrontTextureDefinition = Utility.GetParam<TextureFactory.TextureDefinition>(parameters, "TemplateFrontTextureDefinition");
+		_templateBackTextureDefinition = Utility.GetParam<TextureFactory.TextureDefinition>(parameters, "TemplateBackTextureDefinition");
 		
 		return true;
 	}

@@ -132,6 +132,8 @@ public partial class TemplateCreator : MarginContainer
     {
         //change sizes
         
+        
+        
         //set up element tree
         _elementTree.Clear();
         _rootItem = _elementTree.CreateItem(); //create root item
@@ -143,7 +145,7 @@ public partial class TemplateCreator : MarginContainer
         int id = 0;
         foreach (var t in CurrentTemplate.Elements)
         {
-            var te = BuildTemplateElement(t);
+            var te = TemplateEngine.BuildTemplateElement(t);
             
             var ni = _elementTree.CreateItem(_rootItem);
 
@@ -156,7 +158,7 @@ public partial class TemplateCreator : MarginContainer
         }
         
         //dataset
-        
+        MapDataset();
         
         
         //update preview
@@ -480,39 +482,8 @@ public partial class TemplateCreator : MarginContainer
 
     private void UpdateTexture(bool updateBounds)
     {
-        var td = new TextureFactory.TextureDefinition
-        {
-            BackgroundColor = Colors.White,
-            Height = (int)_textureContext.ParentSize.Y,
-            Width = (int)_textureContext.ParentSize.X,
-            Shape = TextureFactory.TokenShape.Square
-        };
-
-        foreach (var element in _templateElements)
-        {
-            foreach (var l in element.GetElementData(_textureContext))
-            {
-                td.Objects.Add(new TextureFactory.TextureObject
-                {
-                    Width = l.Width,
-                    Height = l.Height,
-                    CenterX = l.CenterX,
-                    CenterY = l.CenterY,
-                    Anchor = l.Anchor,
-                    Multiline = true,
-                    Text = l.Text,
-                    ForegroundColor = l.ForegroundColor,
-                    Font = new SystemFont(),
-                    FontSize = l.FontSize,
-                    Autosize = l.Autosize,
-                    HorizontalAlignment = l.HorizontalAlignment,
-                    VerticalAlignment = l.VerticalAlignment,
-                    Type = l.Type,
-                    Stretch = l.Stretch
-                });
-            }
-        }
-
+        var td = TemplateEngine.GenerateTextureDefinition(_templateElements, _textureContext);
+        
         TextureFactory.GenerateTexture(td, UpdatePreview);
 
         if (updateBounds) UpdateBoundsRect();
@@ -762,6 +733,7 @@ public partial class TemplateCreator : MarginContainer
         HeightWidthChange(string.Empty);
     }
 
+    /*
     private TemplateElement BuildTemplateElement(Dictionary<string, string> parameters)
     {
         TemplateElement te;
@@ -792,6 +764,7 @@ public partial class TemplateCreator : MarginContainer
         
         return te;
     }
+    */
 
     private Dictionary<string, string> ExportTemplateElement(ITemplateElement te)
     {
@@ -824,7 +797,8 @@ public partial class TemplateCreator : MarginContainer
             template.Elements.Add(ExportTemplateElement(e));
         }
     }
-    
+
+   
     
     private ProjectManager _projectManager;
 
@@ -842,6 +816,7 @@ public partial class TemplateCreator : MarginContainer
         CurrentTemplate = _projectManager.CurrentProject.Templates[_templateNameSelector.GetItemText(0)];
 
         InitializeDataSets();
+        MapDataset();
     }
     
     
@@ -1181,25 +1156,60 @@ public partial class TemplateCreator : MarginContainer
         _updateRequired = true;
     }
     
+    //Different dataset has been selected by the user
     private void OnDatasetChanged(long index)
     {
         if (index == 0)
         {
             _textureContext.DataSet = null;
+            _textureContext.CurrentRowName = string.Empty;
             _pageControl.Hide();
+            CurrentTemplate.DataSet = string.Empty;
         }
         else
         {
             var n = _dataSetSelector.GetItemText((int)index);
-            if (_projectManager.CurrentProject.Datasets.ContainsKey(n))
+        }
+        
+        UpdateTextureContext(CurrentTemplate.DataSet);
+        
+        _updateRequired = true;
+    }
+
+    private void UpdateTextureContext(string datasetName)
+    {
+        if (_projectManager.CurrentProject.Datasets.ContainsKey(datasetName))
+        {
+            CurrentTemplate.DataSet = datasetName;
+            _textureContext.DataSet = _projectManager.CurrentProject.Datasets[datasetName];
+            _textureContext.CurrentRowName = _textureContext.DataSet.Rows.First().Key;
+        }
+    }
+    
+    
+    private void MapDataset()
+    {
+        int index = 0;
+        
+        
+        for (var i = 0; i < _dataSetSelector.GetItemCount(); i++)
+        {
+            if (_dataSetSelector.GetItemText(i) == CurrentTemplate.DataSet)
             {
-                _textureContext.DataSet = _projectManager.CurrentProject.Datasets[n];
-                _pageControl.SetItemLabels(_textureContext.DataSet.Rows.Select(x => x.Key).ToArray());
-                _pageControl.Show();
+                index = i;
+                break;
             }
         }
         
+        _dataSetSelector.Select(index);
+        
+        UpdateTextureContext(CurrentTemplate.DataSet);
+        
+        _pageControl.SetItemLabels(_textureContext.DataSet.Rows.Select(x => x.Key).ToArray());
+        _pageControl.Show();
+        
         _updateRequired = true;
+        
     }
     
     #endregion
