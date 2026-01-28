@@ -275,10 +275,10 @@ public partial class VcDeck : VisualGroupComponent
 			cards[i].Position = basePos;
 			cards[i].Visible = false;
 
-			float deltaX = _width * (1.5f + i);
+			float deltaX = Position.X  +( _width * (2.5f + i));
 
 			cardTween.TweenProperty(cards[i], "visible", true, 0.01);
-			cardTween.TweenProperty(cards[i], "position", new Vector3(deltaX, 0, 0), 0.2f).AsRelative();
+			cardTween.TweenProperty(cards[i], "position", new Vector3(deltaX, Position.Y, Position.Z), 0.2f);
 
 
 			cards[i].ZOrder = ZOrder + i + 1;
