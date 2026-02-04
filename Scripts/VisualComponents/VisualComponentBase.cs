@@ -71,7 +71,8 @@ public abstract partial class VisualComponentBase : Area3D
 
 	public virtual bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
-		TextureReady = false;
+		_textureFactory = textureFactory;
+        TextureReady = false;
 		
 		Parameters = parameters;
 		if (parameters.ContainsKey(nameof(ComponentName)))
@@ -118,10 +119,19 @@ public abstract partial class VisualComponentBase : Area3D
 			return new CommandResponse(true, 
 				new Change { Component = this, Action = Change.ChangeType.Deletion });
 		}
+
+        if (command == VisualCommand.Refresh)
+        {
+            Build(Parameters, _textureFactory);
+			return new CommandResponse(true, null);
+        }
+		
 		
 		return new CommandResponse(false, null);
 	}
-	
+
+    protected TextureFactory _textureFactory;
+
 	public virtual List<MenuCommand> GetMenuCommands()
 	{
 		var l = new List<MenuCommand>();

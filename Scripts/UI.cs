@@ -76,11 +76,17 @@ public partial class UI : CanvasLayer
 
         _textureFactory = GetNode<TextureFactory>("%TextureFactory");
         _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
+        _datasetEditor.DataSetChanged += OnDatasetRefresh;
         
         _projectManager = GetNode<ProjectManager>("%ProjectManager");
         _projectManager.ProjectChanged += ProjectChanged;
         UpdateComponentTabs();
 
+    }
+
+    private void OnDatasetRefresh(object sender,string name)
+    {
+        //TODO need to refresh all the objects
     }
 
     private void ProjectChanged(object sender, EventArgs e)

@@ -1,9 +1,12 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DataSet
 {
+    public string Name { get; set; }
+
     //Columns except Name and Qty
     public List<string> Columns { get; set; } = new();
     
@@ -32,6 +35,27 @@ public class DataSet
         }
         
         return d;
+    }
+    
+    /// <summary>
+    /// Creates a deep clone of this DataSet
+    /// </summary>
+    /// <returns>A new DataSet with all columns and rows cloned</returns>
+    public DataSet Clone()
+    {
+        var clonedDataSet = new DataSet();
+        
+        // Clone the columns list
+        clonedDataSet.Columns = new List<string>(this.Columns);
+        
+        // Clone each row in the dictionary
+        clonedDataSet.Rows = new Dictionary<string, DataRow>();
+        foreach (var kvp in this.Rows)
+        {
+            clonedDataSet.Rows[kvp.Key] = kvp.Value.Clone();
+        }
+        
+        return clonedDataSet;
     }
 
     public static DataSet TestDataSet()

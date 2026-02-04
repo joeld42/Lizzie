@@ -11,9 +11,13 @@ public partial class DatasetEditor : Control
 	private VBoxContainer _mainContainer;
 	private HBoxContainer _toolbarContainer;
 	private Button _deleteButton;
-	private HBoxContainer _headerContainer;
+    private Button _saveButton;
+    private Button _cancelButton;
+
+    private HBoxContainer _headerContainer;
 	private ScrollContainer _dataScrollContainer;
 	private VBoxContainer _dataContainer;
+    private Panel _toolSpacer;
 	
 	private List<float> _columnWidths = new();
 	private List<CheckBox> _rowCheckboxes = new();
@@ -24,9 +28,11 @@ public partial class DatasetEditor : Control
 	private const float MinColumnWidth = 50f;
 	private const float HeaderHeight = 30f;
 	private const float RowHeight = 30f;
-	
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+
+    public event EventHandler<string> DataSetChanged;
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
 	{
 		InitializeSpreadsheet();
 
@@ -47,17 +53,18 @@ public partial class DatasetEditor : Control
 		_mainContainer.SetAnchorsPreset(LayoutPreset.FullRect);
 		AddChild(_mainContainer);
 		
-		// Add toolbar with Delete button
-		_toolbarContainer = new HBoxContainer();
-		_toolbarContainer.CustomMinimumSize = new Vector2(0, 35f);
-		_mainContainer.AddChild(_toolbarContainer);
 		
-		_deleteButton = new Button();
-		_deleteButton.Text = "Delete Selected Rows";
+		_deleteButton = GetNode<Button>("%DeleteRow");
 		_deleteButton.Pressed += OnDeleteButtonPressed;
-		_toolbarContainer.AddChild(_deleteButton);
+
+
+        _saveButton = GetNode<Button>("%Save");
+        _saveButton.Pressed += SaveDataSet;
+        _cancelButton = GetNode<Button>("%Cancel");
+        _cancelButton.Pressed += Hide;
 		
-		_headerContainer = new HBoxContainer();
+
+        _headerContainer = new HBoxContainer();
 		_headerContainer.CustomMinimumSize = new Vector2(0, HeaderHeight);
 		_mainContainer.AddChild(_headerContainer);
 		
@@ -73,7 +80,88 @@ public partial class DatasetEditor : Control
 		if (_project != null) MapDataSet(_project.Datasets.First().Value);
 	}
 
-	private void MapDataSet(DataSet ds)
+    private void SaveDataSet()
+    {
+        if (_currentDataSet == null) return;
+
+        // Update column headers from HeaderCell controls
+        _currentDataSet.Columns.Clear();
+        var headerChildren = _headerContainer.GetChildren();
+        for (int i = 1; i < headerChildren.Count; i++) // Skip first child (checkbox header)
+        {
+            if (headerChildren[i] is HeaderCell headerCell)
+            {
+                _currentDataSet.Columns.Add(headerCell.GetHeaderText());
+            }
+        }
+
+        // Update row data from LineEdit controls
+        var rowContainers = _dataContainer.GetChildren();
+        int rowIndex = 0;
+        
+        foreach (var child in rowContainers)
+        {
+            if (child is HBoxContainer rowContainer)
+            {
+                // Skip the new row container (last one)
+                if (rowContainer == _newRowContainer)
+                {
+                    // Check if new row has data and add it
+                    bool hasData = false;
+                    var rowData = new List<string>();
+                    
+                    for (int i = 1; i < rowContainer.GetChildCount(); i++) // Skip checkbox cell
+                    {
+                        if (rowContainer.GetChild(i) is LineEdit cell)
+                        {
+                            rowData.Add(cell.Text);
+                            if (!string.IsNullOrWhiteSpace(cell.Text))
+                            {
+                                hasData = true;
+                            }
+                        }
+                    }
+                    
+                    if (hasData)
+                    {
+                        var rowKey = _nextRowId.ToString();
+                        _nextRowId++;
+                        var newRow = new DataRow { Data = rowData };
+                        _currentDataSet.Rows[rowKey] = newRow;
+                    }
+                    continue;
+                }
+                
+                // Update existing row data
+                if (rowIndex < _currentDataSet.Rows.Count)
+                {
+                    var rowKey = _currentDataSet.Rows.Keys.ElementAt(rowIndex);
+                    var dataRow = _currentDataSet.Rows[rowKey];
+                    
+                    dataRow.Data.Clear();
+                    var cells = rowContainer.GetChildren();
+                    for (int i = 1; i < cells.Count; i++) // Skip checkbox cell at index 0
+                    {
+                        if (cells[i] is LineEdit cell)
+                        {
+                            dataRow.Data.Add(cell.Text);
+                        }
+                    }
+                    
+                    rowIndex++;
+                }
+            }
+        }
+        
+        // Refresh the display to show updated data
+        MapDataSet(_currentDataSet);
+        
+        GD.Print("Dataset saved successfully");
+
+		DataSetChanged?.Invoke(this, _currentDataSet.Name);
+    }
+
+    private void MapDataSet(DataSet ds)
 	{
 		if (_mainContainer == null || ds == null) return;
 		
@@ -161,10 +249,33 @@ public partial class DatasetEditor : Control
 				cell.SizeFlagsHorizontal = SizeFlags.Fill;
 				cell.SizeFlagsVertical = SizeFlags.Fill;
 				
+				// We are changing this to just save when the user clicks the button rather than as we go.
+
+				// Capture the row key and column index in the lambda
+				//var rowKey = kv.Key;
+				//var colIndex = i;
+				//cell.TextChanged += (newText) => OnCellTextChanged(newText, rowKey, colIndex);
+				
 				rowContainer.AddChild(cell);
 			}
 			
 			_dataContainer.AddChild(rowContainer);
+		}
+	}
+
+
+
+	private void OnCellTextChanged(string newText, string rowKey, int columnIndex)
+	{
+		if (_currentDataSet == null) return;
+
+		// Update the dataset with the new value
+		if (_currentDataSet.Rows.TryGetValue(rowKey, out var dataRow))
+		{
+			if (columnIndex >= 0 && columnIndex < dataRow.Data.Count)
+			{
+				dataRow.Data[columnIndex] = newText;
+			}
 		}
 	}
 
@@ -358,10 +469,17 @@ public partial class HeaderCell : PanelContainer
 			_label.Text = text;
 	}
 	
+	
+	public string GetHeaderText()
+	{
+		return _headerText ?? string.Empty;
+	}
+	
 	public void SetColumnIndex(int index)
 	{
 		_columnIndex = index;
 	}
+	
 	
 	private void OnResizeHandleInput(InputEvent @event)
 	{
@@ -389,4 +507,6 @@ public partial class HeaderCell : PanelContainer
 			EmitSignal(SignalName.ColumnResized, _columnIndex, newWidth);
 		}
 	}
+
+   
 }

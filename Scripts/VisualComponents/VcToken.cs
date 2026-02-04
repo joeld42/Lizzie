@@ -167,6 +167,8 @@ public partial class VcToken : VisualComponentFlat
 			//GD.PrintErr(size);
 		}
 
+		ShapeProfiles.Clear();
+
 		var shape = (TokenTextureSubViewport.TokenShape)_shape;
 
 		switch (shape)
