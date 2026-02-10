@@ -16,6 +16,7 @@
 [ext_resource type="Resource" uid="uid://crthu53rha88m" path="res://Scenes/ComponentPanels/MeshPanel.tres" id="12_ccm2a"]
 [ext_resource type="Resource" uid="uid://bctoe33s67u03" path="res://Scenes/ComponentPanels/DiscPanel.tres" id="13_5qcje"]
 [ext_resource type="PackedScene" uid="uid://bmimebxb37rro" path="res://Scenes/ComponentPanels/cube_panel.tscn" id="13_gbiwn"]
+[ext_resource type="Resource" uid="uid://bg7ps5kfql3ip" path="res://Scenes/ComponentPanels/MeeplePanel.tres" id="14_jck65"]
 [ext_resource type="PackedScene" uid="uid://gticvk17jrfq" path="res://Scenes/ComponentPanels/disc_panel.tscn" id="14_u4hc7"]
 [ext_resource type="PackedScene" uid="uid://bmitdjv4ha061" path="res://Scenes/ComponentPanels/die_panel.tscn" id="15_mybtt"]
 [ext_resource type="PackedScene" uid="uid://chacoe302ooah" path="res://Scenes/ComponentPanels/single_card_panel.tscn" id="16_j3qli"]
@@ -126,7 +127,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_a3w6s")
 script = ExtResource("4_eclwi")
-_components = Array[Resource]([ExtResource("12_6reuv"), ExtResource("13_5qcje"), ExtResource("7_la08l"), ExtResource("8_dwpay"), ExtResource("9_56ys6"), ExtResource("10_711is"), ExtResource("11_14nhc"), ExtResource("12_ccm2a")])
+_components = Array[Resource]([ExtResource("12_6reuv"), ExtResource("13_5qcje"), ExtResource("7_la08l"), ExtResource("8_dwpay"), ExtResource("9_56ys6"), ExtResource("10_711is"), ExtResource("11_14nhc"), ExtResource("12_ccm2a"), ExtResource("14_jck65")])
 _textureFactory = NodePath("../../SubViewportContainer/TextureFactory")
 
 [node name="ButtonStrip" type="VBoxContainer" parent="UI/ComponentDefinition" unique_id=1002884338]

@@ -50,7 +50,6 @@ public partial class DatasetEditor : Control
 	{
 		_mainContainer = GetNode<VBoxContainer>("%MainContainer");
 		_mainContainer.SetAnchorsPreset(LayoutPreset.FullRect);
-		AddChild(_mainContainer);
 		
 		
 		_deleteButton = GetNode<Button>("%DeleteRow");

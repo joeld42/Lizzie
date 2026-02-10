@@ -213,6 +213,7 @@ public partial class TemplateCreator : MarginContainer
     private void SaveTemplate()
     {
         ProjectService.Instance.SaveProject(ProjectService.Instance.CurrentProject, "TestProject");
+        EventBus.Instance.Publish<ProjectChangedEvent>();
     }
 
     private ScrollBar _previewHScroll;

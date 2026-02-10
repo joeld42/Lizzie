@@ -17,7 +17,8 @@ public abstract partial class VisualComponentBase : Area3D
 		Card,
 		Deck,
 		Die,
-		Mesh
+		Mesh,
+		Meeple
 	}
 
 	public bool TextureReady { get; set; } 
