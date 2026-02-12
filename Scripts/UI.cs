@@ -75,6 +75,8 @@ public partial class UI : CanvasLayer
         _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
 
         _textureFactory = GetNode<TextureFactory>("%TextureFactory");
+        _componentDefinition.SetTextureFactory(_textureFactory);
+
         _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
       
         

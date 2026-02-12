@@ -11,8 +11,11 @@ public partial class ComponentPreview : Panel
 	private Button _spinButton;
 	private Button _frontView;
 	private Button _backView;
-	
-	private PageControl _pageControl;
+
+	private SubViewportContainer _subViewportContainer;
+	private SubViewport _subViewport;
+
+    private PageControl _pageControl;
 	
 	public override void _Ready()
 	{
@@ -30,10 +33,11 @@ public partial class ComponentPreview : Panel
 		
 		_backView = GetNode<Button>("%BackView");
 		_backView.Pressed += () => ShowView(180);
-		
-		
 
-	}
+        _subViewportContainer = GetNode<SubViewportContainer>("%SubViewportContainer");
+        _subViewport = GetNode<SubViewport>("%SubViewport");
+        _subViewport.Size = new Vector2I((int)Size.X, (int)_subViewportContainer.Size.Y);
+    }
 
 	public override void _Process(double delta)
 	{
@@ -49,7 +53,9 @@ public partial class ComponentPreview : Panel
 	
 	public void SetComponent(VisualComponentBase component, Vector3 rotation)
 	{
-		if (_componentActive)
+
+
+        if (_componentActive)
 		{
 			ClearComponent();
 		}

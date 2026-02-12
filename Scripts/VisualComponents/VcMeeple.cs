@@ -36,7 +36,7 @@ public partial class VcMeeple : VisualComponentBase
 
         
         var h = Utility.GetParam<float>(parameters, "Height") / 10;
-        var t = Utility.GetParam<float>(parameters, "Thickness");
+        var t = Utility.GetParam<float>(parameters, "Thickness") / 10;
         var c = Utility.GetParam<Color>(parameters, "Color");
         var g = Utility.GetParam<bool[,]>(parameters, "Grid");
 
@@ -46,38 +46,30 @@ public partial class VcMeeple : VisualComponentBase
         float midx = g.GetLength(0)/2;
         float midz = g.GetLength(1) / 2;
 
-        var cubeHeight = h / midx;
-
-        var matrix = g.GetLength(0);
-
+        var cubeHeight = h / g.GetLength(0);
+        
         for (int i = 0; i < g.GetLength(0); i++)
         {
             for (int j = 0; j < g.GetLength(1); j++)
             {
                 if (g[i, j])
                 { 
-                    MainMesh.AddChild(CreateCubeMesh(cubeHeight, c, (i-midx) * cubeHeight, (j-midz) * cubeHeight));
+                    MainMesh.AddChild(CreateCubeMesh(cubeHeight,t, c,  (i-midx) * cubeHeight, (j-midz) * cubeHeight));
                 }
             }
         }
 
 
-        //create cube
-        if (Width <= 0 || Length <= 0)
-        {
-            Scale = new Vector3(Height, Height, Height);
-        }
-        else
-        {
-            Scale = new Vector3(Width, Height, Length);
-        }
+        HighlightMesh.Scale = new Vector3(h, h, t);
+
+
 
         YHeight = Height;
 
         SetColor(c);
 
         var r = new RectangleShape2D();
-        r.Size = new Vector2(Height, Length);
+        r.Size = new Vector2(h, t);
 
         ShapeProfiles.Add(r);
 
@@ -146,14 +138,14 @@ public partial class VcMeeple : VisualComponentBase
     /// <param name="x">X position</param>
     /// <param name="z">Y position (Z in 3D space)</param>
     /// <returns>MeshInstance3D of the created cube</returns>
-    public MeshInstance3D CreateCubeMesh(float s, Color c, float x, float y)
+    public MeshInstance3D CreateCubeMesh(float s, float t, Color c, float x, float y)
     {
         // Create a new MeshInstance3D
         var meshInstance = new MeshInstance3D();
         
         // Create a BoxMesh (cube)
         var boxMesh = new BoxMesh();
-        boxMesh.Size = new Vector3(s, s, s);
+        boxMesh.Size = new Vector3(s, s, t);
         
         // Assign the mesh to the instance
         meshInstance.Mesh = boxMesh;

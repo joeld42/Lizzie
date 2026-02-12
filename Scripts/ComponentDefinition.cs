@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class ComponentDefinition : VBoxContainer
+public partial class ComponentDefinition : Control
 {
 	// Called when the node enters the scene tree for the first time.
 	[Export] private ComponentTemplate[] _components;
@@ -20,7 +20,7 @@ public partial class ComponentDefinition : VBoxContainer
 
 	private Button _cancelButton;
 	
-	[Export] private TextureFactory _textureFactory;
+	private TextureFactory _textureFactory;
 	
 	public Project CurrentProject { get; set; }
 	
@@ -155,7 +155,19 @@ public partial class ComponentDefinition : VBoxContainer
 		}
 	}
 
-	private Button CreateButton(string name, Texture2D icon, ButtonGroup bg)
+	public void SetTextureFactory(TextureFactory tf)
+	{
+		_textureFactory = tf;
+		foreach (var kv in _panelDictionary)
+		{
+			if (kv.Value is ComponentPanelDialogResult cpdr)
+			{
+				cpdr.TextureFactory = tf;
+			}
+		}
+    }
+
+    private Button CreateButton(string name, Texture2D icon, ButtonGroup bg)
 	{
 		var scene = ResourceLoader.Load<PackedScene>(_buttonTemplate).Instantiate();
 		

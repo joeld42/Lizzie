@@ -21,34 +21,9 @@ public partial class SceneController : Node3D
 		_gameObjects.ShowComponentPopup += GameObjectsOnShowComponentPopup;
 		_gameObjects.HoveredComponentChange += OnHoveredComponentChange;
 		_gameObjects.TextureFactory = _textureFactory;
-
-		DoMeeple();
        
     }
 
-
-    private void DoMeeple()
-    {
-        _meepletest = GetNode<VcMeeple>("%Meeple");
-			var g = new bool[8, 8];
-			for (int i = 0; i < 8; i++)
-			{
-				for (int j = 0; j < 8; j++)
-				{
-					g[i, j] = (i == 0 || i == 7) || (j == 0 || j == 7);
-				}
-			}
-			
-			var parameters = new Dictionary<string, object>
-			{
-				{ "Height", 15f },
-				{ "Thickness", 5f },
-				{ "Color", new Color(1.0f, 0.5f, 0.5f) },
-				{ "Grid", g }
-			};
-			
-			_meepletest.Build(parameters, _textureFactory);
-    }
 
 
     private void OnHoveredComponentChange(object sender, HoveredComponentChangeEventArgs e)

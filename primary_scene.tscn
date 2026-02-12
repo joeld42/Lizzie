@@ -4,22 +4,12 @@
 [ext_resource type="Script" uid="uid://caw45erf0ap1j" path="res://Scripts/UI.cs" id="2_a0mv7"]
 [ext_resource type="PackedScene" uid="uid://c10pvpfntkay3" path="res://Scenes/3d_scene_no_physics.tscn" id="3_6khan"]
 [ext_resource type="Script" uid="uid://3274wuq0qfvx" path="res://Scripts/HandManager.cs" id="3_h6pmi"]
-[ext_resource type="Script" uid="uid://34qdnax57ldx" path="res://Scripts/ComponentDefinition.cs" id="4_eclwi"]
 [ext_resource type="Texture2D" uid="uid://r8l25si7dbtm" path="res://Textures/queen_of_spades.jpg" id="4_vbm5h"]
-[ext_resource type="Resource" uid="uid://ceywqk4reme07" path="res://Scenes/ComponentPanels/TokenPanel.tres" id="7_la08l"]
-[ext_resource type="Resource" uid="uid://mljy81wn7au4" path="res://Scenes/ComponentPanels/BoardPanel.tres" id="8_dwpay"]
-[ext_resource type="Resource" uid="uid://cjw75xmuh5hm1" path="res://Scenes/ComponentPanels/SingleCardPanel.tres" id="9_56ys6"]
-[ext_resource type="Resource" uid="uid://cvcpmheck0rjq" path="res://Scenes/ComponentPanels/DeckPanel.tres" id="10_711is"]
-[ext_resource type="Resource" uid="uid://bodj2sxcbs4l8" path="res://Scenes/ComponentPanels/DiePanel.tres" id="11_14nhc"]
-[ext_resource type="StyleBox" uid="uid://h7d22x1q85ky" path="res://Themes/GrayStyleBox.tres" id="12_3v46o"]
-[ext_resource type="Resource" uid="uid://cp47ebupgytwa" path="res://Scenes/ComponentPanels/CubePanel.tres" id="12_6reuv"]
-[ext_resource type="Resource" uid="uid://crthu53rha88m" path="res://Scenes/ComponentPanels/MeshPanel.tres" id="12_ccm2a"]
-[ext_resource type="Resource" uid="uid://bctoe33s67u03" path="res://Scenes/ComponentPanels/DiscPanel.tres" id="13_5qcje"]
 [ext_resource type="PackedScene" uid="uid://bmimebxb37rro" path="res://Scenes/ComponentPanels/cube_panel.tscn" id="13_gbiwn"]
-[ext_resource type="Resource" uid="uid://bg7ps5kfql3ip" path="res://Scenes/ComponentPanels/MeeplePanel.tres" id="14_jck65"]
 [ext_resource type="PackedScene" uid="uid://gticvk17jrfq" path="res://Scenes/ComponentPanels/disc_panel.tscn" id="14_u4hc7"]
 [ext_resource type="PackedScene" uid="uid://bmitdjv4ha061" path="res://Scenes/ComponentPanels/die_panel.tscn" id="15_mybtt"]
 [ext_resource type="PackedScene" uid="uid://chacoe302ooah" path="res://Scenes/ComponentPanels/single_card_panel.tscn" id="16_j3qli"]
+[ext_resource type="PackedScene" uid="uid://dnt6ry3ax2c63" path="res://Scenes/ComponentPanels/component_definition.tscn" id="17_dek8p"]
 [ext_resource type="PackedScene" uid="uid://bifubswbhqkkp" path="res://Scenes/ComponentPanels/deck_panel.tscn" id="17_mgf4o"]
 [ext_resource type="PackedScene" uid="uid://diovg4u3xl1qn" path="res://Scenes/ComponentPanels/token_panel.tscn" id="18_c5hxe"]
 [ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="19_mftnr"]
@@ -34,8 +24,6 @@
 font_size = 32
 font_color = Color(0, 0, 0, 1)
 outline_size = 1
-
-[sub_resource type="Theme" id="Theme_a3w6s"]
 
 [node name="PrimaryScene" type="Node3D" unique_id=410470090 node_paths=PackedStringArray("_textureFactory", "_templateCreator")]
 script = ExtResource("1_hibmt")
@@ -249,60 +237,9 @@ visible = false
 unique_name_in_owner = true
 visible = false
 
-[node name="ComponentDefinition" type="VBoxContainer" parent="UI" unique_id=4146276 node_paths=PackedStringArray("_textureFactory")]
+[node name="ComponentDefinition" parent="UI" unique_id=852297741 instance=ExtResource("17_dek8p")]
 unique_name_in_owner = true
 visible = false
-offset_left = 176.0
-offset_top = 69.5
-offset_right = 980.0
-offset_bottom = 519.5
-theme = SubResource("Theme_a3w6s")
-script = ExtResource("4_eclwi")
-_components = Array[Resource]([ExtResource("12_6reuv"), ExtResource("13_5qcje"), ExtResource("7_la08l"), ExtResource("8_dwpay"), ExtResource("9_56ys6"), ExtResource("10_711is"), ExtResource("11_14nhc"), ExtResource("12_ccm2a"), ExtResource("14_jck65")])
-_textureFactory = NodePath("../../SubViewportContainer/TextureFactory")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="UI/ComponentDefinition" unique_id=104912025]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="UI/ComponentDefinition/HBoxContainer" unique_id=1145920080]
-layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="CompButtonStrip" type="VBoxContainer" parent="UI/ComponentDefinition/HBoxContainer/MarginContainer" unique_id=1002884338]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ComponentPanel" type="Panel" parent="UI/ComponentDefinition/HBoxContainer" unique_id=1190035524]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(800, 450)
-layout_mode = 2
-theme_override_styles/panel = ExtResource("12_3v46o")
-
-[node name="DialogButtonMargins" type="MarginContainer" parent="UI/ComponentDefinition" unique_id=1307991246]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
-
-[node name="DialogButtonLayout" type="HBoxContainer" parent="UI/ComponentDefinition/DialogButtonMargins" unique_id=1759523305]
-layout_mode = 2
-size_flags_horizontal = 8
-
-[node name="CancelButton" type="Button" parent="UI/ComponentDefinition/DialogButtonMargins/DialogButtonLayout" unique_id=1011401775]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 8
-text = "Cancel"
-
-[node name="CreateButton" type="Button" parent="UI/ComponentDefinition/DialogButtonMargins/DialogButtonLayout" unique_id=1775715509]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 8
-text = "Create"
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=350939739]
 oversampling_override = 1.0

@@ -4,13 +4,14 @@ using System.Collections.Generic;
 
 public partial class MeeplePanel : ComponentPanelDialogResult
 {
-	private const int GridSize = 8;
-	private const float CellSize = 15f;
+	private int _gridSize = 8;
+	private float _cellSize = 30f;
 	
 	private bool[,] _gridState;
 	private Panel[,] _gridCells;
 	private GridContainer _gridContainer;
-    private MarginContainer _matrixContainer;
+    private CenterContainer _matrixContainer;
+    private OptionButton _gridSizeOptionButton;
 	
 	private bool _isMouseDown = false;
 	private bool _isRightMouseDown = false;
@@ -42,9 +43,37 @@ public partial class MeeplePanel : ComponentPanelDialogResult
         _colorPicker.ColorChanged += ColorPickerOnColorChanged;
         _preview = GetNode<ComponentPreview>("%Preview");
 
+        _gridSizeOptionButton = GetNode<OptionButton>("%GridSize");
+        _gridSizeOptionButton.ItemSelected += GridSizeOptionButtonChanged;
+
         InitializeGrid();
 		CreateGridUI();
 	}
+
+    private void GridSizeOptionButtonChanged(long index)
+    {
+        switch (index)
+		{
+			case 0:
+                _gridSize = 8;
+				_cellSize = 30f;
+                break;
+			case 1:
+				// 8x8
+                _gridSize = 12;
+                _cellSize = 20f;
+                break;
+			case 2:
+				// 16x16
+				_gridSize = 16;
+				_cellSize = 15f;
+                break;
+		}
+
+		InitializeGrid();
+		CreateGridUI();
+         UpdatePreview();
+    }
 
     private void ColorPickerOnColorChanged(Color color)
     {
@@ -85,13 +114,13 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	
 	private void InitializeGrid()
 	{
-		_gridState = new bool[GridSize, GridSize];
-		_gridCells = new Panel[GridSize, GridSize];
+		_gridState = new bool[_gridSize, _gridSize];
+		_gridCells = new Panel[_gridSize, _gridSize];
 		
 		// Initialize all cells to off
-		for (int row = 0; row < GridSize; row++)
+		for (int row = 0; row < _gridSize; row++)
 		{
-			for (int col = 0; col < GridSize; col++)
+			for (int col = 0; col < _gridSize; col++)
 			{
 				_gridState[row, col] = false;
 			}
@@ -100,7 +129,12 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	
 	private void CreateGridUI()
     {
-        _matrixContainer = GetNode<MarginContainer>("%MatrixContainer");
+        _matrixContainer = GetNode<CenterContainer>("%MatrixContainer");
+
+        foreach (var c in _matrixContainer.GetChildren())
+        {
+			c.QueueFree();
+        }
 
 		// Create a centered container
 		//var centerContainer = new CenterContainer();
@@ -109,15 +143,15 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 		
 		// Create the grid container
 		_gridContainer = new GridContainer();
-		_gridContainer.Columns = GridSize;
+		_gridContainer.Columns = _gridSize;
 		_gridContainer.AddThemeConstantOverride("h_separation", 2);
 		_gridContainer.AddThemeConstantOverride("v_separation", 2);
         _matrixContainer.AddChild(_gridContainer);
 		
 		// Create grid cells
-		for (int row = 0; row < GridSize; row++)
+		for (int row = 0; row < _gridSize; row++)
 		{
-			for (int col = 0; col < GridSize; col++)
+			for (int col = 0; col < _gridSize; col++)
 			{
 				var cell = CreateGridCell(row, col);
 				_gridCells[row, col] = cell;
@@ -129,7 +163,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	private Panel CreateGridCell(int row, int col)
 	{
 		var panel = new Panel();
-		panel.CustomMinimumSize = new Vector2(CellSize, CellSize);
+		panel.CustomMinimumSize = new Vector2(_cellSize, _cellSize);
 		panel.MouseFilter = MouseFilterEnum.Pass;
 		
 		// Create StyleBox for the panel
@@ -241,7 +275,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	/// </summary>
 	public void SetCell(int row, int col, bool state)
 	{
-		if (row >= 0 && row < GridSize && col >= 0 && col < GridSize)
+		if (row >= 0 && row < _gridSize && col >= 0 && col < _gridSize)
 		{
 			_gridState[row, col] = state;
 			UpdateCellVisual(row, col);
@@ -253,15 +287,15 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	/// </summary>
 	public void SetGridState(bool[,] state)
 	{
-		if (state.GetLength(0) != GridSize || state.GetLength(1) != GridSize)
+		if (state.GetLength(0) != _gridSize || state.GetLength(1) != _gridSize)
 		{
-			GD.PrintErr($"Invalid grid state size. Expected {GridSize}x{GridSize}");
+			GD.PrintErr($"Invalid grid state size. Expected {_gridSize}x{_gridSize}");
 			return;
 		}
 		
-		for (int row = 0; row < GridSize; row++)
+		for (int row = 0; row < _gridSize; row++)
 		{
-			for (int col = 0; col < GridSize; col++)
+			for (int col = 0; col < _gridSize; col++)
 			{
 				_gridState[row, col] = state[row, col];
 				UpdateCellVisual(row, col);
@@ -274,9 +308,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	/// </summary>
 	public void ClearGrid()
 	{
-		for (int row = 0; row < GridSize; row++)
+		for (int row = 0; row < _gridSize; row++)
 		{
-			for (int col = 0; col < GridSize; col++)
+			for (int col = 0; col < _gridSize; col++)
 			{
 				_gridState[row, col] = false;
 				UpdateCellVisual(row, col);
@@ -289,9 +323,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	/// </summary>
 	public void FillGrid()
 	{
-		for (int row = 0; row < GridSize; row++)
+		for (int row = 0; row < _gridSize; row++)
 		{
-			for (int col = 0; col < GridSize; col++)
+			for (int col = 0; col < _gridSize; col++)
 			{
 				_gridState[row, col] = true;
 				UpdateCellVisual(row, col);
@@ -304,9 +338,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 	/// </summary>
 	public void InvertGrid()
 	{
-		for (int row = 0; row < GridSize; row++)
+		for (int row = 0; row < _gridSize; row++)
 		{
-			for (int col = 0; col < GridSize; col++)
+			for (int col = 0; col < _gridSize; col++)
 			{
 				_gridState[row, col] = !_gridState[row, col];
 				UpdateCellVisual(row, col);
@@ -340,9 +374,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
         //normalize the size
         var h = ParamToFloat(_heightInput.Text);
-        var w = ParamToFloat(_thicknessInput.Text);
+        var t = ParamToFloat(_thicknessInput.Text);
         
-        if (h == 0 || w == 0 )
+        if (h == 0 || t == 0 )
         {
             _preview.SetComponentVisibility(false);
             return;
@@ -355,7 +389,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
         d.Add("ComponentName", _nameInput.Text);
         d.Add("Height", 10f);
-        d.Add("Width", w * scale);
+        d.Add("Thickness", t * scale);
         d.Add("Color", _colorPicker.Color);
         d.Add("Grid", _gridState);
 
