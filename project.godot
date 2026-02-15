@@ -17,7 +17,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="Lizzie"
 run/main_scene="res://primary_scene.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
-config/icon="res://Lizzie 2.jpg"
+config/icon="uid://dtoajk1ds5abr"
 
 [autoload]
 
