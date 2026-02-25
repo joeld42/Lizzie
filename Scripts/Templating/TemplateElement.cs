@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Godot;
 
-namespace TTSS.Scripts.Templating;
+namespace Lizzie.Scripts.Templating;
 
 public class TemplateElement : ITemplateElement
 {
@@ -18,8 +18,6 @@ public class TemplateElement : ITemplateElement
         
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "X", Value = "{HalfWidth}"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Y", Value = "{HalfHeight}"});
-        Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.HorizontalAlignment, Name = "Hor Align", Value = "Center"});
-        Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.VerticalAlignment, Name = "Ver Align", Value = "Middle"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Width", Value = "{Width}"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Height", Value = "{Height}"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Rotation", Value = "0"});
@@ -54,8 +52,6 @@ public class TemplateElement : ITemplateElement
         to.Anchor = EvaluateAnchorParameter(_parameters, "Anchor", context);
         to.Height = EvaluateNumberParameter(_parameters, "Height", context);
         to.Width = EvaluateNumberParameter(_parameters, "Width", context);
-        to.HorizontalAlignment = EvaluateHorizontalAlignmentParameter(_parameters, "Hor Align", context);
-        to.VerticalAlignment = EvaluateHorizontaVerticalAlignment(_parameters, "Ver Align", context);
         to.RotationDegrees = EvaluateNumberParameter(_parameters, "Rotation", context);
     }
     
@@ -157,7 +153,17 @@ public class TemplateElement : ITemplateElement
         
         return TextureFactory.TextureObject.AnchorStringToEnum(ProcessKeywords(p.Value, context));
     }
-    
+
+    public TrackElement.TrackTypeEnum EvaluateTrackParameter(IList<TemplateParameter> parameters, string key,
+        TextureContext context)
+    {
+        var p = parameters.FirstOrDefault(x => x.Name == key);
+        if (p == null) return TrackElement.TrackTypeEnum.Horizontal;
+
+
+        return TextureFactory.TextureObject.TrackStringToEnum(ProcessKeywords(p.Value, context));
+    }
+
     private string ProcessKeywords(string parameterVal, TextureContext context)
     {
         var s = parameterVal.Replace("{Width}", context.ParentSize.X.ToString(),
@@ -215,7 +221,9 @@ public interface ITemplateElement
         Polygon,
         Table,
         Line,
-        Container
+        Container,
+        Frame,
+        Track
     }
 
     TemplateElementType ElementType { get; }
@@ -245,7 +253,8 @@ public class TemplateParameter
         Boolean,
         HorizontalAlignment,
         VerticalAlignment,
-        Image
+        Image,
+        TrackType
     }
 
     public TemplateParameterType Type { get; set; }

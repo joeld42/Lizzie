@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 
-namespace TTSS.Scripts.Templating;
-
+namespace Lizzie.Scripts.Templating;
 public class TextElement : TemplateElement
 {
     // Called when the node enters the scene tree for the first time.
@@ -12,6 +11,10 @@ public class TextElement : TemplateElement
         ElementType = ITemplateElement.TemplateElementType.Text;
 
         Parameters.Add(new TemplateParameter { Name = "Text", Value = "Lipsum Orem" });
+
+        Parameters.Add(new TemplateParameter() { Type = TemplateParameter.TemplateParameterType.HorizontalAlignment, Name = "Hor Align", Value = "Center" });
+        Parameters.Add(new TemplateParameter() { Type = TemplateParameter.TemplateParameterType.VerticalAlignment, Name = "Ver Align", Value = "Middle" });
+
         Parameters.Add(new TemplateParameter
         {
             Name = "Foreground",
@@ -43,7 +46,10 @@ public class TextElement : TemplateElement
         UpdateCoreParameterData(t, context);
         t.Text = EvaluateTextParameter(Parameters, "Text", context);
         t.ForegroundColor = EvaluateColorParameter(Parameters, "Foreground", context);
-        
+
+        t.HorizontalAlignment = EvaluateHorizontalAlignmentParameter(Parameters, "Hor Align", context);
+        t.VerticalAlignment = EvaluateHorizontaVerticalAlignment(Parameters, "Ver Align", context);
+
         var f = EvaluateNumberParameter(Parameters, "Font Size", context);
         t.FontSize = ScaleFontSize(f, context);
         
