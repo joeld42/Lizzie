@@ -26,6 +26,10 @@ Utility="*res://Scenes/Utility.tscn"
 UndoService="*res://Scripts/Undo/UndoService.cs"
 EventBus="*uid://dg3sv0bbkjbc2"
 
+[display]
+
+window/stretch/aspect="expand"
+
 [dotnet]
 
 project/assembly_name="Lizzie"

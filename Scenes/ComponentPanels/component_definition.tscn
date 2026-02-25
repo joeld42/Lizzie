@@ -8,9 +8,7 @@
 [ext_resource type="Resource" uid="uid://cvcpmheck0rjq" path="res://Scenes/ComponentPanels/DeckPanel.tres" id="6_07jbk"]
 [ext_resource type="Resource" uid="uid://bodj2sxcbs4l8" path="res://Scenes/ComponentPanels/DiePanel.tres" id="8_y2q7k"]
 [ext_resource type="Resource" uid="uid://crthu53rha88m" path="res://Scenes/ComponentPanels/MeshPanel.tres" id="9_u0tcw"]
-[ext_resource type="StyleBox" uid="uid://c67lytp8wdsgx" path="res://Themes/PanelBackgroundStylebox.tres" id="9_w3b7a"]
 [ext_resource type="Resource" uid="uid://bg7ps5kfql3ip" path="res://Scenes/ComponentPanels/MeeplePanel.tres" id="10_1hq20"]
-[ext_resource type="StyleBox" uid="uid://h7d22x1q85ky" path="res://Themes/GrayStyleBox.tres" id="11_wm4jy"]
 
 [sub_resource type="Theme" id="Theme_a3w6s"]
 
@@ -29,13 +27,14 @@ script = ExtResource("1_07jbk")
 _components = Array[Resource]([ExtResource("2_iaba6"), ExtResource("3_fr6ym"), ExtResource("4_m15dm"), ExtResource("8_y2q7k"), ExtResource("6_07jbk"), ExtResource("10_1hq20"), ExtResource("5_8eegm"), ExtResource("9_u0tcw")])
 
 [node name="Panel" type="Panel" parent="." unique_id=1842311903]
+clip_contents = true
 layout_mode = 2
-theme_override_styles/panel = ExtResource("9_w3b7a")
 
 [node name="VBox" type="VBoxContainer" parent="Panel" unique_id=852297741]
-layout_mode = 0
-offset_right = 1080.0
-offset_bottom = 576.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -68,7 +67,6 @@ theme_override_constants/margin_bottom = 12
 [node name="ComponentPanel" type="Panel" parent="Panel/VBox/HBoxContainer/MarginContainer2" unique_id=90345725]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/panel = ExtResource("11_wm4jy")
 
 [node name="DialogButtonMargins" type="MarginContainer" parent="Panel/VBox" unique_id=3104720]
 layout_mode = 2

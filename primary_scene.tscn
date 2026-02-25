@@ -92,6 +92,7 @@ item_2/text = "Save Project"
 item_2/id = 2
 
 [node name="Edit" type="PopupMenu" parent="UI/MenuBar" unique_id=1056068936]
+oversampling_override = 1.0
 title = "Edit"
 
 [node name="Insert" type="PopupMenu" parent="UI/MenuBar" unique_id=1536859569]

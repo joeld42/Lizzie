@@ -4,20 +4,18 @@ using System.Collections.Generic;
 
 public partial class VcBoard : VisualComponentBase
 {
-	private MeshInstance3D _backSurface;
-	private MeshInstance3D _frontSurface;
+	private MeshInstance3D _boardMesh;
 	private float _boardThickness = 0.2f; //2mm
+
+	private Dictionary<String, int> _surfaceForMaterial = new();
 
 	public override void _Ready()
 	{
 		base._Ready();
 		Visible = true;
 		ComponentType = VisualComponentType.Board;
-		_backSurface = GetNode<MeshInstance3D>("BackMesh");
-		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
-	
-	
-		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
+
+		_boardMesh = GetNode<MeshInstance3D>("BoardMesh");
 		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
 	}
 
@@ -71,10 +69,19 @@ public partial class VcBoard : VisualComponentBase
 
 	public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
-		_backSurface = GetNode<MeshInstance3D>("BackMesh");
-		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
-		MainMesh = _frontSurface;
-	
+		_boardMesh = GetNode<MeshInstance3D>("BoardMesh/Cube");
+		MainMesh = _boardMesh;
+
+		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
+
+		// Figure out which materials are used for the front and back. We could just
+		// hardcoded these but that is more likely to break if someone re-exports the model
+		for (int i=0; i < _boardMesh.Mesh.GetSurfaceCount(); i++)
+		{
+			var mtl = _boardMesh.Mesh.SurfaceGetMaterial( i );
+			_surfaceForMaterial[mtl.ResourceName] = i;
+		}
+
 		base.Build(parameters, textureFactory);
 
 		if (parameters.ContainsKey(nameof(Height)))
@@ -93,15 +100,17 @@ public partial class VcBoard : VisualComponentBase
 
 		FrontImage = parameters["FrontImage"].ToString();
 		BackImage = parameters["BackImage"].ToString();
-		
+
 		var tf = LoadTexture(FrontImage);
-		
+
 		var mat = new StandardMaterial3D();
 		mat.AlbedoTexture = tf;
-		_frontSurface.MaterialOverride = mat;
-		
+
+
+		_boardMesh.SetSurfaceOverrideMaterial( _surfaceForMaterial["M_Top"], mat );
+		_boardMesh.SetSurfaceOverrideMaterial( _surfaceForMaterial["M_Bottom"], mat );
+
 		var tb = LoadTexture(BackImage);
-		
 		var mat2 = new StandardMaterial3D();
 
 		if (!string.IsNullOrEmpty(BackImage))
@@ -112,18 +121,16 @@ public partial class VcBoard : VisualComponentBase
 		{
 			mat2.AlbedoColor = new Color(0, 0, 0);
 		}
-		
-		_backSurface.MaterialOverride = mat2;
 
 		YHeight = _boardThickness;
-		
+
 		Scale = new Vector3(Width, _boardThickness, Height);
-		
+
 		var r = new RectangleShape2D();
 		r.Size = new Vector2(Width, Height);
-		
+
 		ShapeProfiles.Add(r);
-		
+
 		return true;
 	}
 
