@@ -18,8 +18,6 @@ public class TemplateElement : ITemplateElement
         
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "X", Value = "{HalfWidth}"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Y", Value = "{HalfHeight}"});
-        Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.HorizontalAlignment, Name = "Hor Align", Value = "Center"});
-        Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.VerticalAlignment, Name = "Ver Align", Value = "Middle"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Width", Value = "{Width}"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Height", Value = "{Height}"});
         Parameters.Add(new TemplateParameter(){Type = TemplateParameter.TemplateParameterType.Number, Name = "Rotation", Value = "0"});
@@ -54,8 +52,6 @@ public class TemplateElement : ITemplateElement
         to.Anchor = EvaluateAnchorParameter(_parameters, "Anchor", context);
         to.Height = EvaluateNumberParameter(_parameters, "Height", context);
         to.Width = EvaluateNumberParameter(_parameters, "Width", context);
-        to.HorizontalAlignment = EvaluateHorizontalAlignmentParameter(_parameters, "Hor Align", context);
-        to.VerticalAlignment = EvaluateHorizontaVerticalAlignment(_parameters, "Ver Align", context);
         to.RotationDegrees = EvaluateNumberParameter(_parameters, "Rotation", context);
     }
     

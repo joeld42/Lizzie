@@ -292,7 +292,7 @@ public partial class TemplateCreator : MarginContainer
         _elementTree.ItemSelected += TreeItemSelected;
 
         _deleteElementButton = GetNode<Button>("%DeleteElement");
-        _deleteElementButton.Pressed += DeleteCurrentElement;
+        _deleteElementButton.Pressed += DeleteCurrentElementQuery;
 
         _renameElementButton = GetNode<Button>("%RenameElement");
         _renameElementButton.Pressed += RenameCurrentElement;
@@ -395,7 +395,7 @@ public partial class TemplateCreator : MarginContainer
 
     #region Element Tools
 
-    private void DeleteCurrentElement()
+    private void DeleteCurrentElementQuery()
     {
         if (_selectedElement == null) return;
         var ti = _elementTree.GetSelected();
@@ -403,9 +403,27 @@ public partial class TemplateCreator : MarginContainer
         if (ti.GetMetadata(0).AsInt32() != _selectedElement.Id) return;
 
         _acceptDialog.DialogText = $"Are you sure you want to delete element {_selectedElement.ElementName}?";
+        _acceptDialog.Confirmed += DeleteCurrentElement;
         _acceptDialog.Show();
+    }
 
-        //_elementTree.
+    
+
+    private void DeleteCurrentElement()
+    {
+        var ti = _elementTree.GetSelected();
+
+        _templateElements.Remove(_selectedElement);
+
+        var element = GetElementByTreeItem(ti);
+        var parent = ti.GetParent();
+        parent?.RemoveChild(ti);
+        ti.Free();
+
+        ClearParameterBox();
+
+        MapTreeToElements();
+        _updateRequired = true;
     }
 
     private void RenameCurrentElement()
